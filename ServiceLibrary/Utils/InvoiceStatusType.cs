@@ -1,9 +1,10 @@
 ﻿namespace ServiceLibrary.Utils
 {
-    public enum StatusType
+    public enum InvoiceStatusType
     {
         Cancelled,
         Returned,
-        Pending
+        Pending,
+        Paid,
     }
 }

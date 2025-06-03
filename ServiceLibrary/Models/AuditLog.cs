@@ -8,9 +8,9 @@ namespace ServiceLibrary.Models
         public int Id { get; set; }
         public User? Cashier { get; set; }
         public User? Manager { get; set; }
-        public required string EntityType { get; set; }
         public required string Action { get; set; }
-        public required DateTime CreatedAt { get; set; } = DateTime.Now;
         public required string Changes { get; set; }
+        public decimal? Amount { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
 }
