@@ -6,7 +6,7 @@ namespace ServiceLibrary.Models
     {
         [Key]
         public long Id { get; set; }
-        public required int Qty { get; set; }
+        public required decimal Qty { get; set; }
         public decimal? Price { get; set; }
         public decimal? SubTotal { get; set; }
         public required string Status { get; set; }

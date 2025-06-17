@@ -9,6 +9,4 @@
     {
         public const int PwdSc = 20;
     }
-
-
 }

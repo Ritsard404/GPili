@@ -18,6 +18,9 @@ namespace ServiceLibrary.Models
         public required string Address { get; set; } // address of the business.
         public required string VatTinNumber { get; set; } // VAT (Value Added Tax) TIN (Tax Identification Number) of the business.
 
+        public required string CostCenter { get; set; }
+        public required string BranchCenter { get; set; }
+
         public int ResetCounterNo { get; set; } = 0;
         public int ResetCounterTrainNo { get; set; } = 0;
         public int ZCounterNo { get; set; } = 0;

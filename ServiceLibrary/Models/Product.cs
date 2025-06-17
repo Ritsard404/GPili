@@ -8,7 +8,7 @@ namespace ServiceLibrary.Models
         public int Id { get; set; }
         public required string Name { get; set; }
         public required string Barcode { get; set; }
-        public int Quantity { get; set; }
+        public decimal Quantity { get; set; }
         public decimal Price { get; set; }
         public bool IsAvailable { get; set; } = true;
         public string? ImagePath { get; set; }

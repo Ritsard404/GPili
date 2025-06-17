@@ -1,10 +1,10 @@
 ﻿namespace ServiceLibrary.Utils
 {
-    public enum InvoiceStatusType
+    public static class InvoiceStatusType
     {
-        Cancelled,
-        Returned,
-        Pending,
-        Paid,
+        public const string Cancelled = "Cancelled";
+        public const string Returned = "Returned";
+        public const string Pending = "Pending";
+        public const string Paid = "Paid";
     }
 }

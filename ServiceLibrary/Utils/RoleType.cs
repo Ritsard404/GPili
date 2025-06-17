@@ -1,9 +1,9 @@
 ﻿namespace ServiceLibrary.Utils
 {
-    public enum RoleType
+    public static class RoleType
     {
-        Cashier,
-        Manager,
-        Developer
+        public const string Cashier = "Cashier";
+        public const string Manager = "Manager";
+        public const string Developer = "Developer";
     }
 }
