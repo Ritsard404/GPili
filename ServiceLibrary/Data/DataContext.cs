@@ -5,9 +5,15 @@ namespace ServiceLibrary.Data
 {
     public class DataContext : DbContext
     {
+        public DataContext()
+        {
+            
+        }
+
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
             // Remove EnsureCreated as we'll use migrations instead
+            Database.Migrate();
         }
 
         public DbSet<Product> Product { get; set; }
@@ -27,5 +33,8 @@ namespace ServiceLibrary.Data
             base.OnModelCreating(modelBuilder);
 
         }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder.UseSqlite();
     }
 }

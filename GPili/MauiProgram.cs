@@ -10,7 +10,7 @@ namespace GPili
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
-                .RegisterServices()
+                .ConfigureApplication()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");

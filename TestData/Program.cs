@@ -17,7 +17,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var dbInitializer = scope.ServiceProvider.GetRequiredService<IDatabaseInitializerService>();
-    await dbInitializer.InitializeDatabaseAsync();
+    await dbInitializer.InitializeAsync();
 }
 
 // Configure the HTTP request pipeline.

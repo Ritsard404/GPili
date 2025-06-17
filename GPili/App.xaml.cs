@@ -20,7 +20,7 @@ namespace GPili
                 if (dbInitializer != null)
                 {
                     // Run initialization synchronously since we're in the constructor
-                    dbInitializer.InitializeDatabaseAsync().GetAwaiter().GetResult();
+                    dbInitializer.InitializeAsync().GetAwaiter().GetResult();
                 }
                 else
                 {

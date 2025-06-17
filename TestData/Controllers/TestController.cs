@@ -60,5 +60,23 @@ namespace TestData.Controllers
                 });
             }
         }
+
+        [HttpGet("users")]
+        public async Task<IActionResult> GetUsers()
+        {
+            try
+            {
+                var products = await _context.User.ToListAsync();
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    Error = "Failed to fetch products",
+                    Message = ex.Message
+                });
+            }
+        }
     }
 } 
