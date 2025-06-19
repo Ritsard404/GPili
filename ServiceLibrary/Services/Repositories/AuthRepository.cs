@@ -45,6 +45,26 @@ namespace ServiceLibrary.Services.Repositories
             return (true, "Cash withdrawal recorded.");
         }
 
+        public async Task<User[]> GetCashiers()
+        {
+            var cashiers = await _dataContext.User
+                .Where(u => u.Role == RoleType.Cashier.ToString())
+                .OrderBy(u => u.FName)
+                .ThenBy(u => u.LName)
+                .ToListAsync();
+
+            cashiers.Insert(0, new User
+            {
+                Email = "",
+                FName = "",
+                LName = "",
+                Role = RoleType.Cashier.ToString(),
+                IsActive = true
+            });
+
+            return cashiers.ToArray();
+        }
+
         public async Task<(bool isSuccess, string cashierName, string cashierEmail, List<Item> pendingItems)> HasPendingOrder()
         {
             var pendingInvoice = await _dataContext.Invoice

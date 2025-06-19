@@ -1,4 +1,4 @@
-﻿using GPili.Extensions;
+﻿using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
 
 namespace GPili
@@ -13,12 +13,16 @@ namespace GPili
                 .ConfigureApplication()
                 .ConfigureFonts(fonts =>
                 {
-                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-                    fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-                });
+                    fonts.AddFont("Nunito-Regular.ttf", "NunitoRegular");
+                    fonts.AddFont("Nunito-Semibold.ttf", "NunitoSemibold");
+                    fonts.AddFont("Nunito-Bold.ttf", "NunitoBold");
+                    fonts.AddFont("Nunito-ExtraBold.ttf", "NunitoExtrabold");
+                    fonts.AddFont("Nunito-Black.ttf", "NunitoBlack");
+                })
+                .UseMauiCommunityToolkit();
 
 #if DEBUG
-    		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
 
             return builder.Build();

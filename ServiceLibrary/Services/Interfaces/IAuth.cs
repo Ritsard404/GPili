@@ -14,5 +14,7 @@ namespace ServiceLibrary.Services.Interfaces
         Task<(bool isSuccess, string message)> CashWithdrawDrawer(string cashierEmail, string managerEmail, decimal cash);
         Task<bool> IsCashedDrawer(string cashierEmail);
 
+        Task<User[]> GetCashiers();
+
     }
 }

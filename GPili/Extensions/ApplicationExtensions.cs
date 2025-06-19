@@ -1,5 +1,6 @@
 
 
+using GPili.Presentation.Features.Cashiering;
 using GPili.Presentation.Features.LogIn;
 using GPili.Presentation.Features.Manager;
 using ServiceLibrary.Extension;
@@ -15,13 +16,6 @@ internal static class ApplicationExtensions
             .AddService()
             .RegisterViews()
             .AddDatabase();
-
-        // Add any other application-level configurations here
-        // For example:
-        // - Configure AutoMapper
-        // - Configure HttpClient
-        // - Configure Authentication
-        // - Configure App Settings
 
         return builder;
     }
@@ -42,7 +36,7 @@ internal static class ApplicationExtensions
         // Add your other services here following the pattern:
         // services.AddScoped<IYourService, YourService>();
         // services.AddSingleton<IYourSingletonService, YourSingletonService>();
-         services.AddSingleton<INavigationService, NavigationService>();
+        services.AddSingleton<INavigationService, NavigationService>();
 
         return services;
     }
@@ -50,10 +44,19 @@ internal static class ApplicationExtensions
     public static IServiceCollection RegisterViews(this IServiceCollection services)
     {
         // Register your views here
-         services.AddSingleton<AppShell>();
-         services.AddTransient<MainPage>();
-         services.AddTransient<LogInPage>();
-         services.AddTransient<ManagerPage>();
+        services.AddSingleton<AppShell>();
+
+        services.AddViewModel<LogInViewModel, LogInPage>();
+        services.AddViewModel<CashieringViewModel, CashieringPage>();
+        services.AddViewModel<ManagerViewModel, ManagerPage>();
         return services;
     }
-} 
+
+    private static void AddViewModel<TViewModel, TView>(this IServiceCollection services)
+        where TView : ContentPage, new()
+        where TViewModel : class
+    {
+        services.AddTransient<TViewModel>();
+        services.AddTransient<TView>(s => new TView() { BindingContext = s.GetRequiredService<TViewModel>() });
+    }
+}

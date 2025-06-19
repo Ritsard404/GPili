@@ -3,10 +3,66 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="GPili.Presentation.Features.LogIn.LogInPage"
              Title="LogInPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+    <Grid RowDefinitions="*">
+        <Border
+            BackgroundColor="{DynamicResource Primary}"
+            StrokeShape="RoundRectangle 20"
+            StrokeThickness="0"
+            Margin="20"
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            WidthRequest="400">
+
+            <VerticalStackLayout Spacing="20" Padding="20">
+                <Image Source="user.png"
+                   WidthRequest="100"
+                   HeightRequest="100"
+                   HorizontalOptions="Center"
+                   Aspect="AspectFit" />
+                <Label 
+                    Text="Welcome to GPili!"
+                    FontSize="32"
+                    HorizontalOptions="Center" />
+
+                <VerticalStackLayout Spacing="4" WidthRequest="300">
+                    <Label 
+                    Text="Select Cashier"
+                    FontAttributes="Bold"
+                    FontSize="14"/>
+
+                    <Picker
+                        FontAttributes="Bold"
+                        WidthRequest="300"
+                        ItemsSource="{Binding Cashiers}"
+                        ItemDisplayBinding="{Binding FullName}"
+                        SelectedItem="{Binding SelectedCashier}"/>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="4" WidthRequest="300">
+                    <Label 
+                    Text="Admin Authorize"
+                    FontAttributes="Bold"
+                    FontSize="14"/>
+
+                    <Entry
+                    Placeholder="Admin"
+                    IsPassword="True"
+                    Text="{Binding AdminEmail}"
+                    HorizontalOptions="FillAndExpand"
+                    Completed="AdminAuth_Completed"/>
+                </VerticalStackLayout>
+
+                <Button
+                    Text="Log In"
+                    BackgroundColor="{DynamicResource Secondary}"
+                    TextColor="{DynamicResource OnSecondary}"
+                    HorizontalOptions="FillAndExpand"
+                    Command="{Binding LogInCommand}"
+                    FontSize="Subtitle"
+                    FontFamily="NunitoSemibold"/>
+
+            </VerticalStackLayout>
+
+        </Border>
+    </Grid>
 </ContentPage>

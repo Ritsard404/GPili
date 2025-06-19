@@ -2,42 +2,21 @@
 {
     public partial class App : Application
     {
-        public App(AppShell appShell)
+        private readonly IDatabaseInitializerService _databaseInitializer;
+        public App(AppShell appShell, IDatabaseInitializerService databaseInitializer)
         {
             InitializeComponent();
+
             MainPage = appShell;
-            InitializeDatabase();
+            _databaseInitializer = databaseInitializer;
+
         }
 
-        private void InitializeDatabase()
+        protected override async void OnStart()
         {
-            try
-            {
-                var dbInitializer = IPlatformApplication.Current.Services.GetService<IDatabaseInitializerService>();
-                if (dbInitializer != null)
-                {
-                    // Run initialization synchronously since we're in the constructor
-                    dbInitializer.InitializeAsync().GetAwaiter().GetResult();
-                }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine("Database initializer service not found");
-                }
-            }
-            catch (Exception ex)
-            {
-                // Log the error for debugging
-                System.Diagnostics.Debug.WriteLine($"Database initialization failed: {ex}");
-                
-                // Show error on the main thread
-                MainThread.BeginInvokeOnMainThread(async () =>
-                {
-                    await Current.MainPage.DisplayAlert(
-                        "Database Error",
-                        "There was an error initializing the database. The app may not function correctly.",
-                        "OK");
-                });
-            }
+            // Handle when your app starts
+            base.OnStart();
+            await _databaseInitializer.InitializeAsync();
         }
-    }
+}
 }
