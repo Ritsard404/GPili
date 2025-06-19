@@ -45,11 +45,11 @@ namespace ServiceLibrary.Services.Repositories
             return (true, "Cash withdrawal recorded.");
         }
 
-        public async Task<(bool isSuccess, string cashierName, string cashierEmail)> HasPendingOrder()
+        public async Task<(bool isSuccess, string cashierName, string cashierEmail, List<Item> pendingItems)> HasPendingOrder()
         {
             var pendingInvoice = await _dataContext.Invoice
                 .Include(i => i.Cashier)
-                .Where(i => i.Status == InvoiceStatusType.Pending.ToString())
+                .Where(i => i.Status == InvoiceStatusType.Pending)
                 .Select(i => new { i.Cashier.FName, i.Cashier.LName, i.Cashier.Email })
                 .FirstOrDefaultAsync();
 
@@ -59,13 +59,17 @@ namespace ServiceLibrary.Services.Repositories
                 .Select(t => new { t.Cashier.FName, t.Cashier.LName, t.Cashier.Email })
                 .FirstOrDefaultAsync();
 
+            var pendingItems = await _dataContext.Item
+                .Where(i => i.Invoice.Status == InvoiceStatusType.Pending)
+                .ToListAsync();
+
             if (pendingInvoice != null)
-                return (true, $"{pendingInvoice.FName} {pendingInvoice.LName}", pendingInvoice.Email);
+                return (true, $"{pendingInvoice.FName} {pendingInvoice.LName}", pendingInvoice.Email, pendingItems);
 
             if (activeTimestamp != null)
-                return (true, $"{activeTimestamp.FName} {activeTimestamp.LName}", activeTimestamp.Email);
+                return (true, $"{activeTimestamp.FName} {activeTimestamp.LName}", activeTimestamp.Email, new List<Item>());
 
-            return (false, "", "");
+            return (false, "", "", new List<Item>());
         }
 
         public async Task<bool> IsCashedDrawer(string cashierEmail)

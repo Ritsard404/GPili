@@ -1,8 +1,8 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Maui.Hosting;
-using ServiceLibrary.Data;
-using ServiceLibrary.Services;
+
+
+using GPili.Presentation.Features.LogIn;
+using GPili.Presentation.Features.Manager;
+using ServiceLibrary.Extension;
 
 namespace GPili.Extensions;
 
@@ -12,6 +12,8 @@ internal static class ApplicationExtensions
     {
         builder.Services
             .AddApplicationServices()
+            .AddService()
+            .RegisterViews()
             .AddDatabase();
 
         // Add any other application-level configurations here
@@ -36,14 +38,22 @@ internal static class ApplicationExtensions
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
         // Database Services - using scoped to match DataContext lifetime
-        services.AddScoped<IDatabaseInitializerService, DatabaseInitializerService>();
-        services.AddScoped<DataSeedingService>();
 
         // Add your other services here following the pattern:
         // services.AddScoped<IYourService, YourService>();
         // services.AddSingleton<IYourSingletonService, YourSingletonService>();
-        // services.AddTransient<IYourTransientService, YourTransientService>();
+         services.AddSingleton<INavigationService, NavigationService>();
 
+        return services;
+    }
+
+    public static IServiceCollection RegisterViews(this IServiceCollection services)
+    {
+        // Register your views here
+         services.AddSingleton<AppShell>();
+         services.AddTransient<MainPage>();
+         services.AddTransient<LogInPage>();
+         services.AddTransient<ManagerPage>();
         return services;
     }
 } 

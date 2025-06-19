@@ -1,14 +1,11 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using ServiceLibrary.Services;
-
-namespace GPili
+﻿namespace GPili
 {
     public partial class App : Application
     {
-        public App()
+        public App(AppShell appShell)
         {
             InitializeComponent();
-            MainPage = new AppShell();
+            MainPage = appShell;
             InitializeDatabase();
         }
 

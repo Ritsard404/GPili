@@ -3,13 +3,24 @@
     x:Class="GPili.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:GPili"
+    xmlns:logIn="clr-namespace:GPili.Presentation.Features.LogIn"
+    xmlns:cashiering="clr-namespace:GPili.Presentation.Features.Cashiering"
+    xmlns:manager="clr-namespace:GPili.Presentation.Features.Manager"
     Shell.FlyoutBehavior="Disabled"
+    Shell.NavBarIsVisible="False"
+    Shell.TabBarIsVisible="False"
     Title="GPili">
+    
+    <ShellContent
+        ContentTemplate="{DataTemplate logIn:LogInPage}"
+        Route="loginPage" />
 
     <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+        ContentTemplate="{DataTemplate cashiering:CashieringPage}"
+        Route="cashieringPage" />
+
+    <ShellContent
+        ContentTemplate="{DataTemplate manager:ManagerPage}"
+        Route="managerPage" />
 
 </Shell>

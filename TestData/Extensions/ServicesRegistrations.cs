@@ -1,8 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using ServiceLibrary.Data;
-using ServiceLibrary.Services;
 
 namespace TestData.Extensions
 {
@@ -25,10 +22,6 @@ namespace TestData.Extensions
 
                 options.UseSqlite($"Data Source={dbPath}");
             });
-
-            // Register services with scoped lifetime to match DataContext
-            services.AddScoped<IDatabaseInitializerService, DatabaseInitializerService>();
-            services.AddScoped<DataSeedingService>();
 
             return services;
         }
