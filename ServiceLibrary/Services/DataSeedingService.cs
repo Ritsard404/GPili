@@ -60,6 +60,7 @@ namespace ServiceLibrary.Services
                 PtuNumber = "PTU456789123",
                 DateIssued = DateTime.Now,
                 ValidUntil = DateTime.Now.AddYears(5),
+                PosName = "1",
                 RegisteredName = "GPili Store",
                 OperatedBy = "GPili Corporation",
                 Address = "123 Main Street, City, Province",

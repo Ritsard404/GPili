@@ -78,6 +78,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="Presentation\Contents\FooterView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Presentation\Contents\UserFooterView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Presentation\Features\Cashiering\CashieringPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

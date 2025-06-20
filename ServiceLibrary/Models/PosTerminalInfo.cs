@@ -13,6 +13,7 @@ namespace ServiceLibrary.Models
         public required DateTime ValidUntil { get; set; } // date until the machine is valid.
 
         // Business details
+        public required string PosName { get; set; } // registered name of the business.
         public required string RegisteredName { get; set; } // registered name of the business.
         public required string OperatedBy { get; set; }
         public required string Address { get; set; } // address of the business.

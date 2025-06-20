@@ -1,2 +1,6 @@
 BoxIcon
 FlatIcon
+
+PM:cd ServiceLibrary
+
+dotnet ef migrations add GPili
