@@ -3,6 +3,7 @@ using ServiceLibrary.Data;
 using ServiceLibrary.Models;
 using ServiceLibrary.Services.Interfaces;
 using ServiceLibrary.Utils;
+using System.Diagnostics;
 
 namespace ServiceLibrary.Services.Repositories
 {
@@ -135,45 +136,56 @@ namespace ServiceLibrary.Services.Repositories
             var manager = users.FirstOrDefault(u => u.Email == managerEmail && u.Role != RoleType.Cashier.ToString());
             var cashier = users.FirstOrDefault(u => u.Email == cashierEmail && u.Role == RoleType.Cashier.ToString());
 
-            // If neither found, fail
             if (manager == null && cashier == null)
                 return (false, string.Empty, string.Empty, string.Empty, "Invalid credentials. Please try again.");
 
-            // If manager found and no cashier, manager login
             if (manager != null && cashier == null)
             {
-                await _auditLog.AddManagerAudit(manager, AuditActionType.Login.ToString(), "Manager logged in", null);
-                return (true, RoleType.Manager.ToString(), manager.Email, $"{manager.FName} {manager.LName}", "Manager logged in successfully.");
+                await _auditLog.AddManagerAudit(manager, AuditActionType.Login, "Manager logged in", null);
+                return (true, RoleType.Manager, manager.Email, $"{manager.FName} {manager.LName}", "Manager logged in successfully.");
             }
 
-            // If cashier found and manager found, cashier login (requires both)
             if (cashier != null && manager != null)
             {
-                // Check if there are available products
                 var hasProducts = await _dataContext.Product.AnyAsync(p => p.IsAvailable);
                 if (!hasProducts)
                     return (false, string.Empty, string.Empty, string.Empty, "No products available. Please add products to continue.");
 
-                await _auditLog.AddCashierAudit(cashier, AuditActionType.Login.ToString(), "Cashier logged in", null);
+                await using var transaction = await _dataContext.Database.BeginTransactionAsync();
 
-                var timestamp = new Timestamp
+                try
                 {
-                    TsIn = DateTime.UtcNow,
-                    Cashier = cashier,
-                    ManagerIn = manager,
-                    IsTrainMode = await _terminalMachine.IsTrainMode(),
-                };
-                _dataContext.Timestamp.Add(timestamp);
+                    await _auditLog.AddCashierAudit(cashier, AuditActionType.Login, "Cashier logged in", null);
 
-                await _auditLog.AddManagerAudit(manager, AuditActionType.Approve.ToString(), "Manager approved cashier logged in", null);
-                await _auditLog.AddCashierAudit(cashier, AuditActionType.Approve.ToString(), "Manager approved cashier logged in", null);
+                    var timestamp = new Timestamp
+                    {
+                        TsIn = DateTime.UtcNow,
+                        Cashier = cashier,
+                        ManagerIn = manager,
+                        IsTrainMode = await _terminalMachine.IsTrainMode(),
+                    };
 
-                return (true, RoleType.Cashier.ToString(), cashier.Email, $"{cashier.FName} {cashier.LName}", "Cashier logged in successfully.");
+                    _dataContext.Timestamp.Add(timestamp);
+
+                    await _auditLog.AddManagerAudit(manager, AuditActionType.Approve.ToString(), "Manager approved cashier logged in", null);
+                    await _auditLog.AddCashierAudit(cashier, AuditActionType.Approve.ToString(), "Manager approved cashier logged in", null);
+
+                    await _dataContext.SaveChangesAsync();
+                    await transaction.CommitAsync();
+
+                    return (true, RoleType.Cashier.ToString(), cashier.Email, $"{cashier.FName} {cashier.LName}", "Cashier logged in successfully.");
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    Debug.WriteLine(ex);
+                    return (false, string.Empty, string.Empty, string.Empty, $"An error occurred during login. Please try again.\n{ex}");
+                }
             }
 
-            // If cashier found but manager not found, invalid
             return (false, string.Empty, string.Empty, string.Empty, "Invalid credential!");
         }
+
 
 
         public async Task<(bool isSuccess, string message)> LogOut(string managerEmail, string cashierEmail, decimal cash)

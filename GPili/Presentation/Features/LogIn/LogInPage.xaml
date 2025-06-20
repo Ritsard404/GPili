@@ -26,9 +26,9 @@
 
                 <VerticalStackLayout Spacing="4" WidthRequest="300">
                     <Label 
-                    Text="Select Cashier"
-                    FontAttributes="Bold"
-                    FontSize="14"/>
+                        Text="Select Cashier"
+                        FontAttributes="Bold"
+                        FontSize="14"/>
 
                     <Picker
                         FontAttributes="Bold"
@@ -40,16 +40,17 @@
 
                 <VerticalStackLayout Spacing="4" WidthRequest="300">
                     <Label 
-                    Text="Admin Authorize"
-                    FontAttributes="Bold"
-                    FontSize="14"/>
+                        Text="Admin Authorize"
+                        FontAttributes="Bold"
+                        FontSize="14"/>
 
                     <Entry
-                    Placeholder="Admin"
-                    IsPassword="True"
-                    Text="{Binding AdminEmail}"
-                    HorizontalOptions="FillAndExpand"
-                    Completed="AdminAuth_Completed"/>
+                        x:Name="AdminAuth"
+                        Placeholder="Admin"
+                        IsPassword="True"
+                        Text="{Binding AdminEmail}"
+                        HorizontalOptions="FillAndExpand"
+                        Completed="AdminAuth_Completed"/>
                 </VerticalStackLayout>
 
                 <Button
@@ -64,5 +65,6 @@
             </VerticalStackLayout>
 
         </Border>
+
     </Grid>
 </ContentPage>

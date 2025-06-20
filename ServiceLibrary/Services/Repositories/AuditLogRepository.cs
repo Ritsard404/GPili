@@ -29,7 +29,7 @@ namespace ServiceLibrary.Services.Repositories
         {
             _dataContext.AuditLog.Add(new AuditLog
             {
-                Manager= manager,
+                Manager = manager,
                 Action = action,
                 Changes = changes,
                 Amount = amount,

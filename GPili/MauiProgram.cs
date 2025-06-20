@@ -1,6 +1,12 @@
 ﻿using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
 
+#if WINDOWS
+using Microsoft.Maui.LifecycleEvents;
+using Microsoft.UI;
+using Microsoft.UI.Windowing;
+#endif
+
 namespace GPili
 {
     public static class MauiProgram
@@ -21,11 +27,47 @@ namespace GPili
                 })
                 .UseMauiCommunityToolkit();
 
+
+#if WINDOWS
+                    //maximized window on startup in Windows platform
+                    builder.ConfigureLifecycleEvents(events =>
+                    {
+                        events.AddWindows(wndLifeCycleBuilder =>
+                        {
+                            wndLifeCycleBuilder.OnWindowCreated(window =>
+                            {
+                                IntPtr nativeWindowHandle = WinRT.Interop.WindowNative.GetWindowHandle(window);
+                                Microsoft.UI.WindowId win32WindowsId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(nativeWindowHandle);
+                                Microsoft.UI.Windowing.AppWindow winuiAppWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(win32WindowsId);
+                                if (winuiAppWindow.Presenter is Microsoft.UI.Windowing.OverlappedPresenter p)
+                                {
+                                    //maximize window
+                                    p.Maximize();
+                                    //disable resizing
+                                    p.IsResizable = false;
+                                    p.IsMaximizable = false;
+                                    p.IsMinimizable = false;
+                                }
+                            });
+                        });
+                    });
+#endif
+
 #if DEBUG
             builder.Logging.AddDebug();
 #endif
 
-            return builder.Build();
+            // Build the app first
+            var app = builder.Build();
+
+            // Now safely resolve the database initializer
+            using (var scope = app.Services.CreateScope())
+            {
+                var dbInitializer = scope.ServiceProvider.GetRequiredService<IDatabaseInitializerService>();
+                dbInitializer.InitializeAsync().GetAwaiter().GetResult();
+            }
+
+            return app;
         }
     }
 }

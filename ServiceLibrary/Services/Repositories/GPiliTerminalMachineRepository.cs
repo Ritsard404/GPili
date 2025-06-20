@@ -1,9 +1,11 @@
-﻿using ServiceLibrary.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using ServiceLibrary.Data;
+using ServiceLibrary.Models;
 using ServiceLibrary.Services.Interfaces;
 
 namespace ServiceLibrary.Services.Repositories
 {
-    public class GPiliTerminalMachineRepository : IGPiliTerminalMachine
+    public class GPiliTerminalMachineRepository(DataContext _dataContext) : IGPiliTerminalMachine
     {
         public Task<bool> ChangeMode(string managerEmail)
         {
@@ -25,9 +27,9 @@ namespace ServiceLibrary.Services.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<bool> IsTrainMode()
+        public async Task<bool> IsTrainMode()
         {
-            throw new NotImplementedException();
+            return await _dataContext.PosTerminalInfo.Select(t => t.IsTrainMode).FirstOrDefaultAsync();
         }
 
         public Task<(bool IsValid, string Message)> ValidateTerminalExpiration()

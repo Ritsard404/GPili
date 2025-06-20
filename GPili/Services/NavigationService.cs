@@ -49,7 +49,8 @@ namespace GPili.Services
             await NavigateToAsync(AppRoutes.Login);
         }
 
-        public Task NavigateToAsync(string route, IDictionary<string, object> routeParameters = null)
+        public Task NavigateToAsync(string route, IDictionary<string, object> routeParameters = 
+            null)
         {
             return
                 routeParameters != null

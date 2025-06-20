@@ -16,6 +16,8 @@ public partial class LogInPage : ContentPage
             await vm.InitializeAsync();
         }
 
+        AdminAuth.Focus();
+
     }
     private async void AdminAuth_Completed(object sender, EventArgs e)
     {

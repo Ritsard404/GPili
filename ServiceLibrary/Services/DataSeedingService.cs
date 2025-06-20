@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using ServiceLibrary.Data;
 using ServiceLibrary.Models;
 using ServiceLibrary.Utils;
+using System.Diagnostics;
 
 namespace ServiceLibrary.Services
 {
@@ -16,11 +17,21 @@ namespace ServiceLibrary.Services
 
         public async Task SeedDataAsync()
         {
-            await SeedUsersAsync();
-            await SeedPosTerminalInfoAsync();
-            await SeedCategoriesAsync();
-            await SeedProductsAsync();
-            await _context.SaveChangesAsync();
+            try
+            {
+                await SeedUsersAsync();
+                await SeedPosTerminalInfoAsync();
+                await SeedCategoriesAsync();
+                await SeedProductsAsync();
+            }
+            catch(Exception ex)
+            {
+                Debug.WriteLine(ex);
+            }
+            finally
+            {
+                await _context.SaveChangesAsync();
+            }
         }
 
         private async Task SeedUsersAsync()
