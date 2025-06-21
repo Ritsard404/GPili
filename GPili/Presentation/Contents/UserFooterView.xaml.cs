@@ -11,13 +11,23 @@ public partial class UserFooterView : ContentView, IDisposable
 		
 		SysVer.Text = "System Version " + DeviceInfo.Current.Version.ToString();
 		Shift.Text = "Shift: " + DeviceInfo.Current.Platform.ToString();
-		User.Text = "User: " + CashierState.CashierName ?? "Unknown User";
-		PosName.Text = "POS: " + CashierState.CashierEmail ?? "Unknown POS";
+        User.Text = ("User: " + CashierState.CashierName) ?? "Unknown User";
+        PosName.Text = "POS1";
 
 		_timer = new PeriodicTimer(TimeSpan.FromSeconds(1));
 		UpdateDate();
     }
-	private async void UpdateDate()
+    protected override void OnParentSet()
+    {
+        base.OnParentSet();
+
+        if (Parent == null)
+        {
+            Dispose();
+        }
+    }
+
+    private async void UpdateDate()
 	{
 		while (await _timer.WaitForNextTickAsync())
 		{
@@ -27,5 +37,5 @@ public partial class UserFooterView : ContentView, IDisposable
 		}
 	}
 
-    public async void Dispose() => _timer?.Dispose();
+    public void Dispose() => _timer?.Dispose();
 }

@@ -9,6 +9,7 @@ namespace GPili.Services
         Task InitializeAsync();
         Task NavigateToAsync(string route, IDictionary<string, object> routeParameters = null);
         Task GoBack();
+        Task GoToManager();
         Task Logout();
     }
     public class NavigationService(IAuth _auth) : INavigationService
@@ -16,6 +17,11 @@ namespace GPili.Services
         public async Task GoBack()
         {
             await Shell.Current.GoToAsync("..");
+        }
+
+        public async Task GoToManager()
+        {
+            await NavigateToAsync(AppRoutes.Manager);
         }
 
         public async Task InitializeAsync()

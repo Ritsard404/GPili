@@ -2,11 +2,69 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="GPili.Presentation.Features.Manager.ManagerPage"
+             xmlns:footer="clr-namespace:GPili.Presentation.Contents"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              Title="ManagerPage">
-    <VerticalStackLayout>
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Style x:Key="ButtonStyle" TargetType="Button">
+                <Setter Property="BorderColor" Value="black" />
+                <Setter Property="BorderWidth" Value="1" />
+                <Setter Property="BackgroundColor" Value="Aqua" />
+                <Setter Property="TextColor" Value="{StaticResource Gray900}" />
+                <Setter Property="CornerRadius" Value="15" />
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup Name="CommonStates">
+                            <VisualState Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="Aquamarine" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState Name="PointerOver">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="White" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="Aqua" />
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    
+    <Grid RowDefinitions="Auto, *, Auto">
+        <Grid Margin="10" Grid.Row="0" HeightRequest="50">
+            <Grid ColumnDefinitions="Auto, *, Auto">
+                <ImageButton Source="back.png"
+                             Padding="0,0,0,10"
+                             BackgroundColor="Transparent"
+                             WidthRequest="30"
+                             HeightRequest="30"
+                             Command="{Binding LogOutCommand}"/>
+                
+                <Label Grid.Column="2" VerticalOptions="Center" Text="Hello, bottom border!" />
+            </Grid>
+
+            <BoxView BackgroundColor="Aqua"
+             HeightRequest="2"
+             VerticalOptions="End"
+             HorizontalOptions="Fill" />
+        </Grid>
+
         <Label 
-            Text="Welcome to .NET MAUI!"
+            Grid.Row="1"
+            Text="Manager"
             VerticalOptions="Center" 
             HorizontalOptions="Center" />
-    </VerticalStackLayout>
+        
+        <Grid Grid.Row="2">
+            <footer:UserFooterView />
+        </Grid>
+    </Grid>
 </ContentPage>

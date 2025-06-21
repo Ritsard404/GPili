@@ -9,7 +9,7 @@ namespace GPili.Presentation.Features.LogIn
     {
         private readonly IAuth _auth;
         private readonly ILoaderService _loaderService;
-
+        private readonly INavigationService _navigationService;
         [ObservableProperty]
         private string _adminEmail;
 
@@ -19,16 +19,11 @@ namespace GPili.Presentation.Features.LogIn
         [ObservableProperty]
         private User[] _cashiers = [];
 
-        [ObservableProperty]
-        private bool _isLoading = false;
-
-        [ObservableProperty]
-        private string _loadingMessage;
-
-        public LogInViewModel(IAuth auth, ILoaderService loaderService)
+        public LogInViewModel(IAuth auth, ILoaderService loaderService, INavigationService navigationService)
         {
             _auth = auth;
             _loaderService = loaderService;
+            _navigationService = navigationService;
         }
 
         public async ValueTask InitializeAsync()
@@ -42,7 +37,6 @@ namespace GPili.Presentation.Features.LogIn
         public async Task LogIn()
         {
             await _loaderService.ShowAsync("Logging in...", true);
-            IsLoading = true;
 
             try
             {
@@ -57,17 +51,17 @@ namespace GPili.Presentation.Features.LogIn
                 switch (role)
                 {
                     case RoleType.Manager:
-                        await Shell.Current.DisplayAlert("Log In", $"Manager {SelectedCashier?.Email} \n Admin {AdminEmail}", "OK");
-                        // await Shell.Current.GoToAsync("//MainPage");
+                        await _navigationService.GoToManager();
                         return;
 
                     case RoleType.Cashier:
-                        await Shell.Current.DisplayAlert("Log In", $"Cashier {SelectedCashier?.Email} \n Admin {AdminEmail}", "OK");
-                        // await Shell.Current.GoToAsync("//CashierPage");
+                        await _navigationService.NavigateToAsync(AppRoutes.Cashiering);
                         return;
 
                     default:
                         await Shell.Current.DisplayAlert("Log In", message, "OK");
+                        AdminEmail = string.Empty;
+                        SelectedCashier = Cashiers[0];
                         return;
                 }
             }
@@ -78,8 +72,9 @@ namespace GPili.Presentation.Features.LogIn
             }
             finally
             {
-                IsLoading = false;
                 await _loaderService.ShowAsync("", false); // Ensure cleanup
+                AdminEmail = string.Empty;
+                SelectedCashier = Cashiers[0];
             }
         }
     }

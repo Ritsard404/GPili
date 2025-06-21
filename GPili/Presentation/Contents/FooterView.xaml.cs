@@ -17,6 +17,15 @@ public partial class FooterView : ContentView, IDisposable
         UpdateDate();
 
     }
+    protected override void OnParentSet()
+    {
+        base.OnParentSet();
+
+        if (Parent == null)
+        {
+            Dispose();
+        }
+    }
     private async void UpdateDate()
     {
         while (await _timer.WaitForNextTickAsync())

@@ -76,7 +76,8 @@ namespace ServiceLibrary.Services.Repositories
 
             var activeTimestamp = await _dataContext.Timestamp
                 .Include(t => t.Cashier)
-                .Where(t => t.TsOut == null && t.CashInDrawerAmount != null && t.CashInDrawerAmount >= 1000)
+                .Where(t => t.TsOut == null)
+                //.Where(t => t.TsOut == null && t.CashInDrawerAmount != null && t.CashInDrawerAmount >= 1000)
                 .Select(t => new { t.Cashier.FName, t.Cashier.LName, t.Cashier.Email })
                 .FirstOrDefaultAsync();
 

@@ -4,6 +4,52 @@
              x:Class="GPili.Presentation.Features.LogIn.LogInPage"
              xmlns:footer="clr-namespace:GPili.Presentation.Contents"
              Title="LogInPage">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+
+            <!-- Optional: define a darker version of your Secondary color -->
+            <Color x:Key="SecondaryDarker">#005A8D</Color>
+            <Color x:Key="OnSecondary">Black</Color>
+            
+            <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+                <Setter Property="CornerRadius" Value="12" />
+                <Setter Property="FontFamily" Value="NunitoSemibold" />
+                <Setter Property="FontSize" Value="Subtitle" />
+                <Setter Property="HorizontalOptions" Value="FillAndExpand" />
+                <Setter Property="BackgroundColor" Value="{DynamicResource Secondary}" />
+                <Setter Property="TextColor" Value="{DynamicResource OnSecondary}" />
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup Name="CommonStates">
+                            <VisualState Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="{DynamicResource Secondary}" />
+                                    <Setter Property="TextColor" Value="{DynamicResource OnSecondary}" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState Name="PointerOver">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="{DynamicResource Secondary}" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="{StaticResource SecondaryDarker}" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState Name="Disabled">
+                                <VisualState.Setters>
+                                    <Setter Property="Opacity" Value="0.5" />
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
     <Grid RowDefinitions="*, Auto">
         <Border
             BackgroundColor="{DynamicResource Primary}"
@@ -54,15 +100,11 @@
                         HorizontalOptions="FillAndExpand"
                         Completed="AdminAuth_Completed"/>
                 </VerticalStackLayout>
-
+                
                 <Button
                     Text="Log In"
-                    BackgroundColor="{DynamicResource Secondary}"
-                    TextColor="{DynamicResource OnSecondary}"
-                    HorizontalOptions="FillAndExpand"
-                    Command="{Binding LogInCommand}"
-                    FontSize="Subtitle"
-                    FontFamily="NunitoSemibold"/>
+                    Style="{StaticResource PrimaryButtonStyle}"
+                    Command="{Binding LogInCommand}" />     
 
             </VerticalStackLayout>
 
