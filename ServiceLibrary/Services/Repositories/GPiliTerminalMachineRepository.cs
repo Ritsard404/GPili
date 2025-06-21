@@ -5,26 +5,62 @@ using ServiceLibrary.Services.Interfaces;
 
 namespace ServiceLibrary.Services.Repositories
 {
-    public class GPiliTerminalMachineRepository(DataContext _dataContext) : IGPiliTerminalMachine
+    public class GPiliTerminalMachineRepository(DataContext _dataContext, IAuth _auth) : IGPiliTerminalMachine
     {
-        public Task<bool> ChangeMode(string managerEmail)
+        public async Task<bool> ChangeMode(string managerEmail)
         {
-            throw new NotImplementedException();
+            var manager = await _auth.IsManagerValid(managerEmail);
+
+            if (!manager.isSuccess)
+                return false;
+
+            var posTerminalInfo = await _dataContext.PosTerminalInfo.FirstOrDefaultAsync();
+            if (posTerminalInfo == null)
+            {
+                throw new InvalidOperationException("POS Terminal Info not found");
+            }
+
+            posTerminalInfo.IsTrainMode = !posTerminalInfo.IsTrainMode;
+
+            _dataContext.AuditLog.Add(new AuditLog
+            {
+                Manager = manager.manager,
+                Action = "Change POS Mode",
+                Changes = $"Changed to {(posTerminalInfo.IsTrainMode ? "Training" : "Live")} Mode"
+            });
+
+            await _dataContext.SaveChangesAsync();
+            return posTerminalInfo.IsTrainMode;
         }
 
-        public Task<PosTerminalInfo?> GetTerminalInfo()
+        public async Task<PosTerminalInfo?> GetTerminalInfo()
         {
-            throw new NotImplementedException();
+            return await _dataContext.PosTerminalInfo
+                .AsNoTracking()
+                .SingleOrDefaultAsync();
         }
 
-        public Task<bool> IsTerminalExpired()
+        private async Task<bool> IsTerminalExpired()
         {
-            throw new NotImplementedException();
+            var terminalInfo = await GetTerminalInfo();
+            if (terminalInfo == null)
+            {
+                return true;
+            }
+
+            return DateTime.Now > terminalInfo.ValidUntil;
         }
 
-        public Task<bool> IsTerminalExpiringSoon()
+        private async Task<bool> IsTerminalExpiringSoon()
         {
-            throw new NotImplementedException();
+            var terminalInfo = await GetTerminalInfo();
+            if (terminalInfo == null)
+            {
+                return false;
+            }
+
+            var oneWeekFromNow = DateTime.Now.AddDays(7);
+            return DateTime.Now <= terminalInfo.ValidUntil && terminalInfo.ValidUntil <= oneWeekFromNow;
         }
 
         public async Task<bool> IsTrainMode()
@@ -32,9 +68,25 @@ namespace ServiceLibrary.Services.Repositories
             return await _dataContext.PosTerminalInfo.Select(t => t.IsTrainMode).FirstOrDefaultAsync();
         }
 
-        public Task<(bool IsValid, string Message)> ValidateTerminalExpiration()
+        public async Task<(bool IsValid, string Message)> ValidateTerminalExpiration()
         {
-            throw new NotImplementedException();
+            var terminalInfo = await GetTerminalInfo();
+            if (terminalInfo == null)
+            {
+                return (false, "POS terminal is not configured.");
+            }
+
+            if (await IsTerminalExpired())
+            {
+                return (false, "POS terminal has expired. Please contact your administrator.");
+            }
+
+            if (await IsTerminalExpiringSoon())
+            {
+                return (true, "Warning: POS terminal will expire soon. Please contact your administrator.");
+            }
+
+            return (true, string.Empty);
         }
     }
 }

@@ -103,13 +103,13 @@ namespace ServiceLibrary.Services
 
             var products = new List<Product>
             {
-                new() { Name = "Coca Cola 330ml", Barcode = "4801234567890", Quantity = 50, Price = 25.00m, Category = beverages },
-                new() { Name = "Sprite 330ml", Barcode = "4801234567891", Quantity = 45, Price = 25.00m, Category = beverages },
-                new() { Name = "Pepsi 330ml", Barcode = "4801234567892", Quantity = 40, Price = 25.00m, Category = beverages },
-                new() { Name = "Potato Chips", Barcode = "4801234567893", Quantity = 30, Price = 35.00m, Category = snacks },
-                new() { Name = "Cheese Puffs", Barcode = "4801234567894", Quantity = 25, Price = 30.00m, Category = snacks },
-                new() { Name = "Fresh Milk 1L", Barcode = "4801234567895", Quantity = 20, Price = 85.00m, Category = dairy },
-                new() { Name = "Yogurt 500ml", Barcode = "4801234567896", Quantity = 15, Price = 65.00m, Category = dairy }
+                new() { Name = "Coca Cola 330ml", VatType = "VATABLE-GOODS", BaseUnit = "Can", Barcode = "4801234567890", Quantity = 50, Price = 25.00m, Category = beverages },
+                new() { Name = "Sprite 330ml", VatType = "VATABLE-GOODS" , BaseUnit = "Can", Barcode = "4801234567891", Quantity = 45, Price = 25.00m, Category = beverages },
+                new() { Name = "Pepsi 330ml", VatType = "VATABLE-GOODS" , BaseUnit = "Can", Barcode = "4801234567892", Quantity = 40, Price = 25.00m, Category = beverages },
+                new() { Name = "Potato Chips", VatType = "VATABLE-GOODS" , BaseUnit = "Can", Barcode = "4801234567893", Quantity = 30, Price = 35.00m, Category = snacks },
+                new() { Name = "Cheese Puffs", VatType = "VATABLE-GOODS" , BaseUnit = "Can", Barcode = "4801234567894", Quantity = 25, Price = 30.00m, Category = snacks },
+                new() { Name = "Fresh Milk 1L", VatType = "VATABLE-GOODS" , BaseUnit = "Can", Barcode = "4801234567895", Quantity = 20, Price = 85.00m, Category = dairy },
+                new() { Name = "Yogurt 500ml", VatType = "VATABLE-GOODS" , BaseUnit = "Can", Barcode = "4801234567896", Quantity = 15, Price = 65.00m, Category = dairy }
             };
 
             await _context.Product.AddRangeAsync(products);
