@@ -13,6 +13,9 @@ namespace ServiceLibrary.Services.Interfaces
         Task<(bool isSuccess, string message, InvoiceDTO invoiceInfo)> PayOrder();
         Task<(bool isSuccess, string message)> VoidOrder();
 
+        Task<(bool isSuccess, string message)> ReturnInvoice(string managerEmail, long invoiceNumber);
+        Task<(bool isSuccess, string message)> ReturnItems(string managerEmail, long invoiceNumber, List<Item> items);
+
         Task<List<Item>> GetPendingItems();
     }
 }

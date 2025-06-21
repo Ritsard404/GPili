@@ -7,12 +7,13 @@ namespace ServiceLibrary.Models
         [Key]
         public long Id { get; set; }
         public required decimal Qty { get; set; }
-        public decimal? Price { get; set; }
-        public decimal? SubTotal { get; set; }
+        public required decimal Price { get; set; }
+        public required decimal SubTotal { get; set; }
         public required string Status { get; set; }
 
         public bool IsVoid { get; set; } = false;
         public bool IsTrainingMode { get; set; } = false;
+        public bool IsReturned { get; set; } = false;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }

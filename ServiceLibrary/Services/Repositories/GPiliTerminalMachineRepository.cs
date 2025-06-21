@@ -83,10 +83,30 @@ namespace ServiceLibrary.Services.Repositories
 
             if (await IsTerminalExpiringSoon())
             {
-                return (true, "Warning: POS terminal will expire soon. Please contact your administrator.");
+                var remainingDays = (terminalInfo.ValidUntil - DateTime.Now).TotalDays;
+                var daysLeft = Math.Ceiling(remainingDays);
+
+                return (true, $"Warning: POS terminal will expire in {daysLeft} day{(daysLeft == 1 ? "" : "s")}. Please contact your administrator.");
+
             }
 
             return (true, string.Empty);
+        }
+
+        public async Task<(bool IsSuccess, string Message)> SetPosTerminalInfo(PosTerminalInfo posTerminalInfo)
+        {
+            if (posTerminalInfo is null)
+                return (false, "POS terminal info cannot be null.");
+
+            var existing = await _dataContext.PosTerminalInfo.AsTracking().SingleOrDefaultAsync();
+
+            if (existing is null)
+                await _dataContext.PosTerminalInfo.AddAsync(posTerminalInfo);
+            else
+                _dataContext.Entry(existing).CurrentValues.SetValues(posTerminalInfo);
+
+            await _dataContext.SaveChangesAsync();
+            return (true, "POS terminal info has been saved successfully.");
         }
     }
 }

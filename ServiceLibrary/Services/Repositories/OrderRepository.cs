@@ -31,6 +31,16 @@ namespace ServiceLibrary.Services.Repositories
             throw new NotImplementedException();
         }
 
+        public Task<(bool isSuccess, string message)> ReturnInvoice(string managerEmail, long invoiceNumber)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<(bool isSuccess, string message)> ReturnItems(string managerEmail, long invoiceNumber, List<Item> items)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<(bool isSuccess, string message)> VoidItem(Item item)
         {
             throw new NotImplementedException();
