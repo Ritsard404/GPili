@@ -5,7 +5,7 @@ namespace ServiceLibrary.Models
     public class Product
     {
         [Key]
-        public int Id { get; set; }
+        public long Id { get; set; }
         public required string Name { get; set; }
         public required string Barcode { get; set; }
         public required string BaseUnit { get; set; }

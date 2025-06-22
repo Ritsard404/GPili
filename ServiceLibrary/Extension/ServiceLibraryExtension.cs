@@ -15,8 +15,8 @@ namespace ServiceLibrary.Extension
             services.AddScoped<IAuditLog, AuditLogRepository>();
             services.AddScoped<IAuth, AuthRepository>();
             services.AddScoped<IGPiliTerminalMachine, GPiliTerminalMachineRepository>();
-
-
+            services.AddScoped<IReport, ReportRepository>();
+            services.AddScoped<IOrder, OrderRepository>();
 
             return services;
         }

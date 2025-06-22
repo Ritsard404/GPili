@@ -11,6 +11,7 @@ namespace ServiceLibrary.Models
         public required string Action { get; set; }
         public required string Changes { get; set; }
         public decimal? Amount { get; set; }
+        public bool isTrainMode { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
 }

@@ -27,7 +27,7 @@ namespace ServiceLibrary.Models
         public ICollection<AlternativePayment> AlternativePayments { get; set; } = new List<AlternativePayment>();
 
 
-        public required DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime? StatusChangeDate { get; set; }
         public required string Status { get; set; }
         public bool IsRead { get; set; } = false;

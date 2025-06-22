@@ -11,9 +11,7 @@ namespace ServiceLibrary.Models
         public required decimal SubTotal { get; set; }
         public required string Status { get; set; }
 
-        public bool IsVoid { get; set; } = false;
         public bool IsTrainingMode { get; set; } = false;
-        public bool IsReturned { get; set; } = false;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
