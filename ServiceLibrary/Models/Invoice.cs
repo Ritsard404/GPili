@@ -8,6 +8,7 @@ namespace ServiceLibrary.Models
         public long Id { get; set; }
         public required long InvoiceNumber { get; set; }
         public required decimal TotalAmount { get; set; }
+        public decimal? SubTotal { get; set; }
         public decimal? CashTendered { get; set; }
         public decimal? DueAmount { get; set; }
         public decimal? TotalTendered { get; set; }

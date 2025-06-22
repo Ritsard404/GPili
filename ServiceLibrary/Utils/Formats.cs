@@ -22,6 +22,11 @@
             return Math.Round(value ?? 0, 2, MidpointRounding.AwayFromZero).ToString();
         }
 
+        public static string StoreDecimalStringValueFormat(this decimal value)
+        {
+            return Math.Round(value, 2, MidpointRounding.AwayFromZero).ToString();
+        }
+
         public static string PesoFormat(this decimal value)
         {
             return $"₱{value:N2}";

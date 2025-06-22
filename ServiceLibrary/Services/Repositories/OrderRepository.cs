@@ -321,11 +321,13 @@ namespace ServiceLibrary.Services.Repositories
             pendingOrder.Status = InvoiceStatusType.Paid;
             pendingOrder.StatusChangeDate = DateTime.UtcNow;
             pendingOrder.TotalAmount = pay.TotalAmount;
+            pendingOrder.SubTotal = pay.SubTotal;
             pendingOrder.Cashier = cashierResult.cashier;
             pendingOrder.CashTendered = pay.CashTendered;
             pendingOrder.DueAmount = pay.DueAmount;
             pendingOrder.TotalTendered = pay.TotalTendered;
             pendingOrder.ChangeAmount = pay.ChangeAmount;
+            pendingOrder.DiscountAmount = pay.DiscountAmount;
             pendingOrder.VatSales = pay.VatSales;
             pendingOrder.VatExempt = pay.VatExempt;
             pendingOrder.VatAmount = pay.VatAmount;

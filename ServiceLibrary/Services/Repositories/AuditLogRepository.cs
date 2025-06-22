@@ -184,6 +184,7 @@ namespace ServiceLibrary.Services.Repositories
 
             _dataContext.AccountJournal.Add(journal);
             await _dataContext.SaveChangesAsync();
+
             return (true, "PWD/SC journal entry successfully added.");
         }
 
@@ -212,6 +213,7 @@ namespace ServiceLibrary.Services.Repositories
 
             if (invoice.CashTendered > 0)
             {
+
                 journals.Add(new Journal
                 {
                     Entry_No = invoice.InvoiceNumber.InvoiceFormat(),
@@ -253,15 +255,126 @@ namespace ServiceLibrary.Services.Repositories
                     QtyBalanceInBaseUnit = "0"
                 });
 
-               
+
             }
 
-            throw new NotImplementedException();
+            if (invoice.AlternativePayments != null)
+            {
+                foreach (var alternativePayment in invoice.AlternativePayments)
+                {
+                    journals.Add(new Journal
+                    {
+                        Entry_No = invoice.InvoiceNumber.InvoiceFormat(),
+                        Entry_Line_No = 0.ToString(),
+                        Entry_Date = invoice.CreatedAt.DateFormat(),
+                        CostCenter = terminalinfo.CostCenter,
+                        ItemId = "",
+                        Unit = "",
+                        Qty = "0",
+                        Cost = "",
+                        Price = "",
+                        TotalPrice = "",
+                        Debit = invoice.Status == InvoiceStatusType.Returned ? "0" : alternativePayment.Amount.StoreDecimalStringValueFormat(),
+                        Credit = invoice.Status == InvoiceStatusType.Returned ? alternativePayment.Amount.StoreDecimalStringValueFormat() : "0",
+                        AccountBalance = "",
+                        Prev_Reading = "",
+                        Curr_Reading = "",
+                        Memo = alternativePayment.SaleType.Name,
+                        AccountName = alternativePayment.SaleType.Account,
+                        Reference = invoice.InvoiceNumber.InvoiceFormat(),
+                        Entry_Name = "1",
+                        Cashier = invoice.Cashier.Email,
+                        Count_Type = "",
+                        Deposited = "0.00",
+                        Deposit_Date = "",
+                        Deposit_Reference = "",
+                        Deposit_By = "",
+                        Deposit_Time = "",
+                        CustomerName = invoice.CustomerName,
+                        SubTotal = "",
+                        TotalTax = "",
+                        GrossTotal = "",
+                        Discount_Type = "",
+                        Discount_Amount = "",
+                        NetPayable = "",
+                        Status = status,
+                        User_Email = invoice.Cashier.Email,
+                        QtyPerBaseUnit = "1",
+                        QtyBalanceInBaseUnit = "0"
+                    });
+
+                }
+            }
+
+            _dataContext.AccountJournal.AddRange(journals);
+            await _dataContext.SaveChangesAsync();
+
+            return (true, "Payments journal entry successfully added.");
         }
 
-        public Task<(bool isSuccess, string message)> AddTotalsJournal(long invId)
+        public async Task<(bool isSuccess, string message)> AddTotalsJournal(long invId)
         {
-            throw new NotImplementedException();
+            var terminalinfo = await _terminalMachine.GetTerminalInfo();
+            if (terminalinfo == null)
+                return (false, "Terminal information not found.");
+
+            var invoice = await _dataContext.Invoice
+                .AsNoTracking()
+                .FirstOrDefaultAsync(i => i.Id == invId);
+
+            if (invoice == null)
+                return (false, "Invoice not found.");
+
+            if (invoice.IsTrainMode)
+                return (false, "Cannot add journal entries in training mode.");
+
+
+            var status = invoice.Status == InvoiceStatusType.Paid ? "Posted" :
+                invoice.Status == InvoiceStatusType.Returned ? "Returned" : "Unposted";
+
+            _dataContext.AccountJournal.Add(new Journal
+            {
+                Entry_No = invoice.InvoiceNumber.InvoiceFormat(),
+                Entry_Line_No = 10.ToString(),
+                Entry_Date = invoice.CreatedAt.DateFormat(),
+                CostCenter = terminalinfo.CostCenter,
+                ItemId = "",
+                Unit = "",
+                Qty = "0",
+                Cost = "0",
+                Price = "0",
+                TotalPrice = "",
+                Debit = invoice.Status == InvoiceStatusType.Returned ? "0" : invoice.TotalAmount.StoreDecimalStringValueFormat(),
+                Credit = invoice.Status == InvoiceStatusType.Returned ? invoice.TotalAmount.StoreDecimalStringValueFormat() : "0",
+                AccountBalance = (invoice.Status == InvoiceStatusType.Returned ? -invoice.TotalAmount : invoice.TotalAmount).StoreDecimalStringValueFormat(),
+                Prev_Reading = "",
+                Curr_Reading = "",
+                Memo = "Totals",
+                AccountName = "Sales",
+                Reference = invoice.InvoiceNumber.InvoiceFormat(),
+                Entry_Name = "1",
+                Cashier = invoice.Cashier.Email,
+                Count_Type = "",
+                Deposited = "0.00",
+                Deposit_Date = "",
+                Deposit_Reference = "",
+                Deposit_By = "",
+                Deposit_Time = "",
+                CustomerName = invoice.CustomerName,
+                SubTotal = invoice.SubTotal.StoreDecimalStringValueFormat(),
+                TotalTax = invoice.VatAmount.StoreDecimalStringValueFormat(),
+                GrossTotal = invoice.TotalAmount.StoreDecimalStringValueFormat(),
+                Discount_Type = "",
+                Discount_Amount = invoice.DiscountAmount.StoreDecimalStringValueFormat(),
+                NetPayable = "",
+                Status = status,
+                User_Email = invoice.Cashier.Email,
+                QtyPerBaseUnit = "1",
+                QtyBalanceInBaseUnit = "0"
+            });
+
+            await _dataContext.SaveChangesAsync();
+            return (true, "Totals journal entry successfully added.");
         }
     }
 }
