@@ -15,7 +15,9 @@ namespace ServiceLibrary.Models
         public decimal? VatSales { get; set; }
         public decimal? VatExempt { get; set; }
         public decimal? VatAmount { get; set; }
+        public decimal? VatZero { get; set; }
 
+        public string CustomerName { get; set; } = "Walk-in Customer";
         public string? EligibleDiscName { get; set; }
         public string? OSCAIdNum { get; set; }
         public string? DiscountType { get; set; }

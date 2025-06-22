@@ -1,6 +1,4 @@
-﻿using ServiceLibrary.Models;
-
-namespace ServiceLibrary.Services.DTO.Report
+﻿namespace ServiceLibrary.Services.DTO.Report
 {
     public class InvoiceDTO
     {
@@ -9,7 +7,6 @@ namespace ServiceLibrary.Services.DTO.Report
         // Invoice Details
         public required string InvoiceNum { get; set; }
         public required string InvoiceDate { get; set; }
-        public required string OrderType { get; set; }
         public required string CashierName { get; set; }
 
         // Items
@@ -28,7 +25,7 @@ namespace ServiceLibrary.Services.DTO.Report
         public required string VatAmount { get; set; }
         public required string VatZero { get; set; }
 
-        public List<string> ElligiblePeopleDiscounts { get; set; } = new List<string>();
+        public required string ElligiblePersonDiscount { get; set; }
         public required string PrintCount { get; set; }
     }
 

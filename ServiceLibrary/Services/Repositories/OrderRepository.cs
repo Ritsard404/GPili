@@ -8,7 +8,7 @@ using ServiceLibrary.Utils;
 
 namespace ServiceLibrary.Services.Repositories
 {
-    public class OrderRepository(DataContext _dataContext, IGPiliTerminalMachine _terminalMachine, IAuth _auth, IAuditLog _auditLog) : IOrder
+    public class OrderRepository(DataContext _dataContext, IGPiliTerminalMachine _terminalMachine, IAuth _auth, IAuditLog _auditLog, IReport _report) : IOrder
     {
         public async Task<(bool isSuccess, string message)> AddOrderItem(long prodId, decimal qty, string cashierEmail)
         {
@@ -305,11 +305,46 @@ namespace ServiceLibrary.Services.Repositories
         public async Task<(bool isSuccess, string message, InvoiceDTO? invoiceInfo)> PayOrder(PayOrderDTO pay)
         {
             var isTrainMode = await _terminalMachine.IsTrainMode();
+
+            var cashierResult = await _auth.IsCashierValid(pay.CashierEmail);
+            if (!cashierResult.isSuccess || cashierResult.cashier == null)
+                return (false, "Invalid cashier email. Please check and try again.", null);
+
             var pendingOrder = await PendingOrder(isTrainMode);
             if (pendingOrder == null)
                 return (false, "No pending order found.", null);
 
-            throw new NotImplementedException();
+            var invoice = await _report.GetInvoiceById(pendingOrder.Id);
+            if (invoice == null)
+                return (false, "Invoice not found.", null);
+
+            pendingOrder.Status = InvoiceStatusType.Paid;
+            pendingOrder.StatusChangeDate = DateTime.UtcNow;
+            pendingOrder.TotalAmount = pay.TotalAmount;
+            pendingOrder.Cashier = cashierResult.cashier;
+            pendingOrder.CashTendered = pay.CashTendered;
+            pendingOrder.DueAmount = pay.DueAmount;
+            pendingOrder.TotalTendered = pay.TotalTendered;
+            pendingOrder.ChangeAmount = pay.ChangeAmount;
+            pendingOrder.VatSales = pay.VatSales;
+            pendingOrder.VatExempt = pay.VatExempt;
+            pendingOrder.VatAmount = pay.VatAmount;
+            pendingOrder.VatZero = pay.VatZero;
+
+            await _auditLog.AddCashierAudit(
+                cashierResult.cashier,
+                "Pay Order",
+                $"Cashier {cashierResult.cashier.Email} successfully processed payment for Order #{pendingOrder.InvoiceNumber.InvoiceFormat()} with a total amount of {pay.TotalAmount.PesoFormat()}.",
+                pay.TotalAmount
+            );
+
+            await _auditLog.AddItemsJournal(pendingOrder.Id);
+            await _auditLog.AddTendersJournal(pendingOrder.Id);
+            await _auditLog.AddTotalsJournal(pendingOrder.Id);
+
+            await _dataContext.SaveChangesAsync();
+
+            return (true, "Order paid successfully!", invoice);
         }
     }
 }

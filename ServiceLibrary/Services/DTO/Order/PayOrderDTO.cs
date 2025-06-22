@@ -12,5 +12,7 @@
         public required decimal VatSales { get; set; }
         public required decimal VatAmount { get; set; }
         public required decimal VatZero { get; set; }
+
+        public required string CashierEmail { get; set; }
     }
 }
