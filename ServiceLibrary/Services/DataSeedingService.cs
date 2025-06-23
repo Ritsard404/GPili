@@ -66,7 +66,9 @@ namespace ServiceLibrary.Services
                 Address = "123 Main Street, City, Province",
                 VatTinNumber = "123-456-789-000",
                 CostCenter = "CC001",
-                BranchCenter = "BC001"
+                BranchCenter = "BC001",
+                PrinterName = "POSPrinter",
+                Vat = 12,
             };
 
             await _context.PosTerminalInfo.AddAsync(posInfo);

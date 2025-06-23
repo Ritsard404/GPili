@@ -11,6 +11,7 @@ namespace ServiceLibrary.Extension
         {
             services.AddScoped<IDatabaseInitializerService, DatabaseInitializerService>();
             services.AddScoped<DataSeedingService>();
+            services.AddScoped<PrinterService>();
 
             services.AddScoped<IAuditLog, AuditLogRepository>();
             services.AddScoped<IAuth, AuthRepository>();

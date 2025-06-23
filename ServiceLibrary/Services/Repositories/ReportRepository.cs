@@ -76,7 +76,7 @@ namespace ServiceLibrary.Services.Repositories
                 VatSales = order.VatSales.PesoFormat(),
                 VatAmount = order.VatAmount.PesoFormat(),
                 VatZero = order.VatZero.PesoFormat(),
-                ElligiblePersonDiscount = order.EligibleDiscName ?? "N/A",
+                ElligiblePersonDiscount = (order.EligibleDiscName ?? "N/A").ToUpper(),
                 PrintCount = order.PrintCount.ToString()
             };
 

@@ -4,12 +4,12 @@
     {
         public static class SalesReport
         {
-            public const string Receipts = "C:\\Reports\\Receipts";
-            public const string SearchedInvoice = "C:\\Reports\\SearchedInvoice";
-            public const string DailySalesReport = "C:\\Reports\\DailySalesReport";
-            public const string XInvoiceReport = "C:\\Reports\\XInvoiceReport";
-            public const string ZInvoiceReport = "C:\\Reports\\ZInvoiceReport";
-            public const string Cashtrack = "C:\\Reports\\Cashtrack";
+            public const string Invoices = "C:\\Reports\\Invoices";
+            public const string SearchedInvoices = "C:\\Reports\\SearchedInvoices";
+            public const string DailySalesReports = "C:\\Reports\\DailySalesReports";
+            public const string XInvoiceReports = "C:\\Reports\\XInvoiceReports";
+            public const string ZInvoiceReports = "C:\\Reports\\ZInvoiceReports";
+            public const string Cashtracks = "C:\\Reports\\Cashtracks";
             public const string TransactionLogs = "C:\\Reports\\TransactionLogs";
         }
         public static class Logs

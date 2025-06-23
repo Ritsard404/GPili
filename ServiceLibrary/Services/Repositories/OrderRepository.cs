@@ -8,7 +8,7 @@ using ServiceLibrary.Utils;
 
 namespace ServiceLibrary.Services.Repositories
 {
-    public class OrderRepository(DataContext _dataContext, IGPiliTerminalMachine _terminalMachine, IAuth _auth, IAuditLog _auditLog, IReport _report) : IOrder
+    public class OrderRepository(DataContext _dataContext, IGPiliTerminalMachine _terminalMachine, IAuth _auth, IAuditLog _auditLog, IReport _report, IPrinterService _printer) : IOrder
     {
         public async Task<(bool isSuccess, string message)> AddOrderItem(long prodId, decimal qty, string cashierEmail)
         {
@@ -345,6 +345,9 @@ namespace ServiceLibrary.Services.Repositories
             await _auditLog.AddTotalsJournal(pendingOrder.Id);
 
             await _dataContext.SaveChangesAsync();
+
+            // Print the invoice
+            await _printer.PrintInvoice(invoice);
 
             return (true, "Order paid successfully!", invoice);
         }
