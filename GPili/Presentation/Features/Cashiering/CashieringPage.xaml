@@ -3,13 +3,19 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="GPili.Presentation.Features.Cashiering.CashieringPage"
              xmlns:footer="clr-namespace:GPili.Presentation.Contents"
+             xmlns:products="clr-namespace:GPili.Presentation.Contents.Cashiering"
              Title="Cashiering">
     <Grid RowDefinitions="*, Auto">
-        <Label 
-            Grid.Row="0"
-            Text="Casheiring"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
+        <Grid RowDefinitions="*" ColumnDefinitions="0.5*,0.5*" VerticalOptions="Fill" HorizontalOptions="Fill">
+            <Border Grid.Column="0" BackgroundColor="Red" 
+                HorizontalOptions="Fill" VerticalOptions="Fill">
+                <products:ProductSelectionView />
+            </Border>
+            
+            <Border Grid.Column="1" BackgroundColor="Blue" 
+                HorizontalOptions="Fill" VerticalOptions="Fill" />
+        </Grid>
+
 
 
         <Grid Grid.Row="1">

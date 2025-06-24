@@ -1,6 +1,7 @@
 
 
 using CommunityToolkit.Maui;
+using GPili.Presentation.Contents.Cashiering;
 using GPili.Presentation.Features.Cashiering;
 using GPili.Presentation.Features.LogIn;
 using GPili.Presentation.Features.Manager;
@@ -46,9 +47,10 @@ internal static class ApplicationExtensions
         // Register your views here
         services.AddSingleton<AppShell>();
 
-        services.AddViewModel<LogInViewModel, LogInPage>();
-        services.AddViewModel<CashieringViewModel, CashieringPage>();
-        services.AddViewModel<ManagerViewModel, ManagerPage>();
+        services.AddPageViewModel<LogInViewModel, LogInPage>();
+        services.AddPageViewModel<CashieringViewModel, CashieringPage>();
+        services.AddPageViewModel<ManagerViewModel, ManagerPage>();
+
         return services;
     }
 
@@ -60,7 +62,7 @@ internal static class ApplicationExtensions
         return services;
     }
 
-    private static void AddViewModel<TViewModel, TView>(this IServiceCollection services)
+    private static void AddPageViewModel<TViewModel, TView>(this IServiceCollection services)
         where TView : ContentPage, new()
         where TViewModel : class
     {

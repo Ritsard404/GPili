@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="GPili.Presentation.Contents.Cashiering.ProductSelectionView">
+    <Grid RowDefinitions="0.1*, 0.9*" Padding="10">
+        <!--// Products and Search-->
+        <Grid RowDefinitions="Auto" Grid.Row="0" HorizontalOptions="Fill" VerticalOptions="Fill">
+            <HorizontalStackLayout Spacing="20" Grid.Row="0">
+                <Entry Placeholder="Search Product..." 
+                       x:Name="SearchEntry"
+                       Text="{Binding SearchProduct}"
+                       WidthRequest="200"
+                       ClearButtonVisibility="WhileEditing"
+                       FontSize="15"
+                       >
+                    <Entry.Behaviors>
+                        <toolkit:EventToCommandBehavior
+                          EventName="Completed"
+                          Command="{Binding SearchCommand}" />      
+                    </Entry.Behaviors>
+
+                </Entry>
+                <Button Command="{Binding SearchCommand}" Text="Search"></Button>
+            </HorizontalStackLayout>
+        </Grid>
+        <VerticalStackLayout Grid.Row="1" HorizontalOptions="Fill" VerticalOptions="Fill">
+
+            <!-- FIXED HEADER ROW -->
+            <Grid ColumnDefinitions="0.25*,0.25*,0.25*,0.25*"
+        Padding="12"
+        BackgroundColor="SkyBlue">
+
+                <Label Text="Name"
+           Grid.Column="0"
+           FontAttributes="Bold" />
+                <Label Text="Price"
+           Grid.Column="1"
+           FontAttributes="Bold" />
+                <Label Text="Unit"
+           Grid.Column="2"
+           FontAttributes="Bold" />
+                <Label Text="Category"
+           Grid.Column="3"
+           FontAttributes="Bold" />
+            </Grid>
+
+            <!-- SCROLLABLE ITEMS -->
+            <CollectionView
+                  ItemsSource="{Binding Products}"
+                SelectionMode="Single"
+                SelectedItem="{Binding SelectedProduct, Mode=TwoWay}"
+                SelectionChangedCommand="{Binding AddItemCommand}"
+                SelectionChangedCommandParameter="{Binding SelectedProduct}"
+                  BackgroundColor="Violet"
+                  HeightRequest="250"
+                  ItemSizingStrategy="MeasureAllItems">     
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid ColumnDefinitions="0.25*,0.25*,0.25*,0.25*"
+                              Padding="12"
+                              Margin="4">  
+
+                            <Label Text="{Binding Name}"
+                                Grid.Column="0" />
+                            <Label Text="{Binding Price, StringFormat='₱{0:N2}'}"
+                                Grid.Column="1" />
+                            <Label Text="{Binding BaseUnit}"
+                                Grid.Column="2" />
+                            <Label Text="{Binding Category.CtgryName}"
+                                Grid.Column="3" />
+
+                            <Grid.GestureRecognizers>
+                                <PointerGestureRecognizer
+                                    PointerEntered="OnPointerEntered"
+                                    PointerExited="OnPointerExited" />  
+                            </Grid.GestureRecognizers>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+
+            </CollectionView>
+        </VerticalStackLayout>
+    </Grid>
+</ContentView>

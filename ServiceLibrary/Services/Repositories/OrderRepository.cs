@@ -20,6 +20,9 @@ namespace ServiceLibrary.Services.Repositories
             if (!cashierResult.isSuccess || cashierResult.cashier == null)
                 return (false, "Invalid cashier email. Please check and try again.");
 
+            if(qty <= 0)
+                return (false, "Invalid quantity.");
+
             var isTrainMode = await _terminalMachine.IsTrainMode();
             var pendingOrder = await PendingOrder(isTrainMode);
             long invNum = await GenerateInvoiceNumberAsync(isTrainMode);

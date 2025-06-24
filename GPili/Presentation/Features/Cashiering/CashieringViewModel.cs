@@ -7,6 +7,7 @@ namespace GPili.Presentation.Features.Cashiering
     public partial class CashieringViewModel(IAuth _auth,
         ILoaderService _loaderService,
         INavigationService _navigationService,
+        IOrder _order,
         IInventory _inventory) : ObservableObject
     {
 
@@ -14,7 +15,16 @@ namespace GPili.Presentation.Features.Cashiering
         private Product[] _products = [];
 
         [ObservableProperty]
+        private Product? _selectedProduct;
+
+        [ObservableProperty]
+        private string? _searchProduct;
+
+        [ObservableProperty]
         private List<Item> _items = [];
+
+        [ObservableProperty]
+        private decimal _qty = 1;
 
         public async Task InitializeAsync()
         {
@@ -57,8 +67,43 @@ namespace GPili.Presentation.Features.Cashiering
 
             Products = await _inventory.GetProducts();
 
+            Items = await _order.GetPendingItems();
+
             await _loaderService.ShowAsync("", false);
         }
 
+        [RelayCommand]
+        private async Task Search()
+        {
+            if (!string.IsNullOrWhiteSpace(SearchProduct))
+            {
+                Products = await _inventory.SearchProducts(keyword: SearchProduct);
+            }
+            else
+            {
+                Products = await _inventory.GetProducts();
+            }
+        }
+
+        [RelayCommand]
+        private async Task AddItem(Product? product)
+        {
+            if (product is null || Qty <= 0)
+                return;
+
+            var (isSuccess, message) = await _order.AddOrderItem(
+                prodId: product.Id,
+                qty: Qty,
+                cashierEmail: CashierState.CashierEmail!);
+
+            if (!isSuccess)
+            {
+                await Toast.Make(message).Show();
+                return;
+            }
+
+            Items = await _order.GetPendingItems();
+            SelectedProduct = null;
+        }
     }
 }
