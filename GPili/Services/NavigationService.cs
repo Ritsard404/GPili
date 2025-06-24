@@ -12,7 +12,7 @@ namespace GPili.Services
         Task GoToManager();
         Task Logout();
     }
-    public class NavigationService(IAuth _auth) : INavigationService
+    public class NavigationService(IAuth _auth, IInventory _inventory) : INavigationService
     {
         public async Task GoBack()
         {
@@ -32,13 +32,8 @@ namespace GPili.Services
             {
                 CashierState.CashierName = result.cashierName;
                 CashierState.CashierEmail = result.cashierEmail;
-
-                var routeParameters = new Dictionary<string, object>
-                {
-                    ["pendingItems"] = result.pendingItems
-                };
-
-                await NavigateToAsync(AppRoutes.Cashiering, routeParameters);
+                
+                await NavigateToAsync(AppRoutes.Cashiering);
             }
             else
             {

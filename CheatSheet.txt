@@ -4,3 +4,5 @@ FlatIcon
 PM:cd ServiceLibrary
 
 dotnet ef migrations add GPili
+
+test manager: manager@gpili.com

@@ -21,8 +21,7 @@ namespace ServiceLibrary.Services
             {
                 await SeedUsersAsync();
                 await SeedPosTerminalInfoAsync();
-                await SeedCategoriesAsync();
-                await SeedProductsAsync();
+                await SeedCategoriesAndProductsAsync();
             }
             catch(Exception ex)
             {
@@ -74,7 +73,7 @@ namespace ServiceLibrary.Services
             await _context.PosTerminalInfo.AddAsync(posInfo);
         }
 
-        private async Task SeedCategoriesAsync()
+        private async Task SeedCategoriesAndProductsAsync()
         {
             if (await _context.Category.AnyAsync()) return;
 
@@ -90,28 +89,16 @@ namespace ServiceLibrary.Services
             };
 
             await _context.Category.AddRangeAsync(categories);
-        }
-
-        private async Task SeedProductsAsync()
-        {
-            if (await _context.Product.AnyAsync()) return;
-
-            var categories = await _context.Category.ToListAsync();
-            var beverages = categories.FirstOrDefault(c => c.CtgryName == "Beverages");
-            var snacks = categories.FirstOrDefault(c => c.CtgryName == "Snacks");
-            var dairy = categories.FirstOrDefault(c => c.CtgryName == "Dairy");
-
-            if (beverages == null || snacks == null || dairy == null) return;
 
             var products = new List<Product>
             {
-                new() { Name = "Coca Cola 330ml", ProdId = "COCA330", ItemType = "Resale", VatType = "VATABLE-GOODS", BaseUnit = "Can", Barcode = "4801234567890", Quantity = 50, Price = 25.00m, Category = beverages },
-                new() { Name = "Sprite 330ml", ProdId = "SPRITE330", ItemType = "Resale", VatType = "VATABLE-GOODS", BaseUnit = "Can", Barcode = "4801234567891", Quantity = 45, Price = 25.00m, Category = beverages },
-                new() { Name = "Pepsi 330ml", ProdId = "PEPSI330", ItemType = "Resale", VatType = "VATABLE-GOODS", BaseUnit = "Can", Barcode = "4801234567892", Quantity = 40, Price = 25.00m, Category = beverages },
-                new() { Name = "Potato Chips", ProdId = "POTCHIPS", ItemType = "Resale", VatType = "VATABLE-GOODS", BaseUnit = "Pack", Barcode = "4801234567893", Quantity = 30, Price = 35.00m, Category = snacks },
-                new() { Name = "Cheese Puffs", ProdId = "CHEESEPUFF", ItemType = "Resale", VatType = "VATABLE-GOODS", BaseUnit = "Pack", Barcode = "4801234567894", Quantity = 25, Price = 30.00m, Category = snacks },
-                new() { Name = "Fresh Milk 1L", ProdId = "MILK1L", ItemType = "Resale", VatType = "VATABLE-GOODS", BaseUnit = "Bottle", Barcode = "4801234567895", Quantity = 20, Price = 85.00m, Category = dairy },
-                new() { Name = "Yogurt 500ml", ProdId = "YOGURT500", ItemType = "Resale", VatType = "VATABLE-GOODS", BaseUnit = "Bottle", Barcode = "4801234567896", Quantity = 15, Price = 65.00m, Category = dairy }
+                new() { Name = "Coca Cola 330ml", ProdId = "COCA330", ItemType = "Resale", VatType = "VATABLE-GOODS", BaseUnit = "Can", Barcode = "4801234567890", Quantity = 50, Price = 25.00m, Category = categories[0] },
+                new() { Name = "Sprite 330ml", ProdId = "SPRITE330", ItemType = "Resale", VatType = "VATABLE-GOODS", BaseUnit = "Can", Barcode = "4801234567891", Quantity = 45, Price = 25.00m, Category = categories[0] },
+                new() { Name = "Pepsi 330ml", ProdId = "PEPSI330", ItemType = "Resale", VatType = "VATABLE-GOODS", BaseUnit = "Can", Barcode = "4801234567892", Quantity = 40, Price = 25.00m, Category = categories[0] },
+                new() { Name = "Potato Chips", ProdId = "POTCHIPS", ItemType = "Resale", VatType = "VATABLE-GOODS", BaseUnit = "Pack", Barcode = "4801234567893", Quantity = 30, Price = 35.00m, Category = categories[1] },
+                new() { Name = "Cheese Puffs", ProdId = "CHEESEPUFF", ItemType = "Resale", VatType = "VATABLE-GOODS", BaseUnit = "Pack", Barcode = "4801234567894", Quantity = 25, Price = 30.00m, Category = categories[1] },
+                new() { Name = "Fresh Milk 1L", ProdId = "MILK1L", ItemType = "Resale", VatType = "VATABLE-GOODS", BaseUnit = "Bottle", Barcode = "4801234567895", Quantity = 20, Price = 85.00m, Category = categories[2] },
+                new() { Name = "Yogurt 500ml", ProdId = "YOGURT500", ItemType = "Resale", VatType = "VATABLE-GOODS", BaseUnit = "Bottle", Barcode = "4801234567896", Quantity = 15, Price = 65.00m, Category = categories[2] }
             };
 
             await _context.Product.AddRangeAsync(products);

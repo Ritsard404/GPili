@@ -35,11 +35,6 @@ internal static class ApplicationExtensions
     }
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
-        // Database Services - using scoped to match DataContext lifetime
-
-        // Add your other services here following the pattern:
-        // services.AddScoped<IYourService, YourService>();
-        // services.AddSingleton<IYourSingletonService, YourSingletonService>();
         services.AddSingleton<INavigationService, NavigationService>();
         services.AddSingleton<ILoaderService, LoaderService>();
 
@@ -61,21 +56,12 @@ internal static class ApplicationExtensions
     {
         // Register your popups here
         services.AddTransientPopup<LoaderView, LoaderViewModel>();
-        //services.AddPopUpViewModel<LoaderView, LoaderViewModel>();
 
         return services;
     }
 
     private static void AddViewModel<TViewModel, TView>(this IServiceCollection services)
         where TView : ContentPage, new()
-        where TViewModel : class
-    {
-        services.AddTransient<TViewModel>();
-        services.AddTransient<TView>(s => new TView() { BindingContext = s.GetRequiredService<TViewModel>() });
-    }
-
-    private static void AddPopUpViewModel<TView, TViewModel>(this IServiceCollection services)
-        where TView : Popup, new()
         where TViewModel : class
     {
         services.AddTransient<TViewModel>();

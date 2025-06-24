@@ -41,14 +41,14 @@
     <Grid RowDefinitions="Auto, *, Auto">
         <Grid Margin="10" Grid.Row="0" HeightRequest="50">
             <Grid ColumnDefinitions="Auto, *, Auto">
-                <ImageButton Source="back.png"
+                <!--<ImageButton Source="back.png"
                              Padding="0,0,0,10"
                              BackgroundColor="Transparent"
                              WidthRequest="30"
                              HeightRequest="30"
                              Command="{Binding LogOutCommand}"/>
                 
-                <Label Grid.Column="2" VerticalOptions="Center" Text="Hello, bottom border!" />
+                <Label Grid.Column="2" VerticalOptions="Center" Text="Hello, bottom border!" />-->
             </Grid>
 
             <BoxView BackgroundColor="Aqua"

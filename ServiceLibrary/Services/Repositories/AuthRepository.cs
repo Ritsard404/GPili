@@ -7,7 +7,7 @@ using System.Diagnostics;
 
 namespace ServiceLibrary.Services.Repositories
 {
-    public class AuthRepository(DataContext _dataContext, IAuditLog _auditLog, IGPiliTerminalMachine _terminalMachine) : IAuth
+    public class AuthRepository(DataContext _dataContext, IAuditLog _auditLog) : IAuth
     {
         public async Task<(bool isSuccess, string message)> CashWithdrawDrawer(string cashierEmail, string managerEmail, decimal cash)
         {
@@ -134,6 +134,8 @@ namespace ServiceLibrary.Services.Repositories
                             (u.Email == cashierEmail && u.Role == RoleType.Cashier.ToString()))
                 .ToListAsync();
 
+            var isTrainMode = await _dataContext.PosTerminalInfo.Select(t => t.IsTrainMode).FirstOrDefaultAsync();
+
             var manager = users.FirstOrDefault(u => u.Email == managerEmail && u.Role != RoleType.Cashier.ToString());
             var cashier = users.FirstOrDefault(u => u.Email == cashierEmail && u.Role == RoleType.Cashier.ToString());
 
@@ -163,7 +165,7 @@ namespace ServiceLibrary.Services.Repositories
                         TsIn = DateTime.UtcNow,
                         Cashier = cashier,
                         ManagerIn = manager,
-                        IsTrainMode = await _terminalMachine.IsTrainMode(),
+                        IsTrainMode = isTrainMode,
                     };
 
                     _dataContext.Timestamp.Add(timestamp);

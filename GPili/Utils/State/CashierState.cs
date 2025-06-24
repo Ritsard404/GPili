@@ -1,4 +1,6 @@
-﻿namespace GPili.Utils.State
+﻿using ServiceLibrary.Models;
+
+namespace GPili.Utils.State
 {
     internal static class CashierState
     {

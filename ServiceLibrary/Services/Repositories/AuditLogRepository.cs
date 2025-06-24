@@ -6,11 +6,21 @@ using ServiceLibrary.Utils;
 
 namespace ServiceLibrary.Services.Repositories
 {
-    public class AuditLogRepository(DataContext _dataContext, IGPiliTerminalMachine _terminalMachine) : IAuditLog
+    public class AuditLogRepository(DataContext _dataContext) : IAuditLog
     {
+        private async Task<bool> IsTrainMode()
+        {
+            return await _dataContext.PosTerminalInfo.Select(t => t.IsTrainMode).FirstOrDefaultAsync();
+        }
+        private async Task<PosTerminalInfo?> GetTerminalInfo()
+        {
+            return await _dataContext.PosTerminalInfo
+                .AsNoTracking()
+                .SingleOrDefaultAsync();
+        }
         public async Task<(bool isSuccess, string message)> AddCashierAudit(User cashier, string action, string changes, decimal? amount)
         {
-            var isTrainMode = await _terminalMachine.IsTrainMode();
+            var isTrainMode = await  IsTrainMode();
 
             _dataContext.AuditLog.Add(new AuditLog
             {
@@ -27,7 +37,7 @@ namespace ServiceLibrary.Services.Repositories
 
         public async Task<(bool isSuccess, string message)> AddItemsJournal(long invId)
         {
-            var terminalinfo = await _terminalMachine.GetTerminalInfo();
+            var terminalinfo = await  GetTerminalInfo();
             if (terminalinfo == null)
                 return (false, "Terminal information not found.");
 
@@ -105,7 +115,7 @@ namespace ServiceLibrary.Services.Repositories
 
         public async Task<(bool isSuccess, string message)> AddManagerAudit(User manager, string action, string changes, decimal? amount)
         {
-            var isTrainMode = await _terminalMachine.IsTrainMode();
+            var isTrainMode = await  IsTrainMode();
 
             _dataContext.AuditLog.Add(new AuditLog
             {
@@ -122,7 +132,7 @@ namespace ServiceLibrary.Services.Repositories
 
         public async Task<(bool isSuccess, string message)> AddPwdScJournal(long invId)
         {
-            var terminalinfo = await _terminalMachine.GetTerminalInfo();
+            var terminalinfo = await  GetTerminalInfo();
             if (terminalinfo == null)
                 return (false, "Terminal information not found.");
 
@@ -190,7 +200,7 @@ namespace ServiceLibrary.Services.Repositories
 
         public async Task<(bool isSuccess, string message)> AddTendersJournal(long invId)
         {
-            var terminalinfo = await _terminalMachine.GetTerminalInfo();
+            var terminalinfo = await  GetTerminalInfo();
             if (terminalinfo == null)
                 return (false, "Terminal information not found.");
 
@@ -314,7 +324,7 @@ namespace ServiceLibrary.Services.Repositories
 
         public async Task<(bool isSuccess, string message)> AddTotalsJournal(long invId)
         {
-            var terminalinfo = await _terminalMachine.GetTerminalInfo();
+            var terminalinfo = await  GetTerminalInfo();
             if (terminalinfo == null)
                 return (false, "Terminal information not found.");
 

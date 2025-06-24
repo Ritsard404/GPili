@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="GPili.Presentation.Features.LogIn.LogInPage"
              xmlns:footer="clr-namespace:GPili.Presentation.Contents"
-             Title="LogInPage">
+             Title="Log In">
     <ContentPage.Resources>
         <ResourceDictionary>
 

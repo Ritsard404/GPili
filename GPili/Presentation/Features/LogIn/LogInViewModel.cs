@@ -1,4 +1,6 @@
-﻿using ServiceLibrary.Models;
+﻿using CommunityToolkit.Maui.Alerts;
+using GPili.Presentation.Features.Cashiering;
+using ServiceLibrary.Models;
 using ServiceLibrary.Services.Interfaces;
 using ServiceLibrary.Utils;
 using System.Diagnostics;
@@ -10,6 +12,7 @@ namespace GPili.Presentation.Features.LogIn
         private readonly IAuth _auth;
         private readonly ILoaderService _loaderService;
         private readonly INavigationService _navigationService;
+        private readonly CashieringViewModel _cashieringView;
         [ObservableProperty]
         private string _adminEmail;
 
@@ -19,11 +22,12 @@ namespace GPili.Presentation.Features.LogIn
         [ObservableProperty]
         private User[] _cashiers = [];
 
-        public LogInViewModel(IAuth auth, ILoaderService loaderService, INavigationService navigationService)
+        public LogInViewModel(IAuth auth, ILoaderService loaderService, INavigationService navigationService, CashieringViewModel cashieringView)
         {
             _auth = auth;
             _loaderService = loaderService;
             _navigationService = navigationService;
+            _cashieringView = cashieringView;
         }
 
         public async ValueTask InitializeAsync()
@@ -36,6 +40,7 @@ namespace GPili.Presentation.Features.LogIn
         [RelayCommand]
         public async Task LogIn()
         {
+
             await _loaderService.ShowAsync("Logging in...", true);
 
             try
@@ -56,6 +61,7 @@ namespace GPili.Presentation.Features.LogIn
 
                     case RoleType.Cashier:
                         await _navigationService.NavigateToAsync(AppRoutes.Cashiering);
+                        //await _cashieringView.InitializeAsync();
                         return;
 
                     default:

@@ -30,11 +30,13 @@ public partial class FooterView : ContentView, IDisposable
     {
         while (await _timer.WaitForNextTickAsync())
         {
-            DateTime now = DateTime.Now;
-
-            Date.Text = "Date: " + now.ToString("dd/MM/yyyy(ddd) hh:mm:ss");
+            var now = DateTime.Now;
+            Dispatcher.Dispatch(() =>
+            {
+                Date.Text = "Date: " + now.ToString("dd/MM/yyyy(ddd) hh:mm:ss");
+            });
         }
     }
 
-    public async void Dispose() => _timer?.Dispose();
+    public void Dispose() => _timer?.Dispose();
 }

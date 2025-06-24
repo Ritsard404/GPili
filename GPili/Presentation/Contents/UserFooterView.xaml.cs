@@ -1,5 +1,3 @@
-using GPili.Utils.State;
-
 namespace GPili.Presentation.Contents;
 
 public partial class UserFooterView : ContentView, IDisposable
@@ -28,14 +26,16 @@ public partial class UserFooterView : ContentView, IDisposable
     }
 
     private async void UpdateDate()
-	{
-		while (await _timer.WaitForNextTickAsync())
-		{
-			DateTime now = DateTime.Now;
-
-			Date.Text = "Date: " + now.ToString("dd/MM/yyyy(ddd) hh:mm:ss");
-		}
-	}
+    {
+        while (await _timer.WaitForNextTickAsync())
+        {
+            var now = DateTime.Now;
+            Dispatcher.Dispatch(() =>
+            {
+                Date.Text = "Date: " + now.ToString("dd/MM/yyyy(ddd) hh:mm:ss");
+            });
+        }
+    }
 
     public void Dispose() => _timer?.Dispose();
 }

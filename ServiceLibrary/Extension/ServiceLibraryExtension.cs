@@ -11,13 +11,14 @@ namespace ServiceLibrary.Extension
         {
             services.AddScoped<IDatabaseInitializerService, DatabaseInitializerService>();
             services.AddScoped<DataSeedingService>();
-            services.AddScoped<PrinterService>();
+            services.AddScoped<IPrinterService, PrinterService>();
 
             services.AddScoped<IAuditLog, AuditLogRepository>();
             services.AddScoped<IAuth, AuthRepository>();
             services.AddScoped<IGPiliTerminalMachine, GPiliTerminalMachineRepository>();
             services.AddScoped<IReport, ReportRepository>();
             services.AddScoped<IOrder, OrderRepository>();
+            services.AddScoped<IInventory, InventoryRepository>();
 
             return services;
         }
