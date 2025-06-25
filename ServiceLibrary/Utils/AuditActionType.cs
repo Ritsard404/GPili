@@ -13,6 +13,23 @@
         public const string CashInDrawer = "Cash In Drawer";
         public const string CashWithdrawDrawer = "Cash Withdraw Drawer";
 
+        // Invoice
+        public const string CreateInvoice = "Create Invoice";
+        public const string ReturnInvoice = "Return Invoice";
+
+        // Items
+        public const string AddItem = "Add Item";
+        public const string UpdateItem = "Update Item";
+        public const string VoidItem = "Void Item";
+        public const string ReturnItem = "Return Item";
+
+        // Order
+        public const string AddOrder = "Add Order";
+        public const string UpdateOrder = "Update Order";
+        public const string VoidOrder = "Void Order";
+        public const string PayOrder = "Pay Order";
+
+
         public const string ChangePassword = "Change Password";
         public const string ResetPassword = "Reset Password";
 

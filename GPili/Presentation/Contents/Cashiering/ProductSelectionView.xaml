@@ -50,7 +50,8 @@
             <CollectionView
                   ItemsSource="{Binding Products}"
                 SelectionMode="Single"
-                  BackgroundColor="Violet"
+                BackgroundColor="MediumAquamarine"
+              
                   HeightRequest="250"
                   ItemSizingStrategy="MeasureAllItems">     
 
@@ -70,9 +71,6 @@
                                 Grid.Column="3" />
 
                             <Grid.GestureRecognizers>
-                                <PointerGestureRecognizer
-                                    PointerEntered="OnPointerEntered"
-                                    PointerExited="OnPointerExited" />
                                 <TapGestureRecognizer
                                     Command="{Binding BindingContext.AddItemCommand, Source={x:Reference ProductSelectionViewRoot}}"
                                     CommandParameter="{Binding .}" />   

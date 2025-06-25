@@ -14,20 +14,4 @@ public partial class ProductSelectionView : ContentView
 
     }
 
-    private void OnPointerEntered(object sender, PointerEventArgs e)
-    {
-        if (sender is Grid grid)
-        {
-            grid.BackgroundColor = Colors.LightGray; // or any hover color
-        }
-    }
-
-    private void OnPointerExited(object sender, PointerEventArgs e)
-    {
-        if (sender is Grid grid)
-        {
-            grid.BackgroundColor = Colors.Transparent; // or your default color
-        }
-    }
-
 }

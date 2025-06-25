@@ -45,10 +45,10 @@ namespace ServiceLibrary.Services.Repositories
 
             var items = order.Items.Select(item => new ItemInfo
             {
-                Qty = item.Qty.ToString(),
-                Description = (item.Product.Name.Length > (20 - item.Price.PesoFormat().Length - 2)
-                    ? item.Product.Name.Substring(0, 20 - item.Price.PesoFormat().Length - 2)
-                    : item.Product.Name) + $" @{item.Price.PesoFormat()}",
+                Qty = item.QtyDisplay,
+                Description = item.DisplayNameWithPrice.Length > 20
+                    ? item.DisplayNameWithPrice.Substring(0, 20)
+                    : item.DisplayNameWithPrice,
                 Amount = item.SubTotal.PesoFormat(),
             }).ToList();
 

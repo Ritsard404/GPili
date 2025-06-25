@@ -1,4 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ServiceLibrary.Utils;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace ServiceLibrary.Models
 {
@@ -18,5 +21,14 @@ namespace ServiceLibrary.Models
 
         public required virtual Product Product { get; set; }
         public required virtual Invoice Invoice { get; set; }
+
+        [NotMapped]
+        public string QtyDisplay => Qty % 1 == 0
+            ? ((int)Qty).ToString()
+            : Qty.ToString("F2");
+
+        [NotMapped]
+        public string DisplayNameWithPrice => $"{Product?.Name} @{Price.PesoFormat():N2}";
+
     }
 }

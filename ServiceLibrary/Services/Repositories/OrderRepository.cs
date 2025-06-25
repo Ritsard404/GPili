@@ -45,7 +45,6 @@ namespace ServiceLibrary.Services.Repositories
 
             if (existItem == null)
             {
-
                 // Create the new item
                 var item = new Item
                 {
@@ -63,16 +62,29 @@ namespace ServiceLibrary.Services.Repositories
                 pendingOrder.Items.Add(item);
                 _dataContext.Item.Add(item);
 
-                // Log the edit action
-                await _auditLog.AddCashierAudit(cashierResult.cashier, "Add Item", $"New item added named {product.Name} to the order {invNum:D12}", null);
-
+                // Log the new item addition
+                await _auditLog.AddCashierAudit(
+                    cashierResult.cashier,
+                    AuditActionType.AddItem,
+                    $"New item '{product.Name}' (Qty: {qty}) added to invoice {invNum:D12}.",
+                    null
+                );
             }
             else
             {
+                var oldQty = existItem.Qty;
                 existItem.Qty += qty;
                 existItem.SubTotal = existItem.Qty * existItem.Price;
 
+                // Log the item update
+                await _auditLog.AddCashierAudit(
+                    cashierResult.cashier,
+                    AuditActionType.Update,
+                    $"Updated item '{product.Name}' in invoice {invNum:D12}. Quantity changed from {oldQty} to {existItem.Qty}.",
+                    null
+                );
             }
+
 
             await _dataContext.SaveChangesAsync();
 
@@ -106,7 +118,10 @@ namespace ServiceLibrary.Services.Repositories
             _dataContext.Item.Update(existingItem);
 
             // Log the edit action
-            await _auditLog.AddCashierAudit(existingItem.Invoice.Cashier, "Edit Item", $"Edited item ID {existingItem.Id} - New Qty: {qty}, New SubTotal: {subtotal}", null);
+            await _auditLog.AddCashierAudit(existingItem.Invoice.Cashier, 
+                AuditActionType.UpdateItem, 
+                $"Edited item ID {existingItem.Id} - New Qty: {qty}, New SubTotal: {subtotal}", 
+                null);
 
             await _dataContext.SaveChangesAsync();
 
@@ -164,7 +179,9 @@ namespace ServiceLibrary.Services.Repositories
             invoiceToRefund.StatusChangeDate = DateTime.UtcNow;
 
             // Log the return action
-            await _auditLog.AddManagerAudit(managerResult.Result.manager, "Return Invoice", $"Invoice {invoiceNumber:D12} returned by {managerResult.Result.manager.Email}", null);
+            await _auditLog.AddManagerAudit(managerResult.Result.manager, 
+                AuditActionType.ReturnInvoice, 
+                $"Invoice {invoiceNumber:D12} returned by {managerResult.Result.manager.Email}", null);
 
             await _dataContext.SaveChangesAsync();
 
@@ -212,7 +229,7 @@ namespace ServiceLibrary.Services.Repositories
             invoiceToRefund.StatusChangeDate = DateTime.UtcNow;
 
             // Log the return action
-            await _auditLog.AddManagerAudit(managerResult.manager, "Return Items", $"Items returned from invoice {invoiceNumber:D12} by {managerResult.manager.Email}", null);
+            await _auditLog.AddManagerAudit(managerResult.manager, AuditActionType.ReturnItem, $"Items returned from invoice {invoiceNumber:D12} by {managerResult.manager.Email}", null);
             await _dataContext.SaveChangesAsync();
 
             // add to journal
@@ -247,8 +264,8 @@ namespace ServiceLibrary.Services.Repositories
             _dataContext.Item.Update(itemToVoid);
 
             // Log the void action
-            await _auditLog.AddManagerAudit(managerResult.manager, "Void Item", $"Item ID {itemId} voided by {managerResult.manager.Email} at the request of cashier {cashierResult.cashier.Email}", itemToVoid.SubTotal);
-            await _auditLog.AddCashierAudit(cashierResult.cashier, "Void Item", $"Item ID {itemId} voided at the request of manager {managerResult.manager.Email}", itemToVoid.SubTotal);
+            await _auditLog.AddManagerAudit(managerResult.manager, AuditActionType.VoidItem, $"Item ID {itemId} voided by {managerResult.manager.Email} at the request of cashier {cashierResult.cashier.Email}", itemToVoid.SubTotal);
+            await _auditLog.AddCashierAudit(cashierResult.cashier, AuditActionType.VoidItem, $"Item ID {itemId} voided at the request of manager {managerResult.manager.Email}", itemToVoid.SubTotal);
 
             return (true, "Item voided successfully!");
         }
@@ -289,8 +306,8 @@ namespace ServiceLibrary.Services.Repositories
             _dataContext.Invoice.Update(pendingOrder);
 
             // Log the void action
-            await _auditLog.AddManagerAudit(managerResult.manager, "Void Order", $"Order {pendingOrder.InvoiceNumber:D12} voided by {managerResult.manager.Email} at the request of cashier {cashierResult.cashier.Email}", null);
-            await _auditLog.AddCashierAudit(cashierResult.cashier, "Void Order", $"Order {pendingOrder.InvoiceNumber:D12} voided at the request of manager {managerResult.manager.Email}", null);
+            await _auditLog.AddManagerAudit(managerResult.manager, AuditActionType.VoidOrder, $"Order {pendingOrder.InvoiceNumber:D12} voided by {managerResult.manager.Email} at the request of cashier {cashierResult.cashier.Email}", null);
+            await _auditLog.AddCashierAudit(cashierResult.cashier, AuditActionType.VoidOrder, $"Order {pendingOrder.InvoiceNumber:D12} voided at the request of manager {managerResult.manager.Email}", null);
             await _dataContext.SaveChangesAsync();
 
             // add to journal
@@ -351,7 +368,7 @@ namespace ServiceLibrary.Services.Repositories
 
             await _auditLog.AddCashierAudit(
                 cashierResult.cashier,
-                "Pay Order",
+                AuditActionType.PayOrder,
                 $"Cashier {cashierResult.cashier.Email} successfully processed payment for Order #{pendingOrder.InvoiceNumber.InvoiceFormat()} with a total amount of {pay.TotalAmount.PesoFormat()}.",
                 pay.TotalAmount
             );

@@ -5,5 +5,5 @@ public partial class OrderSummaryView : ContentView
 	public OrderSummaryView()
 	{
 		InitializeComponent();
-	}
+    }
 }
