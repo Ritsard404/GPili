@@ -2,18 +2,18 @@ namespace GPili.Presentation.Contents;
 
 public partial class UserFooterView : ContentView, IDisposable
 {
-	private readonly PeriodicTimer _timer;
-	public UserFooterView()
-	{
-		InitializeComponent(); 
-		
-		SysVer.Text = "System Version " + DeviceInfo.Current.Version.ToString();
-		Shift.Text = "Shift: " + DeviceInfo.Current.Platform.ToString();
-        User.Text = ("User: " + CashierState.CashierName) ?? "Unknown User";
-        PosName.Text = "POS1";
+    private readonly PeriodicTimer _timer;
+    public UserFooterView()
+    {
+        InitializeComponent();
 
-		_timer = new PeriodicTimer(TimeSpan.FromSeconds(1));
-		UpdateDate();
+        SysVer.Text = "System Version " + DeviceInfo.Current.Version.ToString();
+        Shift.Text = "Shift: " + DeviceInfo.Current.Platform.ToString();
+        User.Text = ("User: " + CashierState.CashierName) ?? "Unknown User";
+        PosName.Text = "POS: " + POSInfo.Terminal.PosName;
+
+        _timer = new PeriodicTimer(TimeSpan.FromSeconds(1));
+        UpdateDate();
     }
     protected override void OnParentSet()
     {
@@ -27,15 +27,29 @@ public partial class UserFooterView : ContentView, IDisposable
 
     private async void UpdateDate()
     {
-        while (await _timer.WaitForNextTickAsync())
+        try
         {
-            var now = DateTime.Now;
-            Dispatcher.Dispatch(() =>
+            while (await _timer.WaitForNextTickAsync(_cts.Token))
             {
-                Date.Text = "Date: " + now.ToString("dd/MM/yyyy(ddd) hh:mm:ss");
-            });
+                var now = DateTime.Now;
+                Dispatcher.Dispatch(() =>
+                {
+                    if (Date != null)
+                        Date.Text = "Date: " + now.ToString("dd/MM/yyyy(ddd) hh:mm:ss");
+                });
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Timer was cancelled, safe to ignore
         }
     }
-
-    public void Dispose() => _timer?.Dispose();
+    private readonly CancellationTokenSource _cts = new(); 
+    
+    public void Dispose()
+    {
+        _cts.Cancel();
+        _timer?.Dispose();
+        _cts.Dispose();
+    }
 }

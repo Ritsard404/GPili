@@ -22,7 +22,10 @@ namespace GPili.Presentation.Features.LogIn
         [ObservableProperty]
         private User[] _cashiers = [];
 
-        public LogInViewModel(IAuth auth, ILoaderService loaderService, INavigationService navigationService, CashieringViewModel cashieringView)
+        public LogInViewModel(IAuth auth, 
+            ILoaderService loaderService, 
+            INavigationService navigationService, 
+            CashieringViewModel cashieringView)
         {
             _auth = auth;
             _loaderService = loaderService;

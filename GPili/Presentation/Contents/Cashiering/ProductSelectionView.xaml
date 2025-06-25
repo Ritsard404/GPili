@@ -2,7 +2,8 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-             x:Class="GPili.Presentation.Contents.Cashiering.ProductSelectionView">
+             x:Class="GPili.Presentation.Contents.Cashiering.ProductSelectionView"
+             x:Name="ProductSelectionViewRoot">
     <Grid RowDefinitions="0.1*, 0.9*" Padding="10">
         <!--// Products and Search-->
         <Grid RowDefinitions="Auto" Grid.Row="0" HorizontalOptions="Fill" VerticalOptions="Fill">
@@ -49,9 +50,6 @@
             <CollectionView
                   ItemsSource="{Binding Products}"
                 SelectionMode="Single"
-                SelectedItem="{Binding SelectedProduct, Mode=TwoWay}"
-                SelectionChangedCommand="{Binding AddItemCommand}"
-                SelectionChangedCommandParameter="{Binding SelectedProduct}"
                   BackgroundColor="Violet"
                   HeightRequest="250"
                   ItemSizingStrategy="MeasureAllItems">     
@@ -74,7 +72,10 @@
                             <Grid.GestureRecognizers>
                                 <PointerGestureRecognizer
                                     PointerEntered="OnPointerEntered"
-                                    PointerExited="OnPointerExited" />  
+                                    PointerExited="OnPointerExited" />
+                                <TapGestureRecognizer
+                                    Command="{Binding BindingContext.AddItemCommand, Source={x:Reference ProductSelectionViewRoot}}"
+                                    CommandParameter="{Binding .}" />   
                             </Grid.GestureRecognizers>
                         </Grid>
                     </DataTemplate>

@@ -20,8 +20,10 @@ namespace ServiceLibrary.Services.Repositories
             if (!cashierResult.isSuccess || cashierResult.cashier == null)
                 return (false, "Invalid cashier email. Please check and try again.");
 
-            if(qty <= 0)
+            if (qty <= 0)
                 return (false, "Invalid quantity.");
+
+            var existItem = await _dataContext.Item.FirstOrDefaultAsync(i => i.Product.Id == prodId && i.Product.IsAvailable);
 
             var isTrainMode = await _terminalMachine.IsTrainMode();
             var pendingOrder = await PendingOrder(isTrainMode);
@@ -41,25 +43,36 @@ namespace ServiceLibrary.Services.Repositories
                 _dataContext.Invoice.Add(pendingOrder);
             }
 
-            // Create the new item
-            var item = new Item
+            if (existItem == null)
             {
-                Qty = qty,
-                Price = product.Price,
-                SubTotal = product.Price * qty,
-                Status = InvoiceStatusType.Pending,
-                IsTrainingMode = isTrainMode,
-                CreatedAt = DateTime.UtcNow,
-                Product = product,
-                Invoice = pendingOrder
-            };
 
-            // Add item to invoice and context
-            pendingOrder.Items.Add(item);
-            _dataContext.Item.Add(item);
+                // Create the new item
+                var item = new Item
+                {
+                    Qty = qty,
+                    Price = product.Price,
+                    SubTotal = product.Price * qty,
+                    Status = InvoiceStatusType.Pending,
+                    IsTrainingMode = isTrainMode,
+                    CreatedAt = DateTime.UtcNow,
+                    Product = product,
+                    Invoice = pendingOrder
+                };
 
-            // Log the edit action
-            await _auditLog.AddCashierAudit(cashierResult.cashier, "Add Item", $"New item added named {product.Name} to the order {invNum:D12}", null);
+                // Add item to invoice and context
+                pendingOrder.Items.Add(item);
+                _dataContext.Item.Add(item);
+
+                // Log the edit action
+                await _auditLog.AddCashierAudit(cashierResult.cashier, "Add Item", $"New item added named {product.Name} to the order {invNum:D12}", null);
+
+            }
+            else
+            {
+                existItem.Qty += qty;
+                existItem.SubTotal = existItem.Qty * existItem.Price;
+
+            }
 
             await _dataContext.SaveChangesAsync();
 

@@ -15,9 +15,6 @@ namespace GPili.Presentation.Features.Cashiering
         private Product[] _products = [];
 
         [ObservableProperty]
-        private Product? _selectedProduct;
-
-        [ObservableProperty]
         private string? _searchProduct;
 
         [ObservableProperty]
@@ -25,6 +22,9 @@ namespace GPili.Presentation.Features.Cashiering
 
         [ObservableProperty]
         private decimal _qty = 1;
+
+        [ObservableProperty]
+        private InitialItem _currentItem;
 
         public async Task InitializeAsync()
         {
@@ -103,7 +103,6 @@ namespace GPili.Presentation.Features.Cashiering
             }
 
             Items = await _order.GetPendingItems();
-            SelectedProduct = null;
         }
     }
 }

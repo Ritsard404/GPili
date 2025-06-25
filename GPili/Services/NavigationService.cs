@@ -12,7 +12,7 @@ namespace GPili.Services
         Task GoToManager();
         Task Logout();
     }
-    public class NavigationService(IAuth _auth, IInventory _inventory) : INavigationService
+    public class NavigationService(IAuth _auth, IInventory _inventory, IGPiliTerminalMachine _terminalMachine) : INavigationService
     {
         public async Task GoBack()
         {
@@ -27,6 +27,8 @@ namespace GPili.Services
         public async Task InitializeAsync()
         {
             var result = await _auth.HasPendingOrder();
+
+            POSInfo.Terminal = await _terminalMachine.GetTerminalInfo();
 
             if (result.isSuccess)
             {

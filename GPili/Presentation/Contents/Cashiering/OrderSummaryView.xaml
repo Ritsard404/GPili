@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="GPili.Presentation.Contents.Cashiering.OrderSummaryView">
+    <Grid RowDefinitions="0.5*, 0.5*" Padding="10">
+        <VerticalStackLayout Grid.Row="0">
+            <Grid ColumnDefinitions="0.10*,0.60*,0.15*,0.15*"
+                    Padding="12"
+                    BackgroundColor="SkyBlue">
+
+                <Label Text="Qty"
+                   Grid.Column="0"
+                   FontAttributes="Bold" />
+                <Label Text="Description"
+                   Grid.Column="1"
+                   FontAttributes="Bold" />
+                <Label Text="Price"
+                   Grid.Column="2"
+                   FontAttributes="Bold" />
+                <Label Text="Amount"
+                   Grid.Column="3"
+                   FontAttributes="Bold" />
+            </Grid>
+
+            <!-- SCROLLABLE ITEMS -->
+            <CollectionView
+                  ItemsSource="{Binding Items}"
+                SelectionMode="Single"
+                  BackgroundColor="Violet"
+                  HeightRequest="250"
+                  ItemSizingStrategy="MeasureAllItems">
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid ColumnDefinitions="0.10*,0.60*,0.15*,0.15*"
+                              Padding="12"
+                              Margin="4">
+
+                            <Label Text="{Binding Qty}"
+                                Grid.Column="0" />
+                            <Label Text="{Binding Product.Name}"
+                                Grid.Column="1" />
+                            <Label Text="{Binding Price, StringFormat='₱{0:N2}'}"
+                                Grid.Column="2" />
+                            <Label Text="{Binding SubTotal, StringFormat='₱{0:N2}'}"
+                                Grid.Column="3" />
+
+                            <Grid.GestureRecognizers>
+                                <PointerGestureRecognizer
+                                    PointerEntered="OnPointerEntered"
+                                    PointerExited="OnPointerExited" />
+                            </Grid.GestureRecognizers>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+
+            </CollectionView>
+        </VerticalStackLayout>
+    </Grid>
+
+</ContentView>
