@@ -1,6 +1,6 @@
 ﻿namespace ServiceLibrary.Utils
 {
-    internal static class Formats
+    public static class Formats
     {
         public static string InvoiceFormat(this long id)
         {

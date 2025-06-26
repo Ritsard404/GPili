@@ -2,6 +2,7 @@
 using ServiceLibrary.Models;
 using ServiceLibrary.Services.Interfaces;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 
 namespace GPili.Presentation.Features.Cashiering
 {
@@ -22,18 +23,18 @@ namespace GPili.Presentation.Features.Cashiering
         private List<Item> _items = [];
 
         [ObservableProperty]
-        private decimal _qty = 1;
-
-        [ObservableProperty]
-        private InitialItem _currentItem;
+        private InitialItem _currentItem = new();
 
         [ObservableProperty]
         private ItemTotals _tenders = new();
 
+        [ObservableProperty]
+        private string _selectedKeypadAction = KeypadActions.QTY;
+
         public async Task InitializeAsync()
         {
 
-            bool isCashedDrawer =  await _auth.IsCashedDrawer(CashierState.Info.CashierEmail);
+            bool isCashedDrawer = await _auth.IsCashedDrawer(CashierState.Info.CashierEmail);
 
             await Task.Delay(1000);
 
@@ -72,6 +73,7 @@ namespace GPili.Presentation.Features.Cashiering
             Products = await _inventory.GetProducts();
 
             Items = await _order.GetPendingItems();
+            Tenders.ItemsToPaid = new ObservableCollection<Item>(Items);
 
             await _loaderService.ShowAsync("", false);
         }
@@ -92,12 +94,12 @@ namespace GPili.Presentation.Features.Cashiering
         [RelayCommand]
         private async Task AddItem(Product? product)
         {
-            if (product is null || Qty <= 0)
+            if (product is null || CurrentItem.InitialQty <= 0)
                 return;
 
             var (isSuccess, message) = await _order.AddOrderItem(
                 prodId: product.Id,
-                qty: Qty,
+                qty: CurrentItem.InitialQty,
                 cashierEmail: CashierState.Info.CashierEmail!);
 
             if (!isSuccess)
@@ -109,5 +111,67 @@ namespace GPili.Presentation.Features.Cashiering
             Items = await _order.GetPendingItems();
             Tenders.ItemsToPaid = new ObservableCollection<Item>(Items);
         }
+
+        [RelayCommand]
+        private void AddPresetQty(string content)
+        {
+            if (SelectedKeypadAction == KeypadActions.QTY)
+            {
+                if (content == ".")
+                {
+                    if (!CurrentItem.QtyBuffer.Contains("."))
+                        CurrentItem.QtyBuffer += ".";
+                }
+                else
+                {
+                    CurrentItem.QtyBuffer += content;
+                }
+
+                if (decimal.TryParse(CurrentItem.QtyBuffer, out decimal preset))
+                {
+                    CurrentItem.InitialQty = preset;
+                }
+            }
+
+            if (SelectedKeypadAction == KeypadActions.PAY)
+            {
+                if (content == ".")
+                {
+                    if (!Tenders.PayBuffer.Contains("."))
+                        Tenders.PayBuffer += ".";
+                }
+                else
+                {
+                    Tenders.PayBuffer += content;
+                }
+
+                if (decimal.TryParse(Tenders.PayBuffer, out decimal payValue))
+                {
+                    Tenders.CashTenderAmount = payValue;
+                }
+            }
+        }
+
+        [RelayCommand]
+        private void ClearQty()
+        {
+            CurrentItem.QtyBuffer = "";
+            CurrentItem.InitialQty = 0;
+            Tenders.PayBuffer = "";
+            Tenders.CashTenderAmount = 0;
+        }
+
+        [RelayCommand]
+        private void SelectKeypadAction(string action)
+        {
+            SelectedKeypadAction = action;
+            CurrentItem.QtyBuffer = "";
+            CurrentItem.InitialQty = 0;
+            Tenders.PayBuffer = "";
+            Tenders.CashTenderAmount = 0;
+            Debug.Print($"Selected Keypad Action: {SelectedKeypadAction}");
+        }
+    
+    
     }
 }

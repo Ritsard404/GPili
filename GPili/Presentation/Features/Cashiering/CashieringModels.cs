@@ -12,9 +12,13 @@ namespace GPili.Presentation.Features.Cashiering
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsInitialDisplay))]
-        private decimal? _initialQty = 1;
+        private decimal _initialQty = 1;
 
-        private bool IsInitialDisplay => InitialQty != null;
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsInitialDisplay))]
+        private string _qtyBuffer = "";
+
+        private bool IsInitialDisplay => InitialQty <= 0;
     }
 
     public partial class ItemTotals : ObservableObject
@@ -23,10 +27,13 @@ namespace GPili.Presentation.Features.Cashiering
         [ObservableProperty]
         private decimal _cashTenderAmount = 0m;
 
+        [ObservableProperty]
+        private string _payBuffer = "";
+
         // Other payment
         [ObservableProperty]
         private ObservableCollection<AlternativePayment> _otherPayments = new();
-
+        public bool HasOtherPayments => OtherPayments != null && OtherPayments.Count > 0;
         // Items to be paid
         [ObservableProperty]
         private ObservableCollection<Item> _itemsToPaid = new();
@@ -65,8 +72,10 @@ namespace GPili.Presentation.Features.Cashiering
         public decimal AmountDue => TotalAmount - DiscountAmount;
         public decimal SubTotal => AmountDue - VatAmount;
 
-        // Tender & change
-        public decimal TenderAmount => CashTenderAmount + (OtherPayments?.Sum(a => a.Amount) ?? 0m);
+        // Tender & changepublic
+        decimal TenderAmount
+            => Math.Min(CashTenderAmount + (OtherPayments?.Sum(a => a.Amount) ?? 0), TotalAmount);
+
         public decimal ChangeAmount => TenderAmount - TotalAmount;
 
         // Helpers
@@ -86,6 +95,7 @@ namespace GPili.Presentation.Features.Cashiering
             OnPropertyChanged(nameof(VatExemptSales));
             OnPropertyChanged(nameof(VatZero));
             OnPropertyChanged(nameof(DiscountAmount)); 
+            OnPropertyChanged(nameof(HasOtherPayments)); 
             
             Debug.WriteLine($"[ItemTotals] Totals changed: TenderAmount={TenderAmount}, ChangeAmount={ChangeAmount}, AmountDue={AmountDue}, SubTotal={SubTotal}, TotalAmount={TotalAmount}, VatableTotal={VatableTotal}, VatSales={VatSales}, VatAmount={VatAmount}, VatExemptSales={VatExemptSales}, VatZero={VatZero}, DiscountAmount={DiscountAmount}");
         }

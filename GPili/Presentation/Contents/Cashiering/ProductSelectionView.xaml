@@ -4,7 +4,97 @@
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="GPili.Presentation.Contents.Cashiering.ProductSelectionView"
              x:Name="ProductSelectionViewRoot">
-    <Grid RowDefinitions="0.1*, 0.9*" Padding="10">
+    <ContentView.Resources>
+        <Style x:Key="KeypadButton" TargetType="Button">
+            <Setter Property="WidthRequest" Value="75"/>
+            <Setter Property="HeightRequest" Value="40"/>
+            <Setter Property="FontAttributes" Value="Bold"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="BackgroundColor" Value="White"/>
+            <Setter Property="TextColor" Value="Black"/>
+            <Setter Property="FontAttributes" Value="Bold"/>
+        </Style>
+        
+        <Style x:Key="ToggleKeypadButton" TargetType="Button" BasedOn="{StaticResource KeypadButton}">
+            <Style.Triggers>
+                <DataTrigger TargetType="Button"
+                     Binding="{Binding Source={x:Reference ProductSelectionViewRoot}, Path=BindingContext.SelectedKeypadAction}"
+                     Value="PLU">
+                    <Setter Property="BackgroundColor" Value="DodgerBlue"/>
+                    <Setter Property="TextColor" Value="White"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="GoldButton" TargetType="Button" BasedOn="{StaticResource KeypadButton}">
+            <Setter Property="BackgroundColor" Value="Gold"/>
+            <Setter Property="TextColor" Value="Black"/>
+            <Setter Property="FontAttributes" Value="Bold"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="VisualStateManager.VisualStateGroups">
+                <VisualStateGroupList>
+                    <VisualStateGroup x:Name="CommonStates">
+                        <VisualState x:Name="Normal">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor" Value="Gold"/>
+                                <Setter Property="TextColor" Value="Black"/>
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState x:Name="Pressed">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor" Value="DarkGrey"/>
+                                <!-- Darker gold or use a different shade -->
+                                <Setter Property="TextColor" Value="White"/>
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState x:Name="Disabled">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor" Value="#FFF8DC"/>
+                                <Setter Property="TextColor" Value="#FFB300"/>
+                                <Setter Property="Opacity" Value="0.5"/>
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateGroupList>
+            </Setter>
+        </Style>
+        <Style x:Key="RedButton" TargetType="Button" BasedOn="{StaticResource KeypadButton}">
+            <Setter Property="BackgroundColor" Value="Red"/>
+            <Setter Property="WidthRequest" Value="120"/>
+            <Setter Property="TextColor" Value="White"/>
+            <Setter Property="FontAttributes" Value="Bold"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="VisualStateManager.VisualStateGroups">
+                <VisualStateGroupList>
+                    <VisualStateGroup x:Name="CommonStates">
+                        <VisualState x:Name="Normal">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor" Value="Red"/>
+                                <Setter Property="TextColor" Value="White"/>
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState x:Name="Pressed">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor" Value="DarkGrey"/>
+                                <!-- Darker red -->
+                                <Setter Property="TextColor" Value="White"/>
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState x:Name="Disabled">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor" Value="#FFB3B3"/>
+                                <!-- Lighter red -->
+                                <Setter Property="TextColor" Value="#B20000"/>
+                                <Setter Property="Opacity" Value="0.5"/>
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateGroupList>
+            </Setter>
+        </Style>
+    </ContentView.Resources>
+    
+    <Grid RowDefinitions="Auto, *" RowSpacing="5" Padding="10">
         <!--// Products and Search-->
         <Grid RowDefinitions="Auto" Grid.Row="0" HorizontalOptions="Fill" VerticalOptions="Fill">
             <HorizontalStackLayout Spacing="20" Grid.Row="0">
@@ -13,6 +103,8 @@
                        Text="{Binding SearchProduct}"
                        WidthRequest="200"
                        ClearButtonVisibility="WhileEditing"
+                       Background="White"
+                       TextColor="Black"
                        FontSize="15"
                        >
                     <Entry.Behaviors>
@@ -48,12 +140,12 @@
 
             <!-- SCROLLABLE ITEMS -->
             <CollectionView
-                  ItemsSource="{Binding Products}"
-                SelectionMode="Single"
-                BackgroundColor="MediumAquamarine"
-              
-                  HeightRequest="250"
-                  ItemSizingStrategy="MeasureAllItems">     
+                        ItemsSource="{Binding Products}"
+                        SelectionMode="Single"
+                        BackgroundColor="MediumAquamarine"
+                        HeightRequest="245"
+                        Margin="0,0,0,5"
+                        ItemSizingStrategy="MeasureAllItems">     
 
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
@@ -80,6 +172,118 @@
                 </CollectionView.ItemTemplate>
 
             </CollectionView>
+            
+            <!-- KEYPADS -->
+            <Grid ColumnDefinitions="0.5*, 0.5*">
+                <!-- KEYPADS -->
+                <Frame Grid.Column="1"
+                       BackgroundColor="#F5F5F5"
+                       CornerRadius="16"
+                       HasShadow="True"
+                       VerticalOptions="Fill"
+                       HorizontalOptions="Fill">
+                    <VerticalStackLayout>
+                        <!-- Number pad -->
+                        <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto"
+                              RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
+                              ColumnSpacing="5"
+                              RowSpacing="5">
+                            <!-- Row 1 -->
+                            <Button Text="7" Grid.Row="0" Grid.Column="0" StyleClass="KeypadButton"
+                                    Command="{Binding AddPresetQtyCommand}" CommandParameter="7"/>
+                            <Button Text="8" Grid.Row="0" Grid.Column="1" StyleClass="KeypadButton"
+                                    Command="{Binding AddPresetQtyCommand}" CommandParameter="8"/>
+                            <Button Text="9" Grid.Row="0" Grid.Column="2" StyleClass="KeypadButton"
+                                    Command="{Binding AddPresetQtyCommand}" CommandParameter="9"/>
+                            <Button Text="CLR" 
+                                    Grid.Row="0" 
+                                    Grid.Column="3" 
+                                    Style="{StaticResource GoldButton}"
+                                    FontAttributes="Bold" 
+                                    CornerRadius="8"
+                                    Command="{Binding ClearQtyCommand}"/>
+                            <Button Text="DISCOUNT" Grid.Row="0" Grid.Column="4" Style="{StaticResource RedButton}" FontAttributes="Bold" CornerRadius="8"/>
+                            <!-- Row 2 -->
+                            <Button Text="4" Grid.Row="1" Grid.Column="0" StyleClass="KeypadButton"
+                                    Command="{Binding AddPresetQtyCommand}" CommandParameter="4"/>
+                            <Button Text="5" Grid.Row="1" Grid.Column="1" StyleClass="KeypadButton"
+                                    Command="{Binding AddPresetQtyCommand}" CommandParameter="5"/>
+                            <Button Text="6" Grid.Row="1" Grid.Column="2" StyleClass="KeypadButton"
+                                    Command="{Binding AddPresetQtyCommand}" CommandParameter="6"/>
+                            <Button Text="VOID" Grid.Row="1" Grid.Column="4" Style="{StaticResource RedButton}" FontAttributes="Bold" CornerRadius="8"/>
+                            <!-- Row 3 -->
+                            <Button Text="1" Grid.Row="2" Grid.Column="0" StyleClass="KeypadButton"
+                                    Command="{Binding AddPresetQtyCommand}" CommandParameter="1"/>
+                            <Button Text="2" Grid.Row="2" Grid.Column="1" StyleClass="KeypadButton"
+                                    Command="{Binding AddPresetQtyCommand}" CommandParameter="2"/>
+                            <Button Text="3" Grid.Row="2" Grid.Column="2" StyleClass="KeypadButton"
+                                    Command="{Binding AddPresetQtyCommand}" CommandParameter="3"/>
+                            <Button Text="PLU"
+                                    Grid.Row="2" Grid.Column="3"
+                                    StyleClass="KeypadButton"
+                                    Command="{Binding SelectKeypadActionCommand}"
+                                    BackgroundColor="Gold"
+                                    FontAttributes="Bold"
+                                    CommandParameter="PLU">
+                                    <Button.Triggers>
+                                    <DataTrigger TargetType="Button"
+                                         Binding="{Binding SelectedKeypadAction}"
+                                         Value="PLU">
+                                        <Setter Property="BackgroundColor" Value="DodgerBlue"/>
+                                        <Setter Property="TextColor" Value="White"/>
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <Button Text="EXACT PAY" Grid.Row="2" Grid.Column="4" Style="{StaticResource RedButton}" FontAttributes="Bold" CornerRadius="8"/>
+                            <!-- Row 4 -->
+                            <Button Text="0" Grid.Row="3" Grid.Column="0" StyleClass="KeypadButton"
+                                    Command="{Binding AddPresetQtyCommand}" CommandParameter="0"/>
+                            <Button Text="." Grid.Row="3" Grid.Column="1" StyleClass="KeypadButton"
+                                    Command="{Binding AddPresetQtyCommand}" CommandParameter="."/>
+                            <Button Text="00" Grid.Row="3" Grid.Column="2" StyleClass="KeypadButton"
+                                    Command="{Binding AddPresetQtyCommand}" CommandParameter="00"/>
+                            <Button Text="QTY"
+                                    Grid.Row="3" Grid.Column="3"
+                                    StyleClass="KeypadButton"
+                                    Command="{Binding SelectKeypadActionCommand}"
+                                    BackgroundColor="Gold"
+                                    FontAttributes="Bold"
+                                    CommandParameter="QTY">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button"
+                                         Binding="{Binding SelectedKeypadAction}"
+                                         Value="QTY">
+                                        <Setter Property="BackgroundColor" Value="DodgerBlue"/>
+                                        <Setter Property="TextColor" Value="White"/>
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <Button Text="ENTER" Grid.Row="3" Grid.Column="4" Style="{StaticResource RedButton}" FontAttributes="Bold" CornerRadius="8"/>
+
+                            <!-- Pay buttons -->
+
+                            <Button Text="PAY"
+                                Grid.Row="4" Grid.ColumnSpan="3" Grid.Column="0"
+                                BackgroundColor="Green"
+                                TextColor="White"
+                                FontAttributes="Bold"
+                                CornerRadius="8"
+                                Command="{Binding SelectKeypadActionCommand}"
+                                CommandParameter="PAY">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button"
+                                         Binding="{Binding SelectedKeypadAction}"
+                                         Value="PAY">   
+                                        <Setter Property="BackgroundColor" Value="DodgerBlue"/>
+                                        <Setter Property="TextColor" Value="White"/>
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Frame>
+            </Grid>
         </VerticalStackLayout>
+        
     </Grid>
 </ContentView>

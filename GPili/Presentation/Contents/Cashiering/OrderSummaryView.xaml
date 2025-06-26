@@ -1,18 +1,26 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converter="clr-namespace:GPili.Converters"
              x:Class="GPili.Presentation.Contents.Cashiering.OrderSummaryView">
-    <Grid RowDefinitions="0.65*, 0.35*" Padding="10">
+    <ContentView.Resources>
+        <converter:InverseBoolConverter x:Key="InverseBoolConverter"/>
+        <converter:ItemIndexConverter x:Key="ItemIndexConverter"/>
+    </ContentView.Resources>
+    <Grid RowDefinitions="0.5*, 0.5*" Padding="10" RowSpacing="10">
         <Grid Grid.Row="0" RowDefinitions="Auto,*">
-            <Grid Grid.Row="0" ColumnDefinitions="0.10*,0.75*,0.15*"
+            <Grid ColumnDefinitions="0.10*,0.10*,0.65*,0.15*"
                     Padding="12"
                     BackgroundColor="SkyBlue">
 
-                <Label Text="Qty"
+                <Label Text="No."
                    Grid.Column="0"
                    FontAttributes="Bold" />
-                <Label Text="Description"
+                <Label Text="Qty"
                    Grid.Column="1"
+                   FontAttributes="Bold" />
+                <Label Text="Description"
+                   Grid.Column="2"
                    FontAttributes="Bold" />
                 <Label Text="Amount"
                    Grid.Column="3"
@@ -20,26 +28,25 @@
             </Grid>
 
             <!-- SCROLLABLE ITEMS -->
-            <CollectionView
-                Grid.Row="1"
-                  ItemsSource="{Binding Items}"
-                SelectionMode="Single"
-                  BackgroundColor="Violet"
-                  VerticalOptions="FillAndExpand"
-                  ItemSizingStrategy="MeasureAllItems">
-
+            <CollectionView x:Name="OrderItemsCollectionView"
+                            Grid.Row="1"
+                            ItemsSource="{Binding Items}"
+                            SelectionMode="Single"
+                            BackgroundColor="Violet"
+                            VerticalOptions="FillAndExpand"
+                            ItemSizingStrategy="MeasureAllItems">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Grid ColumnDefinitions="0.10*,0.75*,0.15*"
+                        <Grid ColumnDefinitions="0.10*,0.10*,0.65*,0.15*"
                               Padding="12"
                               Margin="4">
-
-                            <Label Text="{Binding QtyDisplay}"
-                                Grid.Column="0" />
-                            <Label Text="{Binding DisplayNameWithPrice}"
-                                Grid.Column="1" />
-                            <Label Text="{Binding SubTotal, StringFormat='₱{0:N2}'}"
-                                Grid.Column="3" />
+                            <Label Grid.Column="0"
+                               Text="{Binding ., Converter={StaticResource ItemIndexConverter}, ConverterParameter={x:Reference OrderItemsCollectionView}}"
+                               FontAttributes="Bold"
+                               VerticalOptions="Center"/>
+                            <Label Text="{Binding QtyDisplay}" Grid.Column="1" VerticalOptions="Center" />
+                            <Label Text="{Binding DisplayNameWithPrice}" Grid.Column="2" />
+                            <Label Text="{Binding SubTotal, StringFormat='₱{0:N2}'}" Grid.Column="3" />
 
                             <Grid.GestureRecognizers>
                             </Grid.GestureRecognizers>
@@ -49,7 +56,173 @@
 
             </CollectionView>
         </Grid>
-        <VerticalStackLayout Grid.Row="1"></VerticalStackLayout>
+        <Grid Grid.Row="1" RowDefinitions="Auto, *" ColumnDefinitions="0.5*, 0.5*" HorizontalOptions="Fill" VerticalOptions="Fill" BackgroundColor="Black">
+            <Label Grid.Row="0" 
+                   Text="SALES"
+                   VerticalOptions="Center"
+                   HorizontalOptions="Center"
+                   FontAttributes="Bold"
+                   FontSize="18"/>
+            <VerticalStackLayout Grid.Column="0" 
+                                 Grid.Row="1"
+                                 Margin="5" 
+                                 Padding="5" 
+                                 VerticalOptions="Start" 
+                                 Spacing="12" 
+                                 HorizontalOptions="Center">
+                <HorizontalStackLayout   Spacing="10">
+                    <Label Text="SUBTOTAL: " 
+                       FontSize="14"
+                       FontAttributes="Bold"
+                       VerticalOptions="Center"></Label>
+                    <Entry WidthRequest="100" 
+                       IsReadOnly="True" 
+                       Text="{Binding Tenders.SubTotal, StringFormat='₱ {0:N2}'}" 
+                       FontAttributes="Bold"
+                       BackgroundColor="White"
+                       TextColor="Black"
+                       VerticalOptions="Center"
+                       HorizontalTextAlignment="End"
+                       />
+                </HorizontalStackLayout>
+                <HorizontalStackLayout HorizontalOptions="End" Spacing="10">
+                    <Label Text="TOTAL: " 
+                       FontSize="14"
+                       FontAttributes="Bold"
+                       VerticalOptions="Center"></Label>
+                    <Entry WidthRequest="100" 
+                       IsReadOnly="True" 
+                       Text="{Binding Tenders.TotalAmount, StringFormat='₱ {0:N2}'}" 
+                       FontAttributes="Bold"
+                       BackgroundColor="White"
+                       TextColor="Black"
+                       VerticalOptions="Center"
+                       HorizontalTextAlignment="End"
+                       />
+                </HorizontalStackLayout>
+                <HorizontalStackLayout HorizontalOptions="End" Spacing="10">
+                    <Label Text="CASH: " 
+                       FontSize="14"
+                       FontAttributes="Bold"
+                       VerticalOptions="Center"></Label>
+                    <Entry WidthRequest="100" 
+                       IsReadOnly="True" 
+                       Text="{Binding Tenders.CashTenderAmount, StringFormat='₱ {0:N2}'}" 
+                       FontAttributes="Bold"
+                       BackgroundColor="White"
+                       TextColor="Black"
+                       VerticalOptions="Center"
+                       HorizontalTextAlignment="End"
+                       />
+                </HorizontalStackLayout>
+                <CollectionView ItemsSource="{Binding Tenders.OtherPayments}"
+                    Margin="0,10,0,0"
+                    SelectionMode="None"
+                    IsVisible="{Binding Tenders.HasOtherPayments}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <HorizontalStackLayout HorizontalOptions="End" Spacing="10">
+                                <Label Text="{Binding Reference}" 
+                                       FontSize="14"
+                                       FontAttributes="Bold"
+                                       VerticalOptions="Center"/>
+                                <Entry WidthRequest="100" 
+                                       IsReadOnly="True" 
+                                       Text="{Binding Amount, StringFormat='₱ {0:N2}'}" 
+                                       FontAttributes="Bold"
+                                       BackgroundColor="White"
+                                       TextColor="Black"
+                                       VerticalOptions="Center"
+                                       HorizontalTextAlignment="End"/>
+                            </HorizontalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <!-- Show fallback if no other payments -->
+                <HorizontalStackLayout Spacing="10" 
+                                       HorizontalOptions="End"
+                                       IsVisible="{Binding Tenders.HasOtherPayments, Converter={StaticResource InverseBoolConverter}}">
+                    <Label Text="OTHERS:" 
+                       FontSize="14"
+                       FontAttributes="Bold"
+                       VerticalOptions="Center"/>
+                    <Entry WidthRequest="100" 
+                       IsReadOnly="True" 
+                       Text="₱ 0.00"
+                       FontAttributes="Bold"
+                       BackgroundColor="White"
+                       TextColor="Black"
+                       VerticalOptions="Center"
+                       HorizontalTextAlignment="End"/>
+                </HorizontalStackLayout>
+                <HorizontalStackLayout HorizontalOptions="End" Spacing="10">
+                    <Label Text="BALANCE: " 
+                       FontSize="14"
+                       FontAttributes="Bold"
+                       VerticalOptions="Center"></Label>
+                    <Entry WidthRequest="100" 
+                       IsReadOnly="True" 
+                       Text="{Binding Tenders.ChangeAmount, StringFormat='₱ {0:N2}'}" 
+                       FontAttributes="Bold"
+                       BackgroundColor="White"
+                       TextColor="Black"
+                       VerticalOptions="Center"
+                       HorizontalTextAlignment="End"
+                       />
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+            <VerticalStackLayout Grid.Column="1"
+                                 Grid.Row="1"
+                                 Margin="5" 
+                                 Padding="5" 
+                                 VerticalOptions="Start" 
+                                 Spacing="12" 
+                                 HorizontalOptions="Center"
+                                 IsVisible="False">
+                <CollectionView ItemsSource="{Binding Tenders.OtherPayments}"
+                    Margin="0,10,0,0"
+                    SelectionMode="None"
+                    IsVisible="{Binding Tenders.HasOtherPayments}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <HorizontalStackLayout HorizontalOptions="End" Spacing="10">
+                                <Label Text="{Binding Reference}" 
+                       FontSize="14"
+                       FontAttributes="Bold"
+                       VerticalOptions="Center"/>
+                                <Entry WidthRequest="100" 
+                       IsReadOnly="True" 
+                       Text="{Binding Amount, StringFormat='₱ {0:N2}'}" 
+                       FontAttributes="Bold"
+                       BackgroundColor="White"
+                       TextColor="Black"
+                       VerticalOptions="Center"
+                       HorizontalTextAlignment="End"/>
+                            </HorizontalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <!-- Show fallback if no other payments -->
+                <HorizontalStackLayout Spacing="10" 
+                                       IsVisible="{Binding Tenders.HasOtherPayments, Converter={StaticResource InverseBoolConverter}}">
+                    <Label Text="OTHERS:" 
+                       FontSize="14"
+                       FontAttributes="Bold"
+                       VerticalOptions="Center"/>
+                    <Entry WidthRequest="100" 
+                       IsReadOnly="True" 
+                       Text="₱ 0.00"
+                       FontAttributes="Bold"
+                       BackgroundColor="White"
+                       TextColor="Black"
+                       VerticalOptions="Center"
+                       HorizontalTextAlignment="End"/>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+
+        </Grid>
     </Grid>
 
 </ContentView>
