@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ServiceLibrary.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class GPili : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,7 +15,7 @@ namespace ServiceLibrary.Migrations
                 name: "AccountJournal",
                 columns: table => new
                 {
-                    unique_id = table.Column<long>(type: "INTEGER", nullable: false)
+                    UniqueId = table.Column<long>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Entry_Type = table.Column<string>(type: "TEXT", nullable: false),
                     Entry_No = table.Column<string>(type: "TEXT", nullable: false),
@@ -58,7 +58,7 @@ namespace ServiceLibrary.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AccountJournal", x => x.unique_id);
+                    table.PrimaryKey("PK_AccountJournal", x => x.UniqueId);
                 });
 
             migrationBuilder.CreateTable(
@@ -84,12 +84,16 @@ namespace ServiceLibrary.Migrations
                     PtuNumber = table.Column<string>(type: "TEXT", nullable: false),
                     DateIssued = table.Column<DateTime>(type: "TEXT", nullable: false),
                     ValidUntil = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    PosName = table.Column<string>(type: "TEXT", nullable: false),
                     RegisteredName = table.Column<string>(type: "TEXT", nullable: false),
                     OperatedBy = table.Column<string>(type: "TEXT", nullable: false),
                     Address = table.Column<string>(type: "TEXT", nullable: false),
                     VatTinNumber = table.Column<string>(type: "TEXT", nullable: false),
+                    Vat = table.Column<int>(type: "INTEGER", nullable: false),
+                    DiscountMax = table.Column<decimal>(type: "TEXT", nullable: false),
                     CostCenter = table.Column<string>(type: "TEXT", nullable: false),
                     BranchCenter = table.Column<string>(type: "TEXT", nullable: false),
+                    PrinterName = table.Column<string>(type: "TEXT", nullable: false),
                     ResetCounterNo = table.Column<int>(type: "INTEGER", nullable: false),
                     ResetCounterTrainNo = table.Column<int>(type: "INTEGER", nullable: false),
                     ZCounterNo = table.Column<int>(type: "INTEGER", nullable: false),
@@ -137,14 +141,19 @@ namespace ServiceLibrary.Migrations
                 name: "Product",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                    Id = table.Column<long>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
+                    ProdId = table.Column<string>(type: "TEXT", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
                     Barcode = table.Column<string>(type: "TEXT", nullable: false),
-                    Quantity = table.Column<decimal>(type: "TEXT", nullable: false),
+                    BaseUnit = table.Column<string>(type: "TEXT", nullable: false),
+                    Quantity = table.Column<decimal>(type: "TEXT", nullable: true),
+                    Cost = table.Column<decimal>(type: "TEXT", nullable: false),
                     Price = table.Column<decimal>(type: "TEXT", nullable: false),
                     IsAvailable = table.Column<bool>(type: "INTEGER", nullable: false),
                     ImagePath = table.Column<string>(type: "TEXT", nullable: true),
+                    ItemType = table.Column<string>(type: "TEXT", nullable: false),
+                    VatType = table.Column<string>(type: "TEXT", nullable: false),
                     CategoryId = table.Column<int>(type: "INTEGER", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
@@ -171,6 +180,7 @@ namespace ServiceLibrary.Migrations
                     Action = table.Column<string>(type: "TEXT", nullable: false),
                     Changes = table.Column<string>(type: "TEXT", nullable: false),
                     Amount = table.Column<decimal>(type: "TEXT", nullable: true),
+                    isTrainMode = table.Column<bool>(type: "INTEGER", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
@@ -196,6 +206,7 @@ namespace ServiceLibrary.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     InvoiceNumber = table.Column<long>(type: "INTEGER", nullable: false),
                     TotalAmount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    SubTotal = table.Column<decimal>(type: "TEXT", nullable: true),
                     CashTendered = table.Column<decimal>(type: "TEXT", nullable: true),
                     DueAmount = table.Column<decimal>(type: "TEXT", nullable: true),
                     TotalTendered = table.Column<decimal>(type: "TEXT", nullable: true),
@@ -203,6 +214,8 @@ namespace ServiceLibrary.Migrations
                     VatSales = table.Column<decimal>(type: "TEXT", nullable: true),
                     VatExempt = table.Column<decimal>(type: "TEXT", nullable: true),
                     VatAmount = table.Column<decimal>(type: "TEXT", nullable: true),
+                    VatZero = table.Column<decimal>(type: "TEXT", nullable: true),
+                    CustomerName = table.Column<string>(type: "TEXT", nullable: false),
                     EligibleDiscName = table.Column<string>(type: "TEXT", nullable: true),
                     OSCAIdNum = table.Column<string>(type: "TEXT", nullable: true),
                     DiscountType = table.Column<string>(type: "TEXT", nullable: true),
@@ -300,14 +313,13 @@ namespace ServiceLibrary.Migrations
                     Id = table.Column<long>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Qty = table.Column<decimal>(type: "TEXT", nullable: false),
-                    Price = table.Column<decimal>(type: "TEXT", nullable: true),
-                    SubTotal = table.Column<decimal>(type: "TEXT", nullable: true),
+                    Price = table.Column<decimal>(type: "TEXT", nullable: false),
+                    SubTotal = table.Column<decimal>(type: "TEXT", nullable: false),
                     Status = table.Column<string>(type: "TEXT", nullable: false),
-                    IsVoid = table.Column<bool>(type: "INTEGER", nullable: false),
                     IsTrainingMode = table.Column<bool>(type: "INTEGER", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    ProductId = table.Column<int>(type: "INTEGER", nullable: false),
+                    ProductId = table.Column<long>(type: "INTEGER", nullable: false),
                     InvoiceId = table.Column<long>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>

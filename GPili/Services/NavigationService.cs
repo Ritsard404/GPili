@@ -1,6 +1,8 @@
 ﻿
 using GPili.Utils.State;
+using Microsoft.Maui.ApplicationModel.Communication;
 using ServiceLibrary.Services.Interfaces;
+using System.Xml.Linq;
 
 namespace GPili.Services
 {
@@ -29,19 +31,16 @@ namespace GPili.Services
             var result = await _auth.HasPendingOrder();
 
             POSInfo.Terminal = await _terminalMachine.GetTerminalInfo();
-
             if (result.isSuccess)
             {
-                CashierState.CashierName = result.cashierName;
-                CashierState.CashierEmail = result.cashierEmail;
+
+                CashierState.Info.UpdateCashierInfo(result.cashierName, result.cashierEmail);
                 
                 await NavigateToAsync(AppRoutes.Cashiering);
             }
             else
             {
-                CashierState.CashierName = string.Empty;
-                CashierState.CashierEmail = string.Empty;
-
+                CashierState.Info.UpdateCashierInfo("", "");
                 await NavigateToAsync(AppRoutes.Login);
             }
         }

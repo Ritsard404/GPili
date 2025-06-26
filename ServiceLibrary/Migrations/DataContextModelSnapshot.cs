@@ -416,6 +416,9 @@ namespace ServiceLibrary.Migrations
                     b.Property<DateTime>("DateIssued")
                         .HasColumnType("TEXT");
 
+                    b.Property<decimal>("DiscountMax")
+                        .HasColumnType("TEXT");
+
                     b.Property<bool>("IsTrainMode")
                         .HasColumnType("INTEGER");
 

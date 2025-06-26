@@ -11,8 +11,8 @@ using ServiceLibrary.Data;
 namespace ServiceLibrary.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250617143205_Initial2")]
-    partial class Initial2
+    [Migration("20250626014114_GPili")]
+    partial class GPili
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -74,6 +74,9 @@ namespace ServiceLibrary.Migrations
                     b.Property<string>("ManagerEmail")
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("isTrainMode")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CashierEmail");
@@ -117,6 +120,10 @@ namespace ServiceLibrary.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("CustomerName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<decimal?>("DiscountAmount")
                         .HasColumnType("TEXT");
 
@@ -154,6 +161,9 @@ namespace ServiceLibrary.Migrations
                     b.Property<DateTime?>("StatusChangeDate")
                         .HasColumnType("TEXT");
 
+                    b.Property<decimal?>("SubTotal")
+                        .HasColumnType("TEXT");
+
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("TEXT");
 
@@ -167,6 +177,9 @@ namespace ServiceLibrary.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<decimal?>("VatSales")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal?>("VatZero")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -191,13 +204,10 @@ namespace ServiceLibrary.Migrations
                     b.Property<bool>("IsTrainingMode")
                         .HasColumnType("INTEGER");
 
-                    b.Property<bool>("IsVoid")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<decimal?>("Price")
+                    b.Property<decimal>("Price")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("ProductId")
+                    b.Property<long>("ProductId")
                         .HasColumnType("INTEGER");
 
                     b.Property<decimal>("Qty")
@@ -207,7 +217,7 @@ namespace ServiceLibrary.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<decimal?>("SubTotal")
+                    b.Property<decimal>("SubTotal")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -226,8 +236,7 @@ namespace ServiceLibrary.Migrations
                 {
                     b.Property<long>("UniqueId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("unique_id");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("AccountBalance")
                         .IsRequired()
@@ -410,6 +419,9 @@ namespace ServiceLibrary.Migrations
                     b.Property<DateTime>("DateIssued")
                         .HasColumnType("TEXT");
 
+                    b.Property<decimal>("DiscountMax")
+                        .HasColumnType("TEXT");
+
                     b.Property<bool>("IsTrainMode")
                         .HasColumnType("INTEGER");
 
@@ -418,6 +430,14 @@ namespace ServiceLibrary.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("OperatedBy")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PosName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PrinterName")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
@@ -438,6 +458,9 @@ namespace ServiceLibrary.Migrations
                     b.Property<DateTime>("ValidUntil")
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("Vat")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("VatTinNumber")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -455,7 +478,7 @@ namespace ServiceLibrary.Migrations
 
             modelBuilder.Entity("ServiceLibrary.Models.Product", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
@@ -463,8 +486,15 @@ namespace ServiceLibrary.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("BaseUnit")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("CategoryId")
                         .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("Cost")
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
@@ -475,6 +505,10 @@ namespace ServiceLibrary.Migrations
                     b.Property<bool>("IsAvailable")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("ItemType")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -482,10 +516,18 @@ namespace ServiceLibrary.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("TEXT");
 
-                    b.Property<decimal>("Quantity")
+                    b.Property<string>("ProdId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal?>("Quantity")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("VatType")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");

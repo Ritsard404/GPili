@@ -5,6 +5,7 @@ namespace GPili.Presentation.Contents;
 public partial class FooterView : ContentView, IDisposable
 {
     private readonly PeriodicTimer _timer;
+    private readonly CancellationTokenSource _cts = new();
 
     public FooterView()
 	{
@@ -45,8 +46,11 @@ public partial class FooterView : ContentView, IDisposable
         {
             // Timer was cancelled, safe to ignore
         }
+        catch (Exception ex)
+        {
+            // Optionally log or handle unexpected exceptions
+        }
     }
-    private readonly CancellationTokenSource _cts = new();
 
     public void Dispose()
     {

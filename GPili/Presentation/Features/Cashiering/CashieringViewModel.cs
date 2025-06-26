@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Maui.Alerts;
 using ServiceLibrary.Models;
 using ServiceLibrary.Services.Interfaces;
+using System.Collections.ObjectModel;
 
 namespace GPili.Presentation.Features.Cashiering
 {
@@ -26,10 +27,13 @@ namespace GPili.Presentation.Features.Cashiering
         [ObservableProperty]
         private InitialItem _currentItem;
 
+        [ObservableProperty]
+        private ItemTotals _tenders = new();
+
         public async Task InitializeAsync()
         {
 
-            bool isCashedDrawer =  await _auth.IsCashedDrawer(CashierState.CashierEmail!);
+            bool isCashedDrawer =  await _auth.IsCashedDrawer(CashierState.Info.CashierEmail);
 
             await Task.Delay(1000);
 
@@ -60,7 +64,7 @@ namespace GPili.Presentation.Features.Cashiering
 
                 await _loaderService.ShowAsync("Loading Products...", true);
 
-                await _auth.SetCashInDrawer(CashierState.CashierEmail!, cashValue);
+                await _auth.SetCashInDrawer(CashierState.Info.CashierEmail!, cashValue);
                 await Toast.Make($"₱{cashValue} has been stored in the drawer.").Show();
                 isCashedDrawer = true;
             }
@@ -94,7 +98,7 @@ namespace GPili.Presentation.Features.Cashiering
             var (isSuccess, message) = await _order.AddOrderItem(
                 prodId: product.Id,
                 qty: Qty,
-                cashierEmail: CashierState.CashierEmail!);
+                cashierEmail: CashierState.Info.CashierEmail!);
 
             if (!isSuccess)
             {
@@ -103,6 +107,7 @@ namespace GPili.Presentation.Features.Cashiering
             }
 
             Items = await _order.GetPendingItems();
+            Tenders.ItemsToPaid = new ObservableCollection<Item>(Items);
         }
     }
 }

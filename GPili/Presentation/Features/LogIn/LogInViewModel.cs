@@ -60,11 +60,12 @@ namespace GPili.Presentation.Features.LogIn
                 {
                     case RoleType.Manager:
                         await _navigationService.GoToManager();
+                        CashierState.Info.UpdateCashierInfo(name, email);
                         return;
 
                     case RoleType.Cashier:
                         await _navigationService.NavigateToAsync(AppRoutes.Cashiering);
-                        //await _cashieringView.InitializeAsync();
+                        CashierState.Info.UpdateCashierInfo(name, email);
                         return;
 
                     default:
