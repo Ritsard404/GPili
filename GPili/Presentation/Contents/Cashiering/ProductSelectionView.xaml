@@ -234,7 +234,14 @@
                                     </DataTrigger>
                                 </Button.Triggers>
                             </Button>
-                            <Button Text="EXACT PAY" Grid.Row="2" Grid.Column="4" Style="{StaticResource RedButton}" FontAttributes="Bold" CornerRadius="8"/>
+                            <Button Text="EXACT PAY" 
+                                    Grid.Row="2" 
+                                    Grid.Column="4" 
+                                    IsEnabled="{Binding Tenders.IsExactPayEnable}"
+                                    Style="{StaticResource RedButton}" 
+                                    FontAttributes="Bold" CornerRadius="8"
+                                    Command="{Binding PayOrderCommand}"
+                                    CommandParameter="EXACT"/>
                             <!-- Row 4 -->
                             <Button Text="0" Grid.Row="3" Grid.Column="0" StyleClass="KeypadButton"
                                     Command="{Binding AddPresetQtyCommand}" CommandParameter="0"/>
@@ -258,7 +265,12 @@
                                     </DataTrigger>
                                 </Button.Triggers>
                             </Button>
-                            <Button Text="ENTER" Grid.Row="3" Grid.Column="4" Style="{StaticResource RedButton}" FontAttributes="Bold" CornerRadius="8"/>
+                            <Button Text="ENTER" 
+                                    Grid.Row="3" Grid.Column="4" 
+                                    Style="{StaticResource RedButton}" 
+                                    FontAttributes="Bold" CornerRadius="8"
+                                    Command="{Binding PayOrderCommand}"
+                                    CommandParameter="ENTER"/>
 
                             <!-- Pay buttons -->
 

@@ -15,6 +15,7 @@
         // Totals
         public required string TotalAmount { get; set; }
         public required string DiscountAmount { get; set; }
+        public required string SubTotal { get; set; }
         public required string DueAmount { get; set; }
         public List<OtherPayment> OtherPayments { get; set; } = new List<OtherPayment>();
         public required string CashTenderAmount { get; set; }
@@ -25,7 +26,7 @@
         public required string VatAmount { get; set; }
         public required string VatZero { get; set; }
 
-        public required string ElligiblePersonDiscount { get; set; }
+        public string? ElligiblePersonDiscount { get; set; }
         public required string PrintCount { get; set; }
     }
 

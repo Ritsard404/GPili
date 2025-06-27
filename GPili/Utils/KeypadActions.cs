@@ -7,7 +7,7 @@
         public const string PAY = "PAY";
         public const string DISCOUNT = "DISCOUNT";
         public const string VOID = "VOID";
-        public const string EXACT_PAY = "EXACT PAY";
+        public const string EXACT_PAY = "EXACT";
         public const string ENTER = "ENTER";
     }
 }

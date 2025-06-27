@@ -42,6 +42,7 @@ namespace ServiceLibrary.Services.Repositories
                 return (false, "Terminal information not found.");
 
             var invoice = await _dataContext.Invoice
+                .Include(i => i.Cashier)
                 .Include(i => i.Items)
                     .ThenInclude(i => i.Product)
                 .Include(i => i.Cashier)
@@ -137,6 +138,7 @@ namespace ServiceLibrary.Services.Repositories
                 return (false, "Terminal information not found.");
 
             var invoice = await _dataContext.Invoice
+                .Include(i => i.Cashier)
                 .FirstOrDefaultAsync(i => i.Id == invId);
 
             if (invoice == null)
@@ -205,6 +207,7 @@ namespace ServiceLibrary.Services.Repositories
                 return (false, "Terminal information not found.");
 
             var invoice = await _dataContext.Invoice
+                .Include(i => i.Cashier)
                 .Include(i => i.AlternativePayments)
                     .ThenInclude(ap => ap.SaleType)
                 .AsNoTracking()
@@ -329,6 +332,7 @@ namespace ServiceLibrary.Services.Repositories
                 return (false, "Terminal information not found.");
 
             var invoice = await _dataContext.Invoice
+                .Include(i => i.Cashier)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(i => i.Id == invId);
 

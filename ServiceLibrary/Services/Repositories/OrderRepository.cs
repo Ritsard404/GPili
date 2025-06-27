@@ -23,8 +23,6 @@ namespace ServiceLibrary.Services.Repositories
             if (qty <= 0)
                 return (false, "Invalid quantity.");
 
-            var existItem = await _dataContext.Item.FirstOrDefaultAsync(i => i.Product.Id == prodId && i.Product.IsAvailable);
-
             var isTrainMode = await _terminalMachine.IsTrainMode();
             var pendingOrder = await PendingOrder(isTrainMode);
             long invNum = await GenerateInvoiceNumberAsync(isTrainMode);
@@ -42,6 +40,8 @@ namespace ServiceLibrary.Services.Repositories
                 };
                 _dataContext.Invoice.Add(pendingOrder);
             }
+
+            var existItem = await _dataContext.Item.FirstOrDefaultAsync(i => i.Product.Id == prodId && i.Product.IsAvailable && i.Invoice.Id == pendingOrder.Id);
 
             if (existItem == null)
             {
@@ -118,9 +118,9 @@ namespace ServiceLibrary.Services.Repositories
             _dataContext.Item.Update(existingItem);
 
             // Log the edit action
-            await _auditLog.AddCashierAudit(existingItem.Invoice.Cashier, 
-                AuditActionType.UpdateItem, 
-                $"Edited item ID {existingItem.Id} - New Qty: {qty}, New SubTotal: {subtotal}", 
+            await _auditLog.AddCashierAudit(existingItem.Invoice.Cashier,
+                AuditActionType.UpdateItem,
+                $"Edited item ID {existingItem.Id} - New Qty: {qty}, New SubTotal: {subtotal}",
                 null);
 
             await _dataContext.SaveChangesAsync();
@@ -179,8 +179,8 @@ namespace ServiceLibrary.Services.Repositories
             invoiceToRefund.StatusChangeDate = DateTime.UtcNow;
 
             // Log the return action
-            await _auditLog.AddManagerAudit(managerResult.Result.manager, 
-                AuditActionType.ReturnInvoice, 
+            await _auditLog.AddManagerAudit(managerResult.Result.manager,
+                AuditActionType.ReturnInvoice,
                 $"Invoice {invoiceNumber:D12} returned by {managerResult.Result.manager.Email}", null);
 
             await _dataContext.SaveChangesAsync();
@@ -339,6 +339,9 @@ namespace ServiceLibrary.Services.Repositories
         {
             var isTrainMode = await _terminalMachine.IsTrainMode();
 
+            if (pay.ChangeAmount < 0)
+                return (false, "Invalid amount to pay. Please check and try again.", null);
+
             var cashierResult = await _auth.IsCashierValid(pay.CashierEmail);
             if (!cashierResult.isSuccess || cashierResult.cashier == null)
                 return (false, "Invalid cashier email. Please check and try again.", null);
@@ -365,6 +368,13 @@ namespace ServiceLibrary.Services.Repositories
             pendingOrder.VatExempt = pay.VatExempt;
             pendingOrder.VatAmount = pay.VatAmount;
             pendingOrder.VatZero = pay.VatZero;
+            pendingOrder.AlternativePayments = pay.OtherPayment;
+
+            foreach (var item in pendingOrder.Items)
+            {
+                item.Status = InvoiceStatusType.Paid;
+            }
+
 
             await _auditLog.AddCashierAudit(
                 cashierResult.cashier,
@@ -380,7 +390,8 @@ namespace ServiceLibrary.Services.Repositories
             await _dataContext.SaveChangesAsync();
 
             // Print the invoice
-            await _printer.PrintInvoice(invoice);
+            invoice = await _report.GetInvoiceById(pendingOrder.Id);
+            await _printer.PrintInvoice(invoice!);
 
             return (true, "Order paid successfully!", invoice);
         }

@@ -19,8 +19,8 @@ namespace ServiceLibrary.Services
     public class PrinterService(DataContext _dataContext, IGPiliTerminalMachine _terminalMachine) : IPrinterService
     {
         private const int ReceiptWidth = 32;
-        private const int QtyWidth = 3;
-        private const int DescWidth = 20;
+        private const int QtyWidth = 5;
+        private const int DescWidth = 18;
         private const int AmountWidth = 9;
 
         private string CenterText(string text) =>
@@ -125,7 +125,7 @@ namespace ServiceLibrary.Services
             // Totals
             content.AppendLine(CenterText($"{"Total:",-15}{invoiceInfo.TotalAmount,17}"))
                 // #TODO To Add Discount
-                .AppendLine(CenterText($"{"Due Amount:",-15}{invoiceInfo.DueAmount,17}"))
+                .AppendLine(CenterText($"{"Sub Total:",-15}{invoiceInfo.SubTotal,17}"))
                 .AppendLine(CenterText($"{"Due Amount:",-15}{invoiceInfo.DueAmount,17}"));
 
             // Other Payments

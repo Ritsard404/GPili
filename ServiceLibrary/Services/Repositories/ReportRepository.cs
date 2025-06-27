@@ -66,6 +66,7 @@ namespace ServiceLibrary.Services.Repositories
                 CashierName = order.Cashier?.FullName ?? "Unknown",
                 Items = items,
                 TotalAmount = order.TotalAmount.PesoFormat(),
+                SubTotal = order.SubTotal.PesoFormat(),
                 DiscountAmount = order.DiscountAmount.PesoFormat(),
                 DueAmount = order.DueAmount.PesoFormat(),
                 OtherPayments = otherPayments,
@@ -76,7 +77,7 @@ namespace ServiceLibrary.Services.Repositories
                 VatSales = order.VatSales.PesoFormat(),
                 VatAmount = order.VatAmount.PesoFormat(),
                 VatZero = order.VatZero.PesoFormat(),
-                ElligiblePersonDiscount = (order.EligibleDiscName ?? "N/A").ToUpper(),
+                ElligiblePersonDiscount = order.EligibleDiscName?.ToUpper(),
                 PrintCount = order.PrintCount.ToString()
             };
 

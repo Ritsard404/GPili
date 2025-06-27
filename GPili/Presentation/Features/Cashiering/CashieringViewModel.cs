@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Maui.Alerts;
 using ServiceLibrary.Models;
+using ServiceLibrary.Services.DTO.Order;
 using ServiceLibrary.Services.Interfaces;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -94,12 +95,12 @@ namespace GPili.Presentation.Features.Cashiering
         [RelayCommand]
         private async Task AddItem(Product? product)
         {
-            if (product is null || CurrentItem.InitialQty <= 0)
+            if (product is null)
                 return;
 
             var (isSuccess, message) = await _order.AddOrderItem(
                 prodId: product.Id,
-                qty: CurrentItem.InitialQty,
+                qty: CurrentItem.InitialQty <= 0 ? 1 : CurrentItem.InitialQty,
                 cashierEmail: CashierState.Info.CashierEmail!);
 
             if (!isSuccess)
@@ -107,6 +108,8 @@ namespace GPili.Presentation.Features.Cashiering
                 await Toast.Make(message).Show();
                 return;
             }
+
+            ClearQty();
 
             Items = await _order.GetPendingItems();
             Tenders.ItemsToPaid = new ObservableCollection<Item>(Items);
@@ -124,7 +127,7 @@ namespace GPili.Presentation.Features.Cashiering
                 }
                 else
                 {
-                    CurrentItem.QtyBuffer += content;
+                        CurrentItem.QtyBuffer += content;
                 }
 
                 if (decimal.TryParse(CurrentItem.QtyBuffer, out decimal preset))
@@ -153,9 +156,60 @@ namespace GPili.Presentation.Features.Cashiering
         }
 
         [RelayCommand]
+        private async Task PayOrder(string payContent)
+        {
+
+            await _loaderService.ShowAsync("Paying...", true);
+
+            if (payContent == KeypadActions.EXACT_PAY)
+                Tenders.SetExactCashAmount();
+
+            if (payContent == KeypadActions.ENTER && Tenders.ChangeAmount <= 0)
+            {
+                await Toast.Make("Please enter a valid amount to pay.").Show();
+                await _loaderService.ShowAsync("Paid", false);
+                return;
+            }
+
+            var payOrder = new PayOrderDTO
+            {
+                CashierEmail = CashierState.Info.CashierEmail!,
+                CashTendered = Tenders.CashTenderAmount,
+                OtherPayment = Tenders.HasOtherPayments ? Tenders.OtherPayments.ToList() : new(),
+                ChangeAmount = Tenders.ChangeAmount,
+                DueAmount = Tenders.AmountDue,
+                TotalAmount = Tenders.TotalAmount,
+                SubTotal = Tenders.SubTotal,
+                DiscountAmount = Tenders.DiscountAmount,
+                VatExempt = Tenders.VatExemptSales,
+                VatSales = Tenders.VatSales,
+                VatAmount = Tenders.VatAmount,
+                VatZero = Tenders.VatZero,
+                TotalTendered = Tenders.TenderAmount
+            };
+
+            var result = await _order.PayOrder(payOrder);
+            if (result.isSuccess)
+            {
+                await Toast.Make("Order paid successfully!").Show();
+
+                Items = await _order.GetPendingItems();
+                Tenders.ItemsToPaid = new ObservableCollection<Item>(Items);
+                SelectedKeypadAction = KeypadActions.QTY;
+                ClearQty();
+            }
+            else
+            {
+                await Toast.Make(result.message).Show();
+            }
+
+            await _loaderService.ShowAsync("Paid", false);
+        }
+
+        [RelayCommand]
         private void ClearQty()
         {
-            CurrentItem.QtyBuffer = "";
+            CurrentItem.QtyBuffer = "0";
             CurrentItem.InitialQty = 0;
             Tenders.PayBuffer = "";
             Tenders.CashTenderAmount = 0;
@@ -165,13 +219,18 @@ namespace GPili.Presentation.Features.Cashiering
         private void SelectKeypadAction(string action)
         {
             SelectedKeypadAction = action;
-            CurrentItem.QtyBuffer = "";
-            CurrentItem.InitialQty = 0;
-            Tenders.PayBuffer = "";
-            Tenders.CashTenderAmount = 0;
-            Debug.Print($"Selected Keypad Action: {SelectedKeypadAction}");
+
+            if (action == KeypadActions.QTY)
+            {
+
+                CurrentItem.QtyBuffer = "1";
+                CurrentItem.InitialQty = 1;
+                Tenders.PayBuffer = "";
+                Tenders.CashTenderAmount = 0;
+                return;
+            }
+            ClearQty();
         }
-    
-    
+
     }
 }
