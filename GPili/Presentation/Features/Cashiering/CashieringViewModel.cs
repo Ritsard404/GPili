@@ -1,4 +1,6 @@
 ﻿using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Core;
+using GPili.Presentation.Popups;
 using ServiceLibrary.Models;
 using ServiceLibrary.Services.DTO.Order;
 using ServiceLibrary.Services.Interfaces;
@@ -8,7 +10,8 @@ using System.Diagnostics;
 namespace GPili.Presentation.Features.Cashiering
 {
     public partial class CashieringViewModel(IAuth _auth,
-        ILoaderService _loaderService,
+        IPopUpService _popUpService,
+        IPopupService _popupService,
         INavigationService _navigationService,
         IOrder _order,
         IInventory _inventory) : ObservableObject
@@ -64,7 +67,7 @@ namespace GPili.Presentation.Features.Cashiering
                     }
                 } while (!validCash);
 
-                await _loaderService.ShowAsync("Loading Products...", true);
+                await _popUpService.ShowAsync("Loading Products...", true);
 
                 await _auth.SetCashInDrawer(CashierState.Info.CashierEmail!, cashValue);
                 await Toast.Make($"₱{cashValue} has been stored in the drawer.").Show();
@@ -73,10 +76,14 @@ namespace GPili.Presentation.Features.Cashiering
 
             Products = await _inventory.GetProducts();
 
+            await LoadItems();
+
+            await _popUpService.ShowAsync("", false);
+        }
+        private async Task LoadItems()
+        {
             Items = await _order.GetPendingItems();
             Tenders.ItemsToPaid = new ObservableCollection<Item>(Items);
-
-            await _loaderService.ShowAsync("", false);
         }
 
         [RelayCommand]
@@ -110,9 +117,7 @@ namespace GPili.Presentation.Features.Cashiering
             }
 
             ClearQty();
-
-            Items = await _order.GetPendingItems();
-            Tenders.ItemsToPaid = new ObservableCollection<Item>(Items);
+            await LoadItems();
         }
 
         [RelayCommand]
@@ -159,7 +164,7 @@ namespace GPili.Presentation.Features.Cashiering
         private async Task PayOrder(string payContent)
         {
 
-            await _loaderService.ShowAsync("Paying...", true);
+            await _popUpService.ShowAsync("Paying...", true);
 
             if (payContent == KeypadActions.EXACT_PAY)
                 Tenders.SetExactCashAmount();
@@ -167,7 +172,7 @@ namespace GPili.Presentation.Features.Cashiering
             if (payContent == KeypadActions.ENTER && Tenders.ChangeAmount <= 0)
             {
                 await Toast.Make("Please enter a valid amount to pay.").Show();
-                await _loaderService.ShowAsync("Paid", false);
+                await _popUpService.ShowAsync("Paid", false);
                 return;
             }
 
@@ -193,8 +198,7 @@ namespace GPili.Presentation.Features.Cashiering
             {
                 await Toast.Make("Order paid successfully!").Show();
 
-                Items = await _order.GetPendingItems();
-                Tenders.ItemsToPaid = new ObservableCollection<Item>(Items);
+                await LoadItems();
                 SelectedKeypadAction = KeypadActions.QTY;
                 ClearQty();
             }
@@ -203,7 +207,7 @@ namespace GPili.Presentation.Features.Cashiering
                 await Toast.Make(result.message).Show();
             }
 
-            await _loaderService.ShowAsync("Paid", false);
+            await _popUpService.ShowAsync("Paid", false);
         }
 
         [RelayCommand]
@@ -235,17 +239,39 @@ namespace GPili.Presentation.Features.Cashiering
         [RelayCommand]
         private async Task VoidOrder()
         {
+            try
+            {
 
-            //await _loaderService.ShowAsync("Processing...", true);
+                var result = await _popupService.ShowPopupAsync<ManagerAuthViewModel>();
+                var managerEmail = result as string;
 
-            var input = await Shell.Current.DisplayPromptAsync(
-                title: "Manager Auth",
-                message: "Please enter the manager email:",
-                accept: "Authorize", "", "1000.00", 0, Keyboard.Email);
+                if (string.IsNullOrWhiteSpace(managerEmail))
+                    return;
 
-            await Toast.Make("Manager email: " + input).Show();
+                await _popUpService.ShowAsync("Processing...", true);
 
-            //await _loaderService.ShowAsync("Voided", false);
+                var (isSuccess, message) = await _order.VoidOrder(cashierEmail: CashierState.Info.CashierEmail!, 
+                    managerEmail: managerEmail);
+                if (isSuccess)
+                {
+                    await Toast.Make(message).Show(); 
+                    await LoadItems();
+                }
+                else
+                {
+                    await Toast.Make(message).Show();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+
+            }
+            finally
+            {
+                await _popUpService.ShowAsync("Voided", false);
+            }
         }
 
     }

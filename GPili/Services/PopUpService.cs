@@ -3,12 +3,12 @@ using System.Diagnostics;
 
 namespace GPili.Services
 {
-    public interface ILoaderService
+    public interface IPopUpService
     {
         Task ShowAsync(string message, bool isShowing);
     }
 
-    public class LoaderService : ILoaderService
+    public class PopUpService : IPopUpService
     {
         LoaderView? _current;
         Task? _popupTask; // Track the show task

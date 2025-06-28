@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="GPili.Presentation.Popups.ManagerAuthView"
+             Color="Transparent"
+             Size="300, 200">
+    <Border 
+        Stroke="Black"
+        StrokeShape="RoundRectangle 15"
+        StrokeThickness="3">
+        <Grid RowDefinitions="Auto, *, Auto" Padding="10"
+                             BackgroundColor="White" 
+                             HorizontalOptions="FillAndExpand"
+                             VerticalOptions="FillAndExpand">
+            <Label Text="Manager Authorization" FontAttributes="Bold" 
+                   Grid.Row="0"
+                   TextColor="Black" FontSize="Medium"
+                   HorizontalTextAlignment="Center" />
+            <Entry x:Name="AuthEntry" 
+                   Placeholder="Manager Auth" Text="{Binding ManagerEmail, Mode=TwoWay}" 
+                   Grid.Row="1"
+                   HeightRequest="50"
+                   BackgroundColor="Black"
+                   Completed="Auth_Completed"
+                   ClearButtonVisibility="WhileEditing"
+                   IsPassword="True" />
+            <Button Text="Authorize" FontAttributes="Bold"
+                   Grid.Row="2"
+                    Command="{Binding ValidateManagerEmailCommand}"  />
+        </Grid>
+    </Border>
+</toolkit:Popup>

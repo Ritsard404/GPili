@@ -102,6 +102,9 @@
 	  <MauiXaml Update="Presentation\Popups\LoaderView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Presentation\Popups\ManagerAuthView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	</ItemGroup>
 
 </Project>

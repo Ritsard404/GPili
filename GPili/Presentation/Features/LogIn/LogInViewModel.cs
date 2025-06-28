@@ -7,12 +7,10 @@ using System.Diagnostics;
 
 namespace GPili.Presentation.Features.LogIn
 {
-    public partial class LogInViewModel : ObservableObject
+    public partial class LogInViewModel(IAuth _auth,
+            IPopUpService _popUpService,
+            INavigationService _navigationService) : ObservableObject
     {
-        private readonly IAuth _auth;
-        private readonly ILoaderService _loaderService;
-        private readonly INavigationService _navigationService;
-        private readonly CashieringViewModel _cashieringView;
         [ObservableProperty]
         private string _adminEmail;
 
@@ -21,17 +19,6 @@ namespace GPili.Presentation.Features.LogIn
 
         [ObservableProperty]
         private User[] _cashiers = [];
-
-        public LogInViewModel(IAuth auth, 
-            ILoaderService loaderService, 
-            INavigationService navigationService, 
-            CashieringViewModel cashieringView)
-        {
-            _auth = auth;
-            _loaderService = loaderService;
-            _navigationService = navigationService;
-            _cashieringView = cashieringView;
-        }
 
         public async ValueTask InitializeAsync()
         {
@@ -44,7 +31,7 @@ namespace GPili.Presentation.Features.LogIn
         public async Task LogIn()
         {
 
-            await _loaderService.ShowAsync("Logging in...", true);
+            await _popUpService.ShowAsync("Logging in...", true);
 
             try
             {
@@ -82,7 +69,7 @@ namespace GPili.Presentation.Features.LogIn
             }
             finally
             {
-                await _loaderService.ShowAsync("", false); // Ensure cleanup
+                await _popUpService.ShowAsync("", false); // Ensure cleanup
                 AdminEmail = string.Empty;
                 SelectedCashier = Cashiers[0];
             }

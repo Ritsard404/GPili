@@ -37,7 +37,7 @@ internal static class ApplicationExtensions
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
         services.AddSingleton<INavigationService, NavigationService>();
-        services.AddSingleton<ILoaderService, LoaderService>();
+        services.AddSingleton<IPopUpService, PopUpService>();
 
         return services;
     }
@@ -58,6 +58,7 @@ internal static class ApplicationExtensions
     {
         // Register your popups here
         services.AddTransientPopup<LoaderView, LoaderViewModel>();
+        services.AddTransientPopup<ManagerAuthView, ManagerAuthViewModel>();
 
         return services;
     }
