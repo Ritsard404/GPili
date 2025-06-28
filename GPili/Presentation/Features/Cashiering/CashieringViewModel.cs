@@ -127,7 +127,7 @@ namespace GPili.Presentation.Features.Cashiering
                 }
                 else
                 {
-                        CurrentItem.QtyBuffer += content;
+                    CurrentItem.QtyBuffer += content;
                 }
 
                 if (decimal.TryParse(CurrentItem.QtyBuffer, out decimal preset))
@@ -230,6 +230,22 @@ namespace GPili.Presentation.Features.Cashiering
                 return;
             }
             ClearQty();
+        }
+
+        [RelayCommand]
+        private async Task VoidOrder()
+        {
+
+            //await _loaderService.ShowAsync("Processing...", true);
+
+            var input = await Shell.Current.DisplayPromptAsync(
+                title: "Manager Auth",
+                message: "Please enter the manager email:",
+                accept: "Authorize", "", "1000.00", 0, Keyboard.Email);
+
+            await Toast.Make("Manager email: " + input).Show();
+
+            //await _loaderService.ShowAsync("Voided", false);
         }
 
     }

@@ -210,7 +210,11 @@
                                     Command="{Binding AddPresetQtyCommand}" CommandParameter="5"/>
                             <Button Text="6" Grid.Row="1" Grid.Column="2" StyleClass="KeypadButton"
                                     Command="{Binding AddPresetQtyCommand}" CommandParameter="6"/>
-                            <Button Text="VOID" Grid.Row="1" Grid.Column="4" Style="{StaticResource RedButton}" FontAttributes="Bold" CornerRadius="8"/>
+                            <Button Text="VOID" 
+                                    Grid.Row="1" Grid.Column="4" 
+                                    Style="{StaticResource RedButton}" 
+                                    FontAttributes="Bold" CornerRadius="8"
+                                    Command="{Binding VoidOrderCommand}"/>
                             <!-- Row 3 -->
                             <Button Text="1" Grid.Row="2" Grid.Column="0" StyleClass="KeypadButton"
                                     Command="{Binding AddPresetQtyCommand}" CommandParameter="1"/>
