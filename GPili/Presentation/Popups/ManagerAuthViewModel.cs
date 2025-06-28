@@ -10,8 +10,8 @@ namespace GPili.Presentation.Popups
         [ObservableProperty]
         private string? _managerEmail;
 
-        public double PopupWidth => Shell.Current.CurrentPage.Width * 0.7;
-        public double PopupHeight => Shell.Current.CurrentPage.Width * 0.2;
+        public double PopupWidth => Shell.Current.CurrentPage.Width * 0.25;
+        public double PopupHeight => Shell.Current.CurrentPage.Height * 0.35;
 
 
         [RelayCommand]

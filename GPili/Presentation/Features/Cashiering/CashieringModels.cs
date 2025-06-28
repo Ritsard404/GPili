@@ -1,9 +1,5 @@
 ﻿using ServiceLibrary.Models;
-using ServiceLibrary.Services.DTO.Report;
 using ServiceLibrary.Utils;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using static Microsoft.Maui.ApplicationModel.Permissions;
 
 namespace GPili.Presentation.Features.Cashiering
 {
@@ -19,6 +15,33 @@ namespace GPili.Presentation.Features.Cashiering
         private string _qtyBuffer = "";
 
         public bool IsInitialDisplay => InitialQty > 0;
+    }
+    public partial class PendingItems : ObservableObject
+    {
+        public Item Item { get; }
+
+        [ObservableProperty]
+        private decimal _qty;
+
+        [ObservableProperty]
+        private decimal _price;
+
+        [ObservableProperty]
+        private decimal _subTotal;
+        public PendingItems(Item item)
+        {
+            Item = item;
+            Qty = item.Qty;
+            Price = item.Price;
+            SubTotal = item.SubTotal;
+
+        }
+        partial void OnQtyChanged(decimal value) => Item.Qty = value;
+        partial void OnPriceChanged(decimal value) => Item.Price = value;
+        partial void OnSubTotalChanged(decimal value) => Item.SubTotal = value;
+
+        public string QtyDisplay => Item.QtyDisplay;
+        public string DisplayNameWithPrice => Item.DisplayNameWithPrice;
     }
 
     public partial class ItemTotals : ObservableObject

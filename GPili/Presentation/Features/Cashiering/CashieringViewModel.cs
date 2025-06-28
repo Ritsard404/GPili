@@ -1,11 +1,8 @@
-﻿using CommunityToolkit.Maui.Alerts;
-using CommunityToolkit.Maui.Core;
+﻿using CommunityToolkit.Maui.Core.Extensions;
 using GPili.Presentation.Popups;
 using ServiceLibrary.Models;
 using ServiceLibrary.Services.DTO.Order;
 using ServiceLibrary.Services.Interfaces;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
 
 namespace GPili.Presentation.Features.Cashiering
 {
@@ -24,7 +21,7 @@ namespace GPili.Presentation.Features.Cashiering
         private string? _searchProduct;
 
         [ObservableProperty]
-        private List<Item> _items = [];
+        private ObservableCollection<Item> _items = new();
 
         [ObservableProperty]
         private InitialItem _currentItem = new();
@@ -82,8 +79,10 @@ namespace GPili.Presentation.Features.Cashiering
         }
         private async Task LoadItems()
         {
-            Items = await _order.GetPendingItems();
-            Tenders.ItemsToPaid = new ObservableCollection<Item>(Items);
+            var newItems = await _order.GetPendingItems();
+
+            Items.Clear();
+            Items = Tenders.ItemsToPaid = newItems.ToObservableCollection();
         }
 
         [RelayCommand]
@@ -118,6 +117,28 @@ namespace GPili.Presentation.Features.Cashiering
 
             ClearQty();
             await LoadItems();
+        }
+
+        [RelayCommand]
+        private async Task SelectItem(Item? item)
+        {
+            if (item is null)
+                return;
+
+            try
+            {
+                var popup = new EditItemView(item);
+                var result = await Shell.Current.ShowPopupAsync(popup);
+                if (result is bool b && b)
+                {
+                    await LoadItems();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+                await Toast.Make("An error occurred while selecting the item.").Show();
+            }
         }
 
         [RelayCommand]
@@ -250,11 +271,11 @@ namespace GPili.Presentation.Features.Cashiering
 
                 await _popUpService.ShowAsync("Processing...", true);
 
-                var (isSuccess, message) = await _order.VoidOrder(cashierEmail: CashierState.Info.CashierEmail!, 
+                var (isSuccess, message) = await _order.VoidOrder(cashierEmail: CashierState.Info.CashierEmail!,
                     managerEmail: managerEmail);
                 if (isSuccess)
                 {
-                    await Toast.Make(message).Show(); 
+                    await Toast.Make(message).Show();
                     await LoadItems();
                 }
                 else

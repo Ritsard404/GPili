@@ -41,7 +41,10 @@ namespace ServiceLibrary.Services.Repositories
                 _dataContext.Invoice.Add(pendingOrder);
             }
 
-            var existItem = await _dataContext.Item.FirstOrDefaultAsync(i => i.Product.Id == prodId && i.Product.IsAvailable && i.Invoice.Id == pendingOrder.Id);
+            var existItem = await _dataContext.Item.FirstOrDefaultAsync(i => i.Product.Id == prodId &&
+                    i.Product.IsAvailable &&
+                    i.Invoice.Id == pendingOrder.Id &&
+                    i.Status == InvoiceStatusType.Pending);
 
             if (existItem == null)
             {
@@ -134,7 +137,11 @@ namespace ServiceLibrary.Services.Repositories
             var pendingOrder = await PendingOrder(isTrainMode);
 
             return await _dataContext.Item
-                .Where(i => i.Invoice == pendingOrder && i.Status == InvoiceStatusType.Pending)
+                .Include(p => p.Product)
+                .Include(p => p.Invoice)
+                .Where(i => i.Invoice == pendingOrder &&
+                    i.Status == InvoiceStatusType.Pending)
+                .AsNoTracking()
                 .ToListAsync();
         }
 

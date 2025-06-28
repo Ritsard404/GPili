@@ -59,6 +59,7 @@ internal static class ApplicationExtensions
         // Register your popups here
         services.AddTransientPopup<LoaderView, LoaderViewModel>();
         services.AddTransientPopup<ManagerAuthView, ManagerAuthViewModel>();
+        services.AddTransientPopup<EditItemView, EditItemViewModel>();
 
         return services;
     }

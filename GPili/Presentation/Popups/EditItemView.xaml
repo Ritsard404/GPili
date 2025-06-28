@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="GPili.Presentation.Popups.EditItemView"
+             Color="Transparent">
+    <toolkit:Popup.Resources>
+        <ResourceDictionary>
+            <Style x:Key="EntryInvalidStyle" TargetType="Entry">
+                <Setter Property="BackgroundColor" Value="#FFEBEE" />
+                <!-- Light red background -->
+                <Setter Property="TextColor" Value="Red" />
+            </Style>
+            <Style x:Key="Save" TargetType="Button" BasedOn="{StaticResource KeypadButton}">
+                <Setter Property="BackgroundColor" Value="Green"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="CornerRadius" Value="8"/>
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="Green"/>
+                                    <Setter Property="TextColor" Value="White"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="DarkGrey"/>
+                                    <!-- Darker gold or use a different shade -->
+                                    <Setter Property="TextColor" Value="White"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Disabled">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="#FFF8DC"/>
+                                    <Setter Property="TextColor" Value="#FFB300"/>
+                                    <Setter Property="Opacity" Value="0.5"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+            <Style x:Key="Void" TargetType="Button" BasedOn="{StaticResource KeypadButton}">
+                <Setter Property="BackgroundColor" Value="Red"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="CornerRadius" Value="8"/>
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="Red"/>
+                                    <Setter Property="TextColor" Value="White"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="DarkGrey"/>
+                                    <!-- Darker red -->
+                                    <Setter Property="TextColor" Value="White"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Disabled">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="#FFB3B3"/>
+                                    <!-- Lighter red -->
+                                    <Setter Property="TextColor" Value="#B20000"/>
+                                    <Setter Property="Opacity" Value="0.5"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+
+        </ResourceDictionary>
+    </toolkit:Popup.Resources>
+    <Border
+        Stroke="Black"
+        StrokeShape="RoundRectangle 15"
+        StrokeThickness="3"
+        BackgroundColor="White"
+        WidthRequest="{Binding PopupWidth}"
+        HeightRequest="{Binding PopupHeight}">
+        <Grid RowDefinitions="Auto,*,*,Auto"
+              ColumnDefinitions="*,*"
+              ColumnSpacing="10"
+              Padding="10">
+            <Label Text="{Binding  Item.Product.Name, StringFormat='Edit Item {0}'}" FontAttributes="Bold" 
+                   Grid.Row="0"
+                   Grid.ColumnSpan="2"
+                   TextColor="Black" FontSize="Title"
+                   HorizontalTextAlignment="Center" />
+
+            <Label Text="Total Amount" FontAttributes="Bold" 
+                   Grid.Row="1" Grid.Column="0" 
+                   TextColor="Black" FontSize="Subtitle"
+                   VerticalOptions="Center" HorizontalOptions="End"
+                   HorizontalTextAlignment="Center" />
+            <Entry Text="{Binding SubTotal, Mode=TwoWay}" 
+                   Grid.Row="1" Grid.Column="1" 
+                   HeightRequest="50"
+                   BackgroundColor="Black" 
+                   Keyboard="Numeric">
+                <Entry.Behaviors>
+                    <toolkit:NumericValidationBehavior
+                        MinimumValue="0.01"
+                        Flags="ValidateOnValueChanged"
+                        InvalidStyle="{StaticResource EntryInvalidStyle}" />
+                </Entry.Behaviors>
+            </Entry>
+
+            <Label Text="Quantity" FontAttributes="Bold" 
+                   Grid.Row="2" Grid.Column="0" 
+                   TextColor="Black" FontSize="Subtitle"
+                   VerticalOptions="Center" HorizontalOptions="End"
+                   HorizontalTextAlignment="Center" />
+            <Entry Text="{Binding Qty, Mode=TwoWay}" 
+                   Grid.Row="2" Grid.Column="1" 
+                   HeightRequest="50"
+                   BackgroundColor="Black" 
+                   Keyboard="Numeric">
+                <Entry.Behaviors>
+                    <toolkit:NumericValidationBehavior
+                        MinimumValue="0.01"
+                        Flags="ValidateOnValueChanged"
+                        InvalidStyle="{StaticResource EntryInvalidStyle}" />
+                </Entry.Behaviors>
+            </Entry>
+
+
+            <Button Grid.Row="3" Grid.Column="0"
+                    FontAttributes="Bold" FontSize="16"
+                    Style="{StaticResource Void}"
+                    Text="Void" Command="{Binding VoidItemCommand}"/>
+            <Button Grid.Row="3" Grid.Column="1"
+                    Style="{StaticResource Save}"
+                    FontAttributes="Bold" FontSize="16"
+                    Text="Save" Command="{Binding SaveItemCommand}"/>
+
+        </Grid>
+    </Border>
+</toolkit:Popup>

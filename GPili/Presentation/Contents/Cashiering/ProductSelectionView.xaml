@@ -189,40 +189,66 @@
                               ColumnSpacing="5"
                               RowSpacing="5">
                             <!-- Row 1 -->
-                            <Button Text="7" Grid.Row="0" Grid.Column="0" StyleClass="KeypadButton"
+                            <Button Text="7" x:Name="BTN7"
+                                    Grid.Row="0" Grid.Column="0" 
+                                    StyleClass="KeypadButton"
                                     Command="{Binding AddPresetQtyCommand}" CommandParameter="7"/>
-                            <Button Text="8" Grid.Row="0" Grid.Column="1" StyleClass="KeypadButton"
-                                    Command="{Binding AddPresetQtyCommand}" CommandParameter="8"/>
-                            <Button Text="9" Grid.Row="0" Grid.Column="2" StyleClass="KeypadButton"
-                                    Command="{Binding AddPresetQtyCommand}" CommandParameter="9"/>
-                            <Button Text="CLR" 
+                            <Button Text="8" x:Name="BTN8"
+                                    Grid.Row="0" Grid.Column="1" 
+                                    StyleClass="KeypadButton"
+                                    Command="{Binding AddPresetQtyCommand}" 
+                                    CommandParameter="8"/>
+                            <Button Text="9" x:Name="BTN9"
+                                    Grid.Row="0" Grid.Column="2" 
+                                    StyleClass="KeypadButton"
+                                    Command="{Binding AddPresetQtyCommand}" 
+                                    CommandParameter="9"/>
+                            <Button Text="CLR"
+                                    x:Name="CLR"
                                     Grid.Row="0" 
                                     Grid.Column="3" 
                                     Style="{StaticResource GoldButton}"
                                     FontAttributes="Bold" 
                                     CornerRadius="8"
                                     Command="{Binding ClearQtyCommand}"/>
-                            <Button Text="DISCOUNT" Grid.Row="0" Grid.Column="4" Style="{StaticResource RedButton}" FontAttributes="Bold" CornerRadius="8"/>
+                            <Button Text="DISCOUNT" x:Name="DISCOUNT"
+                                    Grid.Row="0" Grid.Column="4" 
+                                    Style="{StaticResource RedButton}" FontAttributes="Bold" 
+                                    CornerRadius="8"/>
                             <!-- Row 2 -->
-                            <Button Text="4" Grid.Row="1" Grid.Column="0" StyleClass="KeypadButton"
+                            <Button Text="4" x:Name="BTN4"
+                                    Grid.Row="1" Grid.Column="0" 
+                                    StyleClass="KeypadButton"
                                     Command="{Binding AddPresetQtyCommand}" CommandParameter="4"/>
-                            <Button Text="5" Grid.Row="1" Grid.Column="1" StyleClass="KeypadButton"
+                            <Button Text="5" x:Name="BTN5"
+                                    Grid.Row="1" Grid.Column="1" 
+                                    StyleClass="KeypadButton"
                                     Command="{Binding AddPresetQtyCommand}" CommandParameter="5"/>
-                            <Button Text="6" Grid.Row="1" Grid.Column="2" StyleClass="KeypadButton"
+                            <Button Text="6" x:Name="BTN6"
+                                    Grid.Row="1" Grid.Column="2" 
+                                    StyleClass="KeypadButton"
                                     Command="{Binding AddPresetQtyCommand}" CommandParameter="6"/>
                             <Button Text="VOID" 
+                                    x:Name="VOID"
                                     Grid.Row="1" Grid.Column="4" 
                                     Style="{StaticResource RedButton}" 
                                     FontAttributes="Bold" CornerRadius="8"
                                     Command="{Binding VoidOrderCommand}"/>
                             <!-- Row 3 -->
-                            <Button Text="1" Grid.Row="2" Grid.Column="0" StyleClass="KeypadButton"
+                            <Button Text="1" x:Name="BTN1"
+                                    Grid.Row="2" Grid.Column="0" 
+                                    StyleClass="KeypadButton"
                                     Command="{Binding AddPresetQtyCommand}" CommandParameter="1"/>
-                            <Button Text="2" Grid.Row="2" Grid.Column="1" StyleClass="KeypadButton"
+                            <Button Text="2" x:Name="BTN2"
+                                    Grid.Row="2" Grid.Column="1" 
+                                    StyleClass="KeypadButton"
                                     Command="{Binding AddPresetQtyCommand}" CommandParameter="2"/>
-                            <Button Text="3" Grid.Row="2" Grid.Column="2" StyleClass="KeypadButton"
+                            <Button Text="3" x:Name="BTN3"
+                                    Grid.Row="2" Grid.Column="2" 
+                                    StyleClass="KeypadButton"
                                     Command="{Binding AddPresetQtyCommand}" CommandParameter="3"/>
                             <Button Text="PLU"
+                                    x:Name="PLU"
                                     Grid.Row="2" Grid.Column="3"
                                     StyleClass="KeypadButton"
                                     Command="{Binding SelectKeypadActionCommand}"
@@ -239,6 +265,7 @@
                                 </Button.Triggers>
                             </Button>
                             <Button Text="EXACT PAY" 
+                                    x:Name="EXACT"
                                     Grid.Row="2" 
                                     Grid.Column="4" 
                                     IsEnabled="{Binding Tenders.IsExactPayEnable}"
@@ -247,13 +274,17 @@
                                     Command="{Binding PayOrderCommand}"
                                     CommandParameter="EXACT"/>
                             <!-- Row 4 -->
-                            <Button Text="0" Grid.Row="3" Grid.Column="0" StyleClass="KeypadButton"
+                            <Button Text="0" x:Name="BTN0"
+                                    Grid.Row="3" Grid.Column="0" 
+                                    StyleClass="KeypadButton"
                                     Command="{Binding AddPresetQtyCommand}" CommandParameter="0"/>
-                            <Button Text="." Grid.Row="3" Grid.Column="1" StyleClass="KeypadButton"
+                            <Button Text="." x:Name="BTNDECIMAL"
+                                    Grid.Row="3" Grid.Column="1" 
+                                    StyleClass="KeypadButton"
                                     Command="{Binding AddPresetQtyCommand}" CommandParameter="."/>
                             <Button Text="00" Grid.Row="3" Grid.Column="2" StyleClass="KeypadButton"
                                     Command="{Binding AddPresetQtyCommand}" CommandParameter="00"/>
-                            <Button Text="QTY"
+                            <Button Text="QTY" x:Name="QTY"
                                     Grid.Row="3" Grid.Column="3"
                                     StyleClass="KeypadButton"
                                     Command="{Binding SelectKeypadActionCommand}"
@@ -270,6 +301,7 @@
                                 </Button.Triggers>
                             </Button>
                             <Button Text="ENTER" 
+                                    x:Name="ENTER"
                                     Grid.Row="3" Grid.Column="4" 
                                     Style="{StaticResource RedButton}" 
                                     FontAttributes="Bold" CornerRadius="8"
@@ -279,6 +311,7 @@
                             <!-- Pay buttons -->
 
                             <Button Text="PAY"
+                                    x:Name="PAY"
                                 Grid.Row="4" Grid.ColumnSpan="3" Grid.Column="0"
                                 BackgroundColor="Green"
                                 TextColor="White"

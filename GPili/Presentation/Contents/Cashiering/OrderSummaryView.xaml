@@ -2,7 +2,8 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:converter="clr-namespace:GPili.Converters"
-             x:Class="GPili.Presentation.Contents.Cashiering.OrderSummaryView">
+             x:Class="GPili.Presentation.Contents.Cashiering.OrderSummaryView"
+             x:Name="OrderSummaryViewRoot">
     <ContentView.Resources>
         <converter:InverseBoolConverter x:Key="InverseBoolConverter"/>
         <converter:ItemIndexConverter x:Key="ItemIndexConverter"/>
@@ -43,13 +44,17 @@
                               Margin="4">
                             <Label Grid.Column="0"
                                Text="{Binding ., Converter={StaticResource ItemIndexConverter}, ConverterParameter={x:Reference OrderItemsCollectionView}}"
-                               FontAttributes="Bold"
+                               FontAttributes="Bold" TextColor="Yellow"
                                VerticalOptions="Center"/>
                             <Label Text="{Binding QtyDisplay}" Grid.Column="1" VerticalOptions="Center" />
                             <Label Text="{Binding DisplayNameWithPrice}" Grid.Column="2" />
                             <Label Text="{Binding SubTotal, StringFormat='₱{0:N2}'}" Grid.Column="3" />
 
+
                             <Grid.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding BindingContext.SelectItemCommand, Source={x:Reference OrderSummaryViewRoot}}"
+                                    CommandParameter="{Binding .}" />
                             </Grid.GestureRecognizers>
                         </Grid>
                     </DataTemplate>
