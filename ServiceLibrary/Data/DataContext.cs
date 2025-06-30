@@ -17,6 +17,7 @@ namespace ServiceLibrary.Data
         }
 
         public DbSet<Product> Product { get; set; }
+        public DbSet<Inventory> Inventory { get; set; }
         public DbSet<AlternativePayment> AlternativePayment { get; set; }
         public DbSet<AuditLog> AuditLog { get; set; }
         public DbSet<Category> Category { get; set; }

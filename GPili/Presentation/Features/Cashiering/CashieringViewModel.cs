@@ -34,6 +34,7 @@ namespace GPili.Presentation.Features.Cashiering
 
         public async Task InitializeAsync()
         {
+            PopupState.PopupInfo.OpenPopup("Set Drawer","Set drawer cash");
 
             bool isCashedDrawer = await _auth.IsCashedDrawer(CashierState.Info.CashierEmail);
 
@@ -76,6 +77,7 @@ namespace GPili.Presentation.Features.Cashiering
             await LoadItems();
 
             await _popUpService.ShowAsync("", false);
+            PopupState.PopupInfo.ClosePopup();
         }
         private async Task LoadItems()
         {

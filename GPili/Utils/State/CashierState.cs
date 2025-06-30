@@ -13,11 +13,14 @@ namespace GPili.Utils.State
         private string? _cashierName;
         [ObservableProperty]
         private string? _cashierEmail;
+        [ObservableProperty]
+        private string? _role;
 
-        public void UpdateCashierInfo(string? name, string? email)
+        public void UpdateCashierInfo(string? name, string? email, string? role)
         {
             CashierName = name;
             CashierEmail = email;
+            Role = role;
         }
     }
 }

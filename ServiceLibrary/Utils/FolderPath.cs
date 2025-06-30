@@ -18,5 +18,9 @@
             public const string AuditTrail = "C:\\Logs\\AuditTrail";
             public const string ProductBarcodes = "C:\\Logs\\ProductBarcodes";
         }
+        public static class Database
+        {
+            public const string Test = "C:\\Database\\";
+        }
     }
 }

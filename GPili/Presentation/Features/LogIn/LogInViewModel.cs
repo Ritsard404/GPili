@@ -9,6 +9,7 @@ namespace GPili.Presentation.Features.LogIn
 {
     public partial class LogInViewModel(IAuth _auth,
             IPopUpService _popUpService,
+            IGPiliTerminalMachine _terminalMachine,
             INavigationService _navigationService) : ObservableObject
     {
         [ObservableProperty]
@@ -22,6 +23,23 @@ namespace GPili.Presentation.Features.LogIn
 
         public async ValueTask InitializeAsync()
         {
+            while (true)
+            {
+                var (isValid, message) = await _terminalMachine.ValidateTerminalExpiration();
+
+                if (!isValid)
+                {
+                    // Spam display
+                    await Shell.Current.DisplayAlert("Error", message, "");
+                    continue;
+                }
+
+                if (message.StartsWith("Warning"))
+                    await Shell.Current.DisplayAlert("Warning", message, "Continue");
+
+                break;
+            }
+
             Cashiers = await _auth.GetCashiers();
 
             SelectedCashier = Cashiers[0];
@@ -47,12 +65,12 @@ namespace GPili.Presentation.Features.LogIn
                 {
                     case RoleType.Manager:
                         await _navigationService.GoToManager();
-                        CashierState.Info.UpdateCashierInfo(name, email);
+                        CashierState.Info.UpdateCashierInfo(name, email, role);
                         return;
 
                     case RoleType.Cashier:
                         await _navigationService.NavigateToAsync(AppRoutes.Cashiering);
-                        CashierState.Info.UpdateCashierInfo(name, email);
+                        CashierState.Info.UpdateCashierInfo(name, email, role);
                         return;
 
                     default:

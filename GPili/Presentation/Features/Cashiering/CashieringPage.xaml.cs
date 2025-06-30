@@ -3,6 +3,8 @@ namespace GPili.Presentation.Features.Cashiering;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Input;
 using Windows.System;
+using Microsoft.UI.Input;
+using Windows.UI.Core;
 #endif
 public partial class CashieringPage : ContentPage
 {
@@ -24,6 +26,31 @@ public partial class CashieringPage : ContentPage
 #if WINDOWS
     private void Root_KeyDown(object sender, KeyRoutedEventArgs e)
     {
+        if (PopupState.PopupInfo.IsPopupOpen)
+            return;
+            
+    // Detect if Ctrl is pressed using InputKeyboardSource
+    var ctrlState = InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Control);
+    bool isCtrlDown = (ctrlState & CoreVirtualKeyStates.Down) == CoreVirtualKeyStates.Down;
+    if (isCtrlDown)
+    {
+        switch (e.Key)
+        {
+            case VirtualKey.D:
+                ProductSelection?.HandleKeypadAction(KeypadActions.DISCOUNT);
+                e.Handled = true;
+                return;
+            case VirtualKey.V:
+                ProductSelection?.HandleKeypadAction(KeypadActions.VOID);
+                e.Handled = true;
+                return;
+            case VirtualKey.E:
+                ProductSelection?.HandleKeypadAction("EXACT");
+                e.Handled = true;
+                return;
+        }
+    }
+
         if (e.Key == VirtualKey.F1)
         {
             ProductSelection?.FocusSearchEntry();
@@ -53,16 +80,21 @@ public partial class CashieringPage : ContentPage
             ProductSelection?.HandleKeypadAction(KeypadActions.PAY);
             e.Handled = true;
         }
-        if (e.Key == VirtualKey.D)
-        {
-            ProductSelection?.HandleKeypadAction(KeypadActions.DISCOUNT);
-            e.Handled = true;
-        }
-        if (e.Key == VirtualKey.E)
-        {
-            ProductSelection?.HandleKeypadAction("EXACT");
-            e.Handled = true;
-        }
+        //if (e.Key == VirtualKey.D)
+        //{
+        //    ProductSelection?.HandleKeypadAction(KeypadActions.DISCOUNT);
+        //    e.Handled = true;
+        //}
+        //if (e.Key == VirtualKey.V)
+        //{
+        //    ProductSelection?.HandleKeypadAction(KeypadActions.VOID);
+        //    e.Handled = true;
+        //}
+        //if (e.Key == VirtualKey.E)
+        //{
+        //    ProductSelection?.HandleKeypadAction("EXACT");
+        //    e.Handled = true;
+        //}
 
         if (e.Key == VirtualKey.Enter)
         {

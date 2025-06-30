@@ -2,6 +2,7 @@
 using GPili.Utils.State;
 using Microsoft.Maui.ApplicationModel.Communication;
 using ServiceLibrary.Services.Interfaces;
+using ServiceLibrary.Utils;
 using System.Xml.Linq;
 
 namespace GPili.Services
@@ -34,13 +35,13 @@ namespace GPili.Services
             if (result.isSuccess)
             {
 
-                CashierState.Info.UpdateCashierInfo(result.cashierName, result.cashierEmail);
+                CashierState.Info.UpdateCashierInfo(result.cashierName, result.cashierEmail, RoleType.Cashier);
                 
                 await NavigateToAsync(AppRoutes.Cashiering);
             }
             else
             {
-                CashierState.Info.UpdateCashierInfo("", "");
+                CashierState.Info.UpdateCashierInfo("", "", "");
                 await NavigateToAsync(AppRoutes.Login);
             }
         }

@@ -15,7 +15,7 @@
             <Setter Property="TextColor" Value="Black"/>
             <Setter Property="FontAttributes" Value="Bold"/>
         </Style>
-        
+
         <Style x:Key="ToggleKeypadButton" TargetType="Button" BasedOn="{StaticResource KeypadButton}">
             <Style.Triggers>
                 <DataTrigger TargetType="Button"
@@ -93,7 +93,7 @@
             </Setter>
         </Style>
     </ContentView.Resources>
-    
+
     <Grid RowDefinitions="Auto, *" RowSpacing="5" Padding="10">
         <!--// Products and Search-->
         <Grid RowDefinitions="Auto" Grid.Row="0" HorizontalOptions="Fill" VerticalOptions="Fill">
@@ -110,7 +110,7 @@
                     <Entry.Behaviors>
                         <toolkit:EventToCommandBehavior
                           EventName="Completed"
-                          Command="{Binding SearchCommand}" />      
+                          Command="{Binding SearchCommand}" />
                     </Entry.Behaviors>
 
                 </Entry>
@@ -120,7 +120,7 @@
         <VerticalStackLayout Grid.Row="1" HorizontalOptions="Fill" VerticalOptions="Fill">
 
             <!-- FIXED HEADER ROW -->
-            <Grid ColumnDefinitions="0.25*,0.25*,0.25*,0.25*"
+            <Grid ColumnDefinitions="0.30*,0.15*,0.15*,0.25*,0.15*"
         Padding="12"
         BackgroundColor="SkyBlue">
 
@@ -136,6 +136,9 @@
                 <Label Text="Category"
            Grid.Column="3"
            FontAttributes="Bold" />
+                <Label Text="Qty"
+           Grid.Column="4"
+           FontAttributes="Bold" />
             </Grid>
 
             <!-- SCROLLABLE ITEMS -->
@@ -145,13 +148,13 @@
                         BackgroundColor="MediumAquamarine"
                         HeightRequest="245"
                         Margin="0,0,0,5"
-                        ItemSizingStrategy="MeasureAllItems">     
+                        ItemSizingStrategy="MeasureAllItems">
 
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Grid ColumnDefinitions="0.25*,0.25*,0.25*,0.25*"
+                        <Grid ColumnDefinitions="0.30*,0.15*,0.15*,0.25*,0.15*"
                               Padding="12"
-                              Margin="4">  
+                              Margin="4">
 
                             <Label Text="{Binding Name}"
                                 Grid.Column="0" />
@@ -161,18 +164,20 @@
                                 Grid.Column="2" />
                             <Label Text="{Binding Category.CtgryName}"
                                 Grid.Column="3" />
+                            <Label Text="{Binding Quantity}"
+                                Grid.Column="4" />
 
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer
                                     Command="{Binding BindingContext.AddItemCommand, Source={x:Reference ProductSelectionViewRoot}}"
-                                    CommandParameter="{Binding .}" />   
+                                    CommandParameter="{Binding .}" />
                             </Grid.GestureRecognizers>
                         </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
 
             </CollectionView>
-            
+
             <!-- KEYPADS -->
             <Grid ColumnDefinitions="0.5*, 0.5*">
                 <!-- KEYPADS -->
@@ -255,7 +260,7 @@
                                     BackgroundColor="Gold"
                                     FontAttributes="Bold"
                                     CommandParameter="PLU">
-                                    <Button.Triggers>
+                                <Button.Triggers>
                                     <DataTrigger TargetType="Button"
                                          Binding="{Binding SelectedKeypadAction}"
                                          Value="PLU">
@@ -322,7 +327,7 @@
                                 <Button.Triggers>
                                     <DataTrigger TargetType="Button"
                                          Binding="{Binding SelectedKeypadAction}"
-                                         Value="PAY">   
+                                         Value="PAY">
                                         <Setter Property="BackgroundColor" Value="DodgerBlue"/>
                                         <Setter Property="TextColor" Value="White"/>
                                     </DataTrigger>
@@ -333,6 +338,6 @@
                 </Frame>
             </Grid>
         </VerticalStackLayout>
-        
+
     </Grid>
 </ContentView>

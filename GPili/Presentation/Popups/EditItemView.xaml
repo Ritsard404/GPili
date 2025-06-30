@@ -105,7 +105,8 @@
                    Grid.Row="1" Grid.Column="1" 
                    HeightRequest="50"
                    BackgroundColor="Black" 
-                   Keyboard="Numeric">
+                   Keyboard="Numeric"
+                   Completed="Entry_Completed">
                 <Entry.Behaviors>
                     <toolkit:NumericValidationBehavior
                         MinimumValue="0.01"
@@ -123,7 +124,8 @@
                    Grid.Row="2" Grid.Column="1" 
                    HeightRequest="50"
                    BackgroundColor="Black" 
-                   Keyboard="Numeric">
+                   Keyboard="Numeric"
+                   Completed="Entry_Completed">
                 <Entry.Behaviors>
                     <toolkit:NumericValidationBehavior
                         MinimumValue="0.01"

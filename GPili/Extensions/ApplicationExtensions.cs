@@ -7,6 +7,7 @@ using GPili.Presentation.Features.LogIn;
 using GPili.Presentation.Features.Manager;
 using GPili.Presentation.Popups;
 using ServiceLibrary.Extension;
+using ServiceLibrary.Utils;
 
 namespace GPili.Extensions;
 
@@ -26,7 +27,7 @@ internal static class ApplicationExtensions
     public static IServiceCollection AddDatabase(this IServiceCollection services)
     {
         //var dbPath = Path.Combine(FileSystem.AppDataDirectory, "GPili.db");
-        var dbPath = Path.Combine("C:\\Users\\Acer\\Documents", "GPili.db");
+        var dbPath = Path.Combine(FolderPath.Database.Test, "GPili.db");
         var connectionString = $"Data Source={dbPath}";
 
         services.AddDbContext<DataContext>(options =>

@@ -37,11 +37,36 @@ namespace ServiceLibrary.Services
                 Directory.CreateDirectory(path);
         }
 
+        private string GetDefaultPrinterName()
+        {
+#if WINDOWS
+    using var settings = new PrinterSettings();
+    return settings.PrinterName;
+#else
+            throw new PlatformNotSupportedException(
+                "Default printer detection is only supported on Windows.");
+#endif
+        }
+
         private async void PrintToPrinter(StringBuilder content)
         {
-            var info = await _terminalMachine.GetTerminalInfo();
-            var printerName = info?.PrinterName
-                ?? throw new InvalidOperationException("PrinterName not set on terminal.");
+            // fetch terminal preference
+            string printerName = null;
+            try
+            {
+                var info = await _terminalMachine.GetTerminalInfo();
+                printerName = info?.PrinterName;
+            }
+            catch
+            {
+                // ignore and fall back
+            }
+
+            if (string.IsNullOrWhiteSpace(printerName))
+            {
+                // reliable fallback
+                printerName = GetDefaultPrinterName();
+            }
 
             // Add line feeds for paper cutting
             content.AppendLine("\n\n\n");
