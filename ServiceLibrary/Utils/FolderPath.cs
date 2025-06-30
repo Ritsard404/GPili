@@ -20,7 +20,7 @@
         }
         public static class Database
         {
-            public const string Test = "C:\\Database\\";
+            public const string Test = "C:\\Database";
         }
     }
 }
