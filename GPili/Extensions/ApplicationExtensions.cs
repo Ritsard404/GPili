@@ -27,11 +27,13 @@ internal static class ApplicationExtensions
     public static IServiceCollection AddDatabase(this IServiceCollection services)
     {
         //var dbPath = Path.Combine(FileSystem.AppDataDirectory, "GPili.db");
-
-        if(!Directory.Exists(FolderPath.Database.Test))
-            Directory.CreateDirectory(FolderPath.Database.Test);
-
         var dbPath = Path.Combine(FolderPath.Database.Test, "GPili.db");
+
+        // Ensure directory exists
+        var dbDirectory = Path.GetDirectoryName(dbPath);
+        if (!Directory.Exists(dbDirectory))
+            Directory.CreateDirectory(dbDirectory);
+
         var connectionString = $"Data Source={dbPath}";
 
         services.AddDbContext<DataContext>(options =>
@@ -65,6 +67,7 @@ internal static class ApplicationExtensions
         services.AddTransientPopup<LoaderView, LoaderViewModel>();
         services.AddTransientPopup<ManagerAuthView, ManagerAuthViewModel>();
         services.AddTransientPopup<EditItemView, EditItemViewModel>();
+        services.AddTransientPopup<EPaymentView, EPaymentViewModel>();
 
         return services;
     }

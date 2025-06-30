@@ -22,6 +22,7 @@ namespace ServiceLibrary.Services
                 await SeedUsersAsync();
                 await SeedPosTerminalInfoAsync();
                 await SeedCategoriesAndProductsAsync();
+                await SeedSaleTypesAsync();
             }
             catch(Exception ex)
             {
@@ -103,6 +104,21 @@ namespace ServiceLibrary.Services
             };
 
             await _context.Product.AddRangeAsync(products);
+        }
+        private async Task SeedSaleTypesAsync()
+        {
+            if (await _context.SaleType.AnyAsync()) return;
+
+            var saleTypes = new List<SaleType>
+        {
+            new() { Name = "GCash", Account = "GCASH-001", Type = "E-Payment"},
+            new() { Name = "PayMaya", Account = "PAYMAYA-001", Type = "E-Payment"},
+            new() { Name = "Credit Card", Account = "CC-001", Type = "Card"},
+            new() { Name = "Debit Card", Account = "DC-001", Type = "Card"},
+            new() { Name = "Gift Certificate", Account = "GC-001", Type = "Voucher"}
+        };
+
+            await _context.SaleType.AddRangeAsync(saleTypes);
         }
     }
 } 

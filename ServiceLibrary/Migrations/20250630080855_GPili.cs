@@ -113,7 +113,8 @@ namespace ServiceLibrary.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
                     Account = table.Column<string>(type: "TEXT", nullable: false),
-                    Type = table.Column<string>(type: "TEXT", nullable: false)
+                    Type = table.Column<string>(type: "TEXT", nullable: false),
+                    IsActive = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -279,7 +280,30 @@ namespace ServiceLibrary.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AlternativePayment",
+                name: "Inventory",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Quantity = table.Column<decimal>(type: "TEXT", nullable: false),
+                    TransactionDate = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Type = table.Column<string>(type: "TEXT", nullable: false),
+                    Reference = table.Column<string>(type: "TEXT", nullable: true),
+                    ProductId = table.Column<long>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Inventory", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Inventory_Product_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Product",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "EPayment",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "INTEGER", nullable: false)
@@ -291,15 +315,15 @@ namespace ServiceLibrary.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AlternativePayment", x => x.Id);
+                    table.PrimaryKey("PK_EPayment", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AlternativePayment_Invoice_InvoiceId",
+                        name: "FK_EPayment_Invoice_InvoiceId",
                         column: x => x.InvoiceId,
                         principalTable: "Invoice",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_AlternativePayment_SaleType_SaleTypeId",
+                        name: "FK_EPayment_SaleType_SaleTypeId",
                         column: x => x.SaleTypeId,
                         principalTable: "SaleType",
                         principalColumn: "Id",
@@ -340,16 +364,6 @@ namespace ServiceLibrary.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_AlternativePayment_InvoiceId",
-                table: "AlternativePayment",
-                column: "InvoiceId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AlternativePayment_SaleTypeId",
-                table: "AlternativePayment",
-                column: "SaleTypeId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_AuditLog_CashierEmail",
                 table: "AuditLog",
                 column: "CashierEmail");
@@ -358,6 +372,21 @@ namespace ServiceLibrary.Migrations
                 name: "IX_AuditLog_ManagerEmail",
                 table: "AuditLog",
                 column: "ManagerEmail");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EPayment_InvoiceId",
+                table: "EPayment",
+                column: "InvoiceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EPayment_SaleTypeId",
+                table: "EPayment",
+                column: "SaleTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Inventory_ProductId",
+                table: "Inventory",
+                column: "ProductId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Invoice_CashierEmail",
@@ -402,10 +431,13 @@ namespace ServiceLibrary.Migrations
                 name: "AccountJournal");
 
             migrationBuilder.DropTable(
-                name: "AlternativePayment");
+                name: "AuditLog");
 
             migrationBuilder.DropTable(
-                name: "AuditLog");
+                name: "EPayment");
+
+            migrationBuilder.DropTable(
+                name: "Inventory");
 
             migrationBuilder.DropTable(
                 name: "Item");

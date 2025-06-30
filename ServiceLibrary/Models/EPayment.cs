@@ -2,7 +2,7 @@
 
 namespace ServiceLibrary.Models
 {
-    public class AlternativePayment
+    public class EPayment
     {
         [Key]
         public long Id { get; set; }

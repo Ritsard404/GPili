@@ -27,6 +27,9 @@ namespace ServiceLibrary.Services.Repositories
             if (qty <= 0)
                 return (false, "Invalid quantity.");
 
+            if (product.Quantity < qty)
+                return (false, $"Insufficient stock. Only {product.Quantity} “{product.Name}” left in inventory.");
+
             var isTrainMode = await _terminalMachine.IsTrainMode();
             var pendingOrder = await PendingOrder(isTrainMode);
             long invNum = await GenerateInvoiceNumberAsync(isTrainMode);
@@ -96,8 +99,6 @@ namespace ServiceLibrary.Services.Repositories
 
             return (true, "Item added successfully.");
         }
-
-
         public async Task<(bool isSuccess, string message)> EditQtyTotalPriceItem(long itemId, decimal qty, decimal subtotal)
         {
             var existingItem = await _dataContext.Item
@@ -105,12 +106,18 @@ namespace ServiceLibrary.Services.Repositories
                 .Include(i => i.Invoice)
                 .FirstOrDefaultAsync(i => i.Id == itemId);
 
+
             if (existingItem == null)
                 return (false, "Item not found.");
+
             if (qty <= 0 || subtotal <= 0)
                 return (false, "Quantity and subtotal must be greater than zero.");
 
             var oldQty = existingItem.Qty;
+            if(existingItem.Product.Quantity < qty + oldQty) 
+                return (false, $"Insufficient stock. Only {existingItem.Product.Quantity} “{existingItem.Product.Name}” left in inventory.");
+
+
             var isTrainMode = await _terminalMachine.IsTrainMode();
 
             // Check if there is a pending order

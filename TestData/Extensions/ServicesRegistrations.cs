@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ServiceLibrary.Data;
+using ServiceLibrary.Utils;
 
 namespace TestData.Extensions
 {
@@ -11,7 +12,7 @@ namespace TestData.Extensions
             services.AddDbContext<DataContext>(options =>
             {
                 // Use the exact same database file path as the MAUI app
-                var dbPath = Path.Combine("C:\\Users\\Acer\\AppData\\Local\\Packages\\com.companyname.gpili_9zz4h110yvjzm\\LocalState", "GPili.db");
+                var dbPath = Path.Combine(FolderPath.Database.Test, "GPili.db");
                 
                 // Ensure directory exists
                 var dbDirectory = Path.GetDirectoryName(dbPath);

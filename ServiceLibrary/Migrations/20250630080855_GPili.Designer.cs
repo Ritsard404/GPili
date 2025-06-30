@@ -11,7 +11,7 @@ using ServiceLibrary.Data;
 namespace ServiceLibrary.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250626014114_GPili")]
+    [Migration("20250630080855_GPili")]
     partial class GPili
     {
         /// <inheritdoc />
@@ -19,34 +19,6 @@ namespace ServiceLibrary.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.5");
-
-            modelBuilder.Entity("ServiceLibrary.Models.AlternativePayment", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("TEXT");
-
-                    b.Property<long>("InvoiceId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Reference")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("SaleTypeId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("InvoiceId");
-
-                    b.HasIndex("SaleTypeId");
-
-                    b.ToTable("AlternativePayment");
-                });
 
             modelBuilder.Entity("ServiceLibrary.Models.AuditLog", b =>
                 {
@@ -99,6 +71,63 @@ namespace ServiceLibrary.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Category");
+                });
+
+            modelBuilder.Entity("ServiceLibrary.Models.EPayment", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("InvoiceId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Reference")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("SaleTypeId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InvoiceId");
+
+                    b.HasIndex("SaleTypeId");
+
+                    b.ToTable("EPayment");
+                });
+
+            modelBuilder.Entity("ServiceLibrary.Models.Inventory", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("ProductId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("Quantity")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Reference")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("TransactionDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("Inventory");
                 });
 
             modelBuilder.Entity("ServiceLibrary.Models.Invoice", b =>
@@ -547,6 +576,10 @@ namespace ServiceLibrary.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("IsActive")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -639,7 +672,22 @@ namespace ServiceLibrary.Migrations
                     b.ToTable("User");
                 });
 
-            modelBuilder.Entity("ServiceLibrary.Models.AlternativePayment", b =>
+            modelBuilder.Entity("ServiceLibrary.Models.AuditLog", b =>
+                {
+                    b.HasOne("ServiceLibrary.Models.User", "Cashier")
+                        .WithMany()
+                        .HasForeignKey("CashierEmail");
+
+                    b.HasOne("ServiceLibrary.Models.User", "Manager")
+                        .WithMany()
+                        .HasForeignKey("ManagerEmail");
+
+                    b.Navigation("Cashier");
+
+                    b.Navigation("Manager");
+                });
+
+            modelBuilder.Entity("ServiceLibrary.Models.EPayment", b =>
                 {
                     b.HasOne("ServiceLibrary.Models.Invoice", "Invoice")
                         .WithMany("AlternativePayments")
@@ -658,19 +706,15 @@ namespace ServiceLibrary.Migrations
                     b.Navigation("SaleType");
                 });
 
-            modelBuilder.Entity("ServiceLibrary.Models.AuditLog", b =>
+            modelBuilder.Entity("ServiceLibrary.Models.Inventory", b =>
                 {
-                    b.HasOne("ServiceLibrary.Models.User", "Cashier")
+                    b.HasOne("ServiceLibrary.Models.Product", "Product")
                         .WithMany()
-                        .HasForeignKey("CashierEmail");
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasOne("ServiceLibrary.Models.User", "Manager")
-                        .WithMany()
-                        .HasForeignKey("ManagerEmail");
-
-                    b.Navigation("Cashier");
-
-                    b.Navigation("Manager");
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("ServiceLibrary.Models.Invoice", b =>

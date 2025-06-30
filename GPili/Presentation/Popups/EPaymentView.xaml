@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="GPili.Presentation.Popups.EPaymentView"
+             Color="Transparent">
+    <Border
+        Stroke="Black"
+        StrokeShape="RoundRectangle 15"
+        StrokeThickness="3"
+        BackgroundColor="White"
+        WidthRequest="{Binding PopupWidth}"
+        HeightRequest="{Binding PopupHeight}">
+        <Grid  RowDefinitions="Auto,*,Auto" Padding="10">
+            <Label Text="Add E-Payment" Grid.Row="0"
+                   FontAttributes="Bold" FontSize="Title" 
+                   TextColor="Black"
+                   HorizontalOptions="Center" />
+            <CollectionView ItemsSource="{Binding PaymentEntries}"
+                            Grid.Row="1">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid RowDefinitions="Auto, Auto, Auto" 
+                              ColumnDefinitions="*, *, Auto" 
+                              Padding="10">
+                            <Label Text="{Binding Name}" 
+                                   Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+                                   TextColor="Black" FontAttributes="Bold" />
+                            <Entry Placeholder="Reference"
+                                   BackgroundColor="Black"
+                                   Grid.Row="1" Grid.Column="0"
+                                   Text="{Binding Reference, Mode=TwoWay, UpdateSourceEventName=TextChanged}" />
+                            <Label Text="{Binding (Validation.Errors)[0].ErrorMessage, Mode=OneWay}" 
+                                   TextColor="Red" 
+                                   Grid.Row="2" Grid.Column="0"
+                                   IsVisible="{Binding (Validation.HasErrors), Mode=OneWay}" />
+                            <Entry Placeholder="Amount"
+                                   Grid.Row="1" Grid.Column="1"
+                                   Keyboard="Numeric" BackgroundColor="Black"
+                                   Text="{Binding Amount, Mode=TwoWay, StringFormat='{0:N2}'}" />
+                            <Label Text="{Binding (Validation.Errors)[1].ErrorMessage, Mode=OneWay}" 
+                                   TextColor="Red" 
+                                   Grid.Row="2" Grid.Column="1"
+                                   IsVisible="{Binding (Validation.HasErrors), Mode=OneWay}" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            <Button Text="Submit" Grid.Row="2" Command="{Binding SubmitCommand}" />
+        </Grid>
+    </Border>
+</toolkit:Popup>

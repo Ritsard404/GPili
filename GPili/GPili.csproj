@@ -78,10 +78,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="Presentation\Popups\EPaymentView.xaml.cs">
+	    <DependentUpon>EPaymentView.xaml</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
 	  <MauiXaml Update="Presentation\Contents\Cashiering\OrderSummaryView.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Presentation\Contents\Cashiering\ProductSelectionView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Presentation\Contents\FooterView.xaml">
@@ -100,6 +103,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Presentation\Popups\EditItemView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Presentation\Popups\EPaymentView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Presentation\Popups\LoaderView.xaml">

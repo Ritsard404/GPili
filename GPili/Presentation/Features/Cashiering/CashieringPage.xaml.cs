@@ -126,6 +126,8 @@ public partial class CashieringPage : ContentPage
     {
         base.OnAppearing();
 
+        await Task.Delay(1500);
+
         if (BindingContext is CashieringViewModel vm)
             await vm.InitializeAsync();
     }

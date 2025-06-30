@@ -21,12 +21,10 @@ namespace GPili.Services
         {
             await Shell.Current.GoToAsync("..");
         }
-
         public async Task GoToManager()
         {
             await NavigateToAsync(AppRoutes.Manager);
         }
-
         public async Task InitializeAsync()
         {
             var result = await _auth.HasPendingOrder();
@@ -36,7 +34,7 @@ namespace GPili.Services
             {
 
                 CashierState.Info.UpdateCashierInfo(result.cashierName, result.cashierEmail, RoleType.Cashier);
-                
+
                 await NavigateToAsync(AppRoutes.Cashiering);
             }
             else
@@ -44,15 +42,13 @@ namespace GPili.Services
                 CashierState.Info.UpdateCashierInfo("", "", "");
                 await NavigateToAsync(AppRoutes.Login);
             }
+
         }
-
-
         public async Task Logout()
         {
             await NavigateToAsync(AppRoutes.Login);
         }
-
-        public Task NavigateToAsync(string route, IDictionary<string, object> routeParameters = 
+        public Task NavigateToAsync(string route, IDictionary<string, object> routeParameters =
             null)
         {
             return

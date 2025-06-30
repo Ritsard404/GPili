@@ -9,5 +9,6 @@ namespace ServiceLibrary.Models
         public required string Name { get; set; }
         public required string Account { get; set; }
         public required string Type { get; set; }
+        public bool IsActive { get; set; } = true;
     }
 }

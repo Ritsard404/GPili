@@ -27,7 +27,7 @@ namespace ServiceLibrary.Models
 
         public required User Cashier { get; set; }
         public ICollection<Item> Items { get; set; } = new List<Item>();
-        public ICollection<AlternativePayment> AlternativePayments { get; set; } = new List<AlternativePayment>();
+        public ICollection<EPayment> AlternativePayments { get; set; } = new List<EPayment>();
 
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;

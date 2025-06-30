@@ -19,6 +19,7 @@ namespace ServiceLibrary.Extension
             services.AddScoped<IReport, ReportRepository>();
             services.AddScoped<IOrder, OrderRepository>();
             services.AddScoped<IInventory, InventoryRepository>();
+            services.AddScoped<IEPayment, EPaymentRepository>();
 
             return services;
         }

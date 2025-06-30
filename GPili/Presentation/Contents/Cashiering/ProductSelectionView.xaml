@@ -333,6 +333,12 @@
                                     </DataTrigger>
                                 </Button.Triggers>
                             </Button>
+                            <Button Text="E-PAYMENT" 
+                                    x:Name="EPAYMENT"
+                                    Grid.Row="4" Grid.Column="4" 
+                                    Style="{StaticResource RedButton}" 
+                                    FontAttributes="Bold" CornerRadius="8"
+                                    Command="{Binding EPaymentsCommand}"/>
                         </Grid>
                     </VerticalStackLayout>
                 </Frame>

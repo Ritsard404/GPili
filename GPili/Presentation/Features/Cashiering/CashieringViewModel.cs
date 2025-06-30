@@ -34,11 +34,10 @@ namespace GPili.Presentation.Features.Cashiering
 
         public async Task InitializeAsync()
         {
-            PopupState.PopupInfo.OpenPopup("Set Drawer","Set drawer cash");
 
             bool isCashedDrawer = await _auth.IsCashedDrawer(CashierState.Info.CashierEmail);
 
-            await Task.Delay(1000);
+            PopupState.PopupInfo.OpenPopup("Set Drawer", "Set drawer cash");
 
             if (!isCashedDrawer)
             {
@@ -222,8 +221,9 @@ namespace GPili.Presentation.Features.Cashiering
                 await Toast.Make("Order paid successfully!").Show();
 
                 await LoadItems();
-                SelectedKeypadAction = KeypadActions.QTY;
+                Products = await _inventory.GetProducts();
                 ClearQty();
+                SelectedKeypadAction = KeypadActions.QTY;
             }
             else
             {
@@ -297,5 +297,19 @@ namespace GPili.Presentation.Features.Cashiering
             }
         }
 
+        [RelayCommand]
+        private async Task EPayments()
+        {
+            try
+            {
+                var popup = new EPaymentView();
+                var result = await Shell.Current.ShowPopupAsync(popup);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+                await Toast.Make("An error occurred while processing e-payments.").Show();
+            }
+        }
     }
 }
