@@ -27,6 +27,10 @@ internal static class ApplicationExtensions
     public static IServiceCollection AddDatabase(this IServiceCollection services)
     {
         //var dbPath = Path.Combine(FileSystem.AppDataDirectory, "GPili.db");
+
+        if(!Directory.Exists(FolderPath.Database.Test))
+            Directory.CreateDirectory(FolderPath.Database.Test);
+
         var dbPath = Path.Combine(FolderPath.Database.Test, "GPili.db");
         var connectionString = $"Data Source={dbPath}";
 
