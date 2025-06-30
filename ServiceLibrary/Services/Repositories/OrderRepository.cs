@@ -8,7 +8,11 @@ using ServiceLibrary.Utils;
 
 namespace ServiceLibrary.Services.Repositories
 {
-    public class OrderRepository(DataContext _dataContext, IGPiliTerminalMachine _terminalMachine, IAuth _auth, IAuditLog _auditLog, IReport _report, IPrinterService _printer) : IOrder
+    public class OrderRepository(DataContext _dataContext, 
+        IGPiliTerminalMachine _terminalMachine, 
+        IAuth _auth, IAuditLog _auditLog, 
+        IReport _report, IPrinterService _printer,
+        IInventory _inventory) : IOrder
     {
         public async Task<(bool isSuccess, string message)> AddOrderItem(long prodId, decimal qty, string cashierEmail)
         {
@@ -88,7 +92,6 @@ namespace ServiceLibrary.Services.Repositories
                 );
             }
 
-
             await _dataContext.SaveChangesAsync();
 
             return (true, "Item added successfully.");
@@ -99,13 +102,15 @@ namespace ServiceLibrary.Services.Repositories
         {
             var existingItem = await _dataContext.Item
                 .Include(i => i.Product)
-                .FirstOrDefaultAsync(i => i.Id == itemId && i.Status == InvoiceStatusType.Pending);
+                .Include(i => i.Invoice)
+                .FirstOrDefaultAsync(i => i.Id == itemId);
 
             if (existingItem == null)
                 return (false, "Item not found.");
             if (qty <= 0 || subtotal <= 0)
                 return (false, "Quantity and subtotal must be greater than zero.");
 
+            var oldQty = existingItem.Qty;
             var isTrainMode = await _terminalMachine.IsTrainMode();
 
             // Check if there is a pending order
@@ -177,6 +182,14 @@ namespace ServiceLibrary.Services.Repositories
                 {
                     item.Status = InvoiceStatusType.Returned;
                     item.UpdatedAt = DateTime.UtcNow;
+                    // Record inventory IN transaction for each returned item
+                    await _inventory.RecordInventoryTransaction(
+                        InventoryAction.Actions.In,
+                        item.Product,
+                        item.Qty,
+                        $"Return Invoice #{invoiceToRefund.InvoiceNumber}",
+                        managerResult.Result.manager
+                    );
                 }
                 _dataContext.Item.Update(item);
             }
@@ -229,6 +242,15 @@ namespace ServiceLibrary.Services.Repositories
                 itemToReturn.Status = InvoiceStatusType.Returned;
                 itemToReturn.UpdatedAt = DateTime.UtcNow;
                 _dataContext.Item.Update(itemToReturn);
+
+                // Record inventory IN transaction for each returned item
+                await _inventory.RecordInventoryTransaction(
+                    InventoryAction.Actions.In,
+                    itemToReturn.Product,
+                    itemToReturn.Qty,
+                    $"Return Item #{itemToReturn.Id} from Invoice #{invoiceToRefund.InvoiceNumber}",
+                    managerResult.manager
+                );
             }
 
             // Check if the invoice is already returned
@@ -260,15 +282,28 @@ namespace ServiceLibrary.Services.Repositories
 
             var itemToVoid = await _dataContext.Item
                 .Include(i => i.Invoice)
-                .FirstOrDefaultAsync(i => i.Id == itemId && i.Status == InvoiceStatusType.Pending);
+                .Include(i => i.Product)
+                .FirstOrDefaultAsync(i => i.Id == itemId);
             if (itemToVoid == null)
                 return (false, "Item not found or not in a valid state for voiding.");
 
+            var wasPaid = itemToVoid.Status == InvoiceStatusType.Paid;
 
             itemToVoid.Status = InvoiceStatusType.Void;
             itemToVoid.UpdatedAt = DateTime.UtcNow;
-
             _dataContext.Item.Update(itemToVoid);
+
+            // If the item was paid, return stock
+            if (wasPaid)
+            {
+                await _inventory.RecordInventoryTransaction(
+                    InventoryAction.Actions.In,
+                    itemToVoid.Product,
+                    itemToVoid.Qty,
+                    $"Void Item #{itemToVoid.Id}",
+                    managerResult.manager
+                );
+            }
 
             // Log the void action
             await _auditLog.AddManagerAudit(managerResult.manager, AuditActionType.VoidItem, $"Item ID {itemId} voided by {managerResult.manager.Email} at the request of cashier {cashierResult.cashier.Email}", itemToVoid.SubTotal);
@@ -299,8 +334,19 @@ namespace ServiceLibrary.Services.Repositories
             // Set the items to Void status
             foreach (var item in pendingOrder.Items)
             {
-                if (item.Status == InvoiceStatusType.Pending)
+                if (item.Status == InvoiceStatusType.Pending || item.Status == InvoiceStatusType.Paid)
                 {
+                    // If the item was paid, return stock
+                    if (item.Status == InvoiceStatusType.Paid)
+                    {
+                        await _inventory.RecordInventoryTransaction(
+                            InventoryAction.Actions.In,
+                            item.Product,
+                            item.Qty,
+                            $"Void Order #{pendingOrder.InvoiceNumber}",
+                            managerResult.manager
+                        );
+                    }
                     item.Status = InvoiceStatusType.Void;
                     item.UpdatedAt = DateTime.UtcNow;
                     _dataContext.Item.Update(item);
@@ -380,6 +426,14 @@ namespace ServiceLibrary.Services.Repositories
             foreach (var item in pendingOrder.Items)
             {
                 item.Status = InvoiceStatusType.Paid;
+                // Record inventory OUT transaction for each item
+                await _inventory.RecordInventoryTransaction(
+                    InventoryAction.Actions.Out,
+                    item.Product,
+                    item.Qty,
+                    $"Invoice #{pendingOrder.InvoiceNumber}",
+                    cashierResult.cashier
+                );
             }
 
 
