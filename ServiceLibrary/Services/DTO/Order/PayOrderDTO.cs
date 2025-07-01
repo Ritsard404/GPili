@@ -1,4 +1,5 @@
 ﻿using ServiceLibrary.Models;
+using ServiceLibrary.Services.DTO.Payment;
 
 namespace ServiceLibrary.Services.DTO.Order
 {
@@ -7,7 +8,7 @@ namespace ServiceLibrary.Services.DTO.Order
         public required decimal TotalAmount { get; set; }
         public required decimal SubTotal { get; set; }
         public required decimal CashTendered { get; set; }
-        public required List<EPayment> OtherPayment { get; set; }
+        public required List<EPaymentDTO> OtherPayment { get; set; }
         public required decimal ChangeAmount { get; set; }
         public required decimal DueAmount { get; set; }
         public required decimal TotalTendered { get; set; }

@@ -280,7 +280,7 @@ namespace ServiceLibrary.Services.Repositories
         {
             var isTrainMode = await _terminalMachine.IsTrainMode();
             var managerResult = await _auth.IsManagerValid(mgrEmail);
-            if (!managerResult.isSuccess || managerResult.manager == null)
+            if (!(managerResult.isSuccess && managerResult.manager != null))
                 return (false, "Invalid manager email. Please check and try again.");
 
             var cashierResult = await _auth.IsCashierValid(cashrEmail);
@@ -397,71 +397,100 @@ namespace ServiceLibrary.Services.Repositories
 
         public async Task<(bool isSuccess, string message, InvoiceDTO? invoiceInfo)> PayOrder(PayOrderDTO pay)
         {
-            var isTrainMode = await _terminalMachine.IsTrainMode();
-
-            if (pay.ChangeAmount < 0)
-                return (false, "Invalid amount to pay. Please check and try again.", null);
-
-            var cashierResult = await _auth.IsCashierValid(pay.CashierEmail);
-            if (!cashierResult.isSuccess || cashierResult.cashier == null)
-                return (false, "Invalid cashier email. Please check and try again.", null);
-
-            var pendingOrder = await PendingOrder(isTrainMode);
-            if (pendingOrder == null)
-                return (false, "No pending order found.", null);
-
-            var invoice = await _report.GetInvoiceById(pendingOrder.Id);
-            if (invoice == null)
-                return (false, "Invoice not found.", null);
-
-            pendingOrder.Status = InvoiceStatusType.Paid;
-            pendingOrder.StatusChangeDate = DateTime.UtcNow;
-            pendingOrder.TotalAmount = pay.TotalAmount;
-            pendingOrder.SubTotal = pay.SubTotal;
-            pendingOrder.Cashier = cashierResult.cashier;
-            pendingOrder.CashTendered = pay.CashTendered;
-            pendingOrder.DueAmount = pay.DueAmount;
-            pendingOrder.TotalTendered = pay.TotalTendered;
-            pendingOrder.ChangeAmount = pay.ChangeAmount;
-            pendingOrder.DiscountAmount = pay.DiscountAmount;
-            pendingOrder.VatSales = pay.VatSales;
-            pendingOrder.VatExempt = pay.VatExempt;
-            pendingOrder.VatAmount = pay.VatAmount;
-            pendingOrder.VatZero = pay.VatZero;
-            pendingOrder.AlternativePayments = pay.OtherPayment;
-
-            foreach (var item in pendingOrder.Items)
+            await using var transaction = await _dataContext.Database.BeginTransactionAsync();
+            try
             {
-                item.Status = InvoiceStatusType.Paid;
-                // Record inventory OUT transaction for each item
-                await _inventory.RecordInventoryTransaction(
-                    InventoryAction.Actions.Out,
-                    item.Product,
-                    item.Qty,
-                    $"Invoice #{pendingOrder.InvoiceNumber}",
-                    cashierResult.cashier
+                var isTrainMode = await _terminalMachine.IsTrainMode();
+
+                if (pay.ChangeAmount < 0)
+                    return (false, "Invalid amount to pay. Please check and try again.", null);
+
+                var cashierResult = await _auth.IsCashierValid(pay.CashierEmail);
+                if (!cashierResult.isSuccess || cashierResult.cashier == null)
+                    return (false, "Invalid cashier email. Please check and try again.", null);
+
+                var pendingOrder = await PendingOrder(isTrainMode);
+                if (pendingOrder == null)
+                    return (false, "No pending order found.", null);
+
+                var invoice = await _report.GetInvoiceById(pendingOrder.Id);
+                if (invoice == null)
+                    return (false, "Invoice not found.", null);
+
+                pendingOrder.Status = InvoiceStatusType.Paid;
+                pendingOrder.StatusChangeDate = DateTime.UtcNow;
+                pendingOrder.TotalAmount = pay.TotalAmount;
+                pendingOrder.SubTotal = pay.SubTotal;
+                pendingOrder.Cashier = cashierResult.cashier;
+                pendingOrder.CashTendered = pay.CashTendered;
+                pendingOrder.DueAmount = pay.DueAmount;
+                pendingOrder.TotalTendered = pay.TotalTendered;
+                pendingOrder.ChangeAmount = pay.ChangeAmount;
+                pendingOrder.DiscountAmount = pay.DiscountAmount;
+                pendingOrder.VatSales = pay.VatSales;
+                pendingOrder.VatExempt = pay.VatExempt;
+                pendingOrder.VatAmount = pay.VatAmount;
+                pendingOrder.VatZero = pay.VatZero;
+
+                // Map EPayments
+                pendingOrder.EPayments = new List<EPayment>();
+                foreach (var dto in pay.OtherPayment)
+                {
+                    var saleType = await _dataContext.SaleType.FirstOrDefaultAsync(st => st.Id == dto.SaleTypeId);
+                    if (saleType == null)
+                    {
+                        await transaction.RollbackAsync();
+                        return (false, $"Invalid SaleTypeId: {dto.SaleTypeId}", null);
+                    }
+
+                    var ePayment = new EPayment
+                    {
+                        Reference = dto.Reference,
+                        Amount = dto.Amount,
+                        SaleType = saleType,
+                        Invoice = pendingOrder
+                    };
+                    pendingOrder.EPayments.Add(ePayment);
+                }
+
+                foreach (var item in pendingOrder.Items)
+                {
+                    item.Status = InvoiceStatusType.Paid;
+                    // Record inventory OUT transaction for each item
+                    await _inventory.RecordInventoryTransaction(
+                        InventoryAction.Actions.Out,
+                        item.Product,
+                        item.Qty,
+                        $"Invoice #{pendingOrder.InvoiceNumber}",
+                        cashierResult.cashier
+                    );
+                }
+
+                await _auditLog.AddCashierAudit(
+                    cashierResult.cashier,
+                    AuditActionType.PayOrder,
+                    $"Cashier {cashierResult.cashier.Email} successfully processed payment for Order #{pendingOrder.InvoiceNumber.InvoiceFormat()} with a total amount of {pay.TotalAmount.PesoFormat()}.",
+                    pay.TotalAmount
                 );
+
+                await _auditLog.AddItemsJournal(pendingOrder.Id);
+                await _auditLog.AddTendersJournal(pendingOrder.Id);
+                await _auditLog.AddTotalsJournal(pendingOrder.Id);
+
+                await _dataContext.SaveChangesAsync();
+
+                // Print the invoice
+                invoice = await _report.GetInvoiceById(pendingOrder.Id);
+                await _printer.PrintInvoice(invoice!);
+
+                await transaction.CommitAsync();
+                return (true, "Order paid successfully!", invoice);
             }
-
-
-            await _auditLog.AddCashierAudit(
-                cashierResult.cashier,
-                AuditActionType.PayOrder,
-                $"Cashier {cashierResult.cashier.Email} successfully processed payment for Order #{pendingOrder.InvoiceNumber.InvoiceFormat()} with a total amount of {pay.TotalAmount.PesoFormat()}.",
-                pay.TotalAmount
-            );
-
-            await _auditLog.AddItemsJournal(pendingOrder.Id);
-            await _auditLog.AddTendersJournal(pendingOrder.Id);
-            await _auditLog.AddTotalsJournal(pendingOrder.Id);
-
-            await _dataContext.SaveChangesAsync();
-
-            // Print the invoice
-            invoice = await _report.GetInvoiceById(pendingOrder.Id);
-            await _printer.PrintInvoice(invoice!);
-
-            return (true, "Order paid successfully!", invoice);
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return (false, $"Payment failed: {ex.Message}", null);
+            }
         }
     }
 }

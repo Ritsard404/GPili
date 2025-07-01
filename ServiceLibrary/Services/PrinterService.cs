@@ -158,7 +158,7 @@ namespace ServiceLibrary.Services
             {
                 foreach (var payment in invoiceInfo.OtherPayments)
                 {
-                    content.AppendLine(CenterText($"{$"{payment.SaleTypeName}:",-15}{payment.Amount,17}"));
+                    content.AppendLine(CenterText($"{$"{payment.SaleTypeName} ({payment.Reference}):",-15}{payment.Amount,17}"));
                 }
             }
 

@@ -5,13 +5,13 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
+using GPili.Presentation.Features.Cashiering;
+using ServiceLibrary.Services.DTO.Payment;
 
 namespace GPili.Presentation.Popups
 {
-    public partial class EPaymentViewModel : ObservableValidator
+    public partial class EPaymentViewModel(IEPayment _ePayment) : ObservableValidator
     {
-        private readonly IPopupService _popupService;
-        private readonly IEPayment _ePayment;
 
         public EPaymentView Popup;
 
@@ -20,12 +20,6 @@ namespace GPili.Presentation.Popups
 
         public double PopupWidth => Shell.Current.CurrentPage.Width * 0.5;
         public double PopupHeight => Shell.Current.CurrentPage.Height * 0.7;
-
-        public EPaymentViewModel(IPopupService popupService, IEPayment ePayment)
-        {
-            _popupService = popupService;
-            _ePayment = ePayment;
-        }
 
         public async Task LoadSaleTypes()
         {
@@ -45,20 +39,52 @@ namespace GPili.Presentation.Popups
             }
         }
 
-        [RelayCommand]
-        private void Submit()
+        private ObservableCollection<EPaymentDTO> ToObservableCollection()
         {
+            var result = new ObservableCollection<EPaymentDTO>();
+            foreach (var entry in PaymentEntries)
+            {
+                if (!string.IsNullOrWhiteSpace(entry.Reference) && entry.Amount.HasValue && entry.Amount.Value > 0)
+                {
+                    result.Add(new EPaymentDTO
+                    {
+                        Reference = entry.Reference!.ToUpper(),
+                        Amount = entry.Amount.Value,
+                        SaleTypeId = entry.SaleType.Id,
+                        SaleTypeName = entry.SaleType.Name
+                    });
+                }
+            }
+            return result;
+        }
+
+        [RelayCommand]
+        private async Task Submit()
+        {
+            // Validate only filled entries
             bool hasError = false;
             foreach (var entry in PaymentEntries)
             {
-                entry.ValidateAll();
-                if (entry.HasErrors)
-                    hasError = true;
+                if (entry.IsFilled)
+                {
+                    if (!entry.IsValid)
+                        hasError = true;
+                }
             }
-            if (!hasError)
+
+
+            if (hasError)
             {
-                Popup?.CloseWithResult(PaymentEntries.ToList());
+                await Shell.Current.DisplayAlert(
+                    "Invalid Input",
+                    "Please ensure all filled E-Payment entries have both a valid reference and an amount greater than 0.",
+                    "OK"
+                );
+                return;
             }
+
+            var result = ToObservableCollection();
+            Popup?.CloseWithResult(result);
         }
     }
 
@@ -67,12 +93,10 @@ namespace GPili.Presentation.Popups
         public SaleType SaleType { get; }
 
         [ObservableProperty]
-        [Required(ErrorMessage = "Reference is required.")]
-        private string reference = string.Empty;
+        private string? _reference;
 
         [ObservableProperty]
-        [Range(0.001, double.MaxValue, ErrorMessage = "Amount must be greater than 0.")]
-        private decimal amount;
+        private decimal? _amount;
 
         public string Name => SaleType.Name;
 
@@ -80,9 +104,37 @@ namespace GPili.Presentation.Popups
         {
             SaleType = saleType;
         }
-        public void ValidateAll()
+
+        partial void OnReferenceChanged(string? value)
         {
-            ValidateAllProperties();
+            ValidateProperty(value, nameof(Reference));
+        }
+
+        partial void OnAmountChanged(decimal? value)
+        {
+            if (value.HasValue)
+                _amount = Math.Round(value.Value, 2); // Use backing field to avoid recursion
+            ValidateProperty(value, nameof(Amount));
+        }
+
+        public bool IsFilled => !string.IsNullOrWhiteSpace(Reference) || (Amount.HasValue && Amount.Value > 0);
+
+        public bool IsValid
+        {
+            get
+            {
+                // Validate only if entry is filled
+                if (!IsFilled)
+                    return true;
+
+                bool hasReference = !string.IsNullOrWhiteSpace(Reference);
+                bool hasAmount = Amount.HasValue && Amount.Value > 0;
+
+                if (!hasReference || !hasAmount || Amount <= 0)
+                    return false;
+
+                return !HasErrors;
+            }
         }
     }
 }

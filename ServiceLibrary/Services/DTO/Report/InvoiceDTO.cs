@@ -63,6 +63,7 @@
     public class OtherPayment
     {
         public required string SaleTypeName { get; set; } 
+        public required string Reference { get; set; } 
         public required string Amount { get; set; } 
     }
 }

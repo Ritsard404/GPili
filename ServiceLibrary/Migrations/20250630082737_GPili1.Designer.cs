@@ -689,7 +689,7 @@ namespace ServiceLibrary.Migrations
             modelBuilder.Entity("ServiceLibrary.Models.EPayment", b =>
                 {
                     b.HasOne("ServiceLibrary.Models.Invoice", "Invoice")
-                        .WithMany("AlternativePayments")
+                        .WithMany("EPayments")
                         .HasForeignKey("InvoiceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -784,7 +784,7 @@ namespace ServiceLibrary.Migrations
 
             modelBuilder.Entity("ServiceLibrary.Models.Invoice", b =>
                 {
-                    b.Navigation("AlternativePayments");
+                    b.Navigation("EPayments");
 
                     b.Navigation("Items");
                 });

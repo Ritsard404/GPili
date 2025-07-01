@@ -4,6 +4,16 @@
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="GPili.Presentation.Popups.EPaymentView"
              Color="Transparent">
+    <toolkit:Popup.Resources>
+        <ResourceDictionary>
+            <Style x:Key="EntryInvalidStyle" TargetType="Entry">
+                <Setter Property="BackgroundColor" Value="#FFEBEE" />
+                <!-- Light red background -->
+                <Setter Property="TextColor" Value="Red" />
+            </Style>
+        </ResourceDictionary>
+    </toolkit:Popup.Resources>
+
     <Border
         Stroke="Black"
         StrokeShape="RoundRectangle 15"
@@ -20,33 +30,43 @@
                             Grid.Row="1">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Grid RowDefinitions="Auto, Auto, Auto" 
-                              ColumnDefinitions="*, *, Auto" 
+                        <Grid RowDefinitions="Auto, Auto" 
+                              ColumnDefinitions="*, *" 
                               Padding="10">
                             <Label Text="{Binding Name}" 
                                    Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
                                    TextColor="Black" FontAttributes="Bold" />
-                            <Entry Placeholder="Reference"
+
+                            <Entry Placeholder="Reference" HeightRequest="50"
                                    BackgroundColor="Black"
                                    Grid.Row="1" Grid.Column="0"
-                                   Text="{Binding Reference, Mode=TwoWay, UpdateSourceEventName=TextChanged}" />
-                            <Label Text="{Binding (Validation.Errors)[0].ErrorMessage, Mode=OneWay}" 
-                                   TextColor="Red" 
-                                   Grid.Row="2" Grid.Column="0"
-                                   IsVisible="{Binding (Validation.HasErrors), Mode=OneWay}" />
-                            <Entry Placeholder="Amount"
+                                   ClearButtonVisibility="WhileEditing"
+                                   Text="{Binding Reference, Mode=TwoWay, UpdateSourceEventName=TextChanged}" >
+                                <Entry.Behaviors>
+                                    <toolkit:TextValidationBehavior
+                                        Flags="ValidateOnValueChanged"
+                                        InvalidStyle="{StaticResource EntryInvalidStyle}" />
+                                </Entry.Behaviors>
+                            </Entry>
+
+                            <Entry Placeholder="Amount" HeightRequest="50"
                                    Grid.Row="1" Grid.Column="1"
                                    Keyboard="Numeric" BackgroundColor="Black"
-                                   Text="{Binding Amount, Mode=TwoWay, StringFormat='{0:N2}'}" />
-                            <Label Text="{Binding (Validation.Errors)[1].ErrorMessage, Mode=OneWay}" 
-                                   TextColor="Red" 
-                                   Grid.Row="2" Grid.Column="1"
-                                   IsVisible="{Binding (Validation.HasErrors), Mode=OneWay}" />
+                                   ClearButtonVisibility="WhileEditing"
+                                   Text="{Binding Amount, Mode=TwoWay}" >
+                                <Entry.Behaviors>
+                                    <toolkit:NumericValidationBehavior
+                                        MinimumValue="0.01"
+                                        Flags="ValidateOnValueChanged"
+                                        InvalidStyle="{StaticResource EntryInvalidStyle}" />
+                                </Entry.Behaviors>
+                            </Entry>
                         </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-            <Button Text="Submit" Grid.Row="2" Command="{Binding SubmitCommand}" />
+            <Button Text="Submit" Grid.Row="2" 
+                    Command="{Binding SubmitCommand}" />
         </Grid>
     </Border>
 </toolkit:Popup>

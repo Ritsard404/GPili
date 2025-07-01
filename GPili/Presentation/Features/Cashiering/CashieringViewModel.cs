@@ -2,6 +2,7 @@
 using GPili.Presentation.Popups;
 using ServiceLibrary.Models;
 using ServiceLibrary.Services.DTO.Order;
+using ServiceLibrary.Services.DTO.Payment;
 using ServiceLibrary.Services.Interfaces;
 
 namespace GPili.Presentation.Features.Cashiering
@@ -191,7 +192,7 @@ namespace GPili.Presentation.Features.Cashiering
             if (payContent == KeypadActions.EXACT_PAY)
                 Tenders.SetExactCashAmount();
 
-            if (payContent == KeypadActions.ENTER && Tenders.ChangeAmount <= 0)
+            if (payContent == KeypadActions.ENTER && Tenders.ChangeAmount < 0)
             {
                 await Toast.Make("Please enter a valid amount to pay.").Show();
                 await _popUpService.ShowAsync("Paid", false);
@@ -240,6 +241,7 @@ namespace GPili.Presentation.Features.Cashiering
             CurrentItem.InitialQty = 0;
             Tenders.PayBuffer = "";
             Tenders.CashTenderAmount = 0;
+            Tenders.OtherPayments = new();
         }
 
         [RelayCommand]
@@ -300,15 +302,31 @@ namespace GPili.Presentation.Features.Cashiering
         [RelayCommand]
         private async Task EPayments()
         {
-            try
+            if (!Items.Any())
             {
-                var popup = new EPaymentView();
-                var result = await Shell.Current.ShowPopupAsync(popup);
+                await Shell.Current.DisplayAlert(
+                    "Nothing to Pay",
+                    "There are no pending items or payments at the moment. Select an order before proceeding.",
+                    "OK"
+                );
+                return;
             }
-            catch (Exception ex)
+
+            var popup = new EPaymentView();
+            var result = await Shell.Current.ShowPopupAsync(popup);
+            if (result is ObservableCollection<EPaymentDTO> payments && payments.Any())
             {
-                Debug.WriteLine(ex);
-                await Toast.Make("An error occurred while processing e-payments.").Show();
+                Tenders.OtherPayments = payments;
+
+                foreach (var p in payments)
+                {
+                    Debug.WriteLine(
+                        $"EPaymentDTO → Reference: {p.Reference}, " +
+                        $"Amount: {p.Amount:F2}, " +
+                        $"SaleTypeId: {p.SaleTypeId}, " +
+                        $"SaleTypeName: {p.SaleTypeName}"
+                    );
+                }
             }
         }
     }

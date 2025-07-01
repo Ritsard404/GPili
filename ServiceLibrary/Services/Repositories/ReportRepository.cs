@@ -14,7 +14,7 @@ namespace ServiceLibrary.Services.Repositories
                 .Include(i => i.Items)
                     .ThenInclude(i => i.Product)
                 .Include(i => i.Cashier)
-                .Include(i => i.AlternativePayments)
+                .Include(i => i.EPayments)
                     .ThenInclude(ap => ap.SaleType)
                 .FirstOrDefaultAsync(i => i.Id == invId);
 
@@ -52,9 +52,10 @@ namespace ServiceLibrary.Services.Repositories
                 Amount = item.SubTotal.PesoFormat(),
             }).ToList();
 
-            var otherPayments = order.AlternativePayments.Select(ap => new OtherPayment
+            var otherPayments = order.EPayments.Select(ap => new OtherPayment
             {
                 SaleTypeName = ap.SaleType.Name,
+                Reference = ap.Reference,
                 Amount = ap.Amount.PesoFormat(),
             }).ToList();
 

@@ -1,3 +1,5 @@
+using ServiceLibrary.Services.DTO.Payment;
+
 namespace GPili.Presentation.Popups;
 
 public partial class EPaymentView : Popup
@@ -14,7 +16,7 @@ public partial class EPaymentView : Popup
         BindingContext = vm;
         Closed += (_, _) => PopupState.PopupInfo.ClosePopup();
     }
-
-    public void CloseWithResult(object? result = null)
+   
+    public void CloseWithResult(ObservableCollection<EPaymentDTO>? result = null)
         => Close(result);
 }

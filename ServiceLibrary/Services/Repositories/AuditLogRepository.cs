@@ -208,7 +208,7 @@ namespace ServiceLibrary.Services.Repositories
 
             var invoice = await _dataContext.Invoice
                 .Include(i => i.Cashier)
-                .Include(i => i.AlternativePayments)
+                .Include(i => i.EPayments)
                     .ThenInclude(ap => ap.SaleType)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(i => i.Id == invId);
@@ -271,9 +271,9 @@ namespace ServiceLibrary.Services.Repositories
 
             }
 
-            if (invoice.AlternativePayments != null)
+            if (invoice.EPayments != null)
             {
-                foreach (var alternativePayment in invoice.AlternativePayments)
+                foreach (var alternativePayment in invoice.EPayments)
                 {
                     journals.Add(new Journal
                     {
