@@ -102,6 +102,9 @@
 	  <MauiXaml Update="Presentation\Features\Manager\ManagerPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Presentation\Popups\DiscountView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Presentation\Popups\EditItemView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

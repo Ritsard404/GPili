@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+                xmlns:converter="clr-namespace:GPili.Converters"
+                x:Class="GPili.Presentation.Popups.DiscountView"
+                Color="Transparent">
+    <toolkit:Popup.Resources>
+        <converter:InverseBoolConverter x:Key="InverseBoolConverter"/>
+        <ResourceDictionary>
+            <Style x:Key="EntryInvalidStyle" TargetType="Entry">
+                <Setter Property="BackgroundColor" Value="#FFEBEE" />
+                <!-- Light red background -->
+                <Setter Property="TextColor" Value="Red" />
+            </Style>
+        </ResourceDictionary>
+    </toolkit:Popup.Resources>
+    <Border
+        Stroke="Black"
+        StrokeShape="RoundRectangle 15"
+        StrokeThickness="2"
+        BackgroundColor="White"
+        WidthRequest="{Binding PopupWidth}"
+        HeightRequest="{Binding PopupHeight}"
+        Padding="0">
+        <Grid RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="*,*"
+              Padding="24"
+              RowSpacing="18" ColumnSpacing="16">
+            <!-- Button Row -->
+            <Button Grid.Row="0" Grid.Column="0"
+                    Text="PWD/SC"
+                    Margin="0,0,8,0"
+                    FontAttributes="Bold"
+                    FontSize="16"
+                    HeightRequest="44"
+                    CornerRadius="8"
+                    Command="{Binding SelectPwdScCommand}"
+                    TextColor="Black"
+                    BackgroundColor="#E0E0E0">
+                <Button.Triggers>
+                    <DataTrigger TargetType="Button"
+                                 Binding="{Binding IsPwdScDisc}"
+                                 Value="True">
+                        <Setter Property="BackgroundColor" Value="DodgerBlue"/>
+                        <Setter Property="TextColor" Value="White"/>
+                    </DataTrigger>
+                </Button.Triggers>
+            </Button>
+            <Button Grid.Row="0" Grid.Column="1"
+                    Text="Others"
+                    Margin="8,0,0,0"
+                    FontAttributes="Bold"
+                    FontSize="16"
+                    HeightRequest="44"
+                    CornerRadius="8"
+                    Command="{Binding SelectOthersCommand}"
+                    TextColor="Black"
+                    BackgroundColor="#E0E0E0">
+                <Button.Triggers>
+                    <DataTrigger TargetType="Button"
+                                 Binding="{Binding IsPwdScDisc}"
+                                 Value="False">
+                        <Setter Property="BackgroundColor" Value="DodgerBlue"/>
+                        <Setter Property="TextColor" Value="White"/>
+                    </DataTrigger>
+                </Button.Triggers>
+            </Button>
+
+            <!-- PWD/SC Checkboxes -->
+            <Grid Grid.Row="1" Grid.Column="0"
+                  Grid.ColumnSpan="2"
+                  ColumnDefinitions="*,*"
+                  IsVisible="{Binding IsPwdScDisc}">
+                <HorizontalStackLayout Grid.Column="0"
+                                       HorizontalOptions="Start"
+                                       VerticalOptions="Center"
+                                       Spacing="8">
+                    <CheckBox Color="Green"
+                              VerticalOptions="Center"
+                              IsVisible="{Binding IsPwdScDisc}"
+                              IsChecked="{Binding IsPwdChecked, Mode=TwoWay}"/>
+                    <Label Text="PWD"
+                           TextColor="Black"
+                           FontSize="Subtitle"
+                           VerticalOptions="Center"
+                           Margin="5,0,0,0"/>
+                </HorizontalStackLayout>
+                <HorizontalStackLayout Grid.Column="1"
+                                       HorizontalOptions="Start"
+                                       VerticalOptions="Center"
+                                       Spacing="8">
+                    <CheckBox Color="Green"
+                              VerticalOptions="Center"
+                              IsVisible="{Binding IsPwdScDisc}"
+                              IsChecked="{Binding IsSeniorChecked, Mode=TwoWay}"/>
+                    <Label Text="Senior"
+                           TextColor="Black"
+                           FontSize="Subtitle"
+                           VerticalOptions="Center"
+                           Margin="5,0,0,0"/>
+                </HorizontalStackLayout>
+            </Grid>
+
+            <!-- PWD/SC Details -->
+            <Grid Grid.Row="2" Grid.ColumnSpan="2"
+                  ColumnDefinitions="*,*"
+                  RowDefinitions="Auto,Auto"
+                  IsVisible="{Binding IsPwdScDisc}">
+                <Label Text="Elligible Person Name"
+                       Grid.Row="0" Grid.Column="0"
+                       TextColor="Black" FontAttributes="Bold" FontSize="Subtitle"
+                       HorizontalOptions="Start" VerticalOptions="End"
+                       Margin="0,0,0,4"/>
+                <Entry Placeholder="Name" BackgroundColor="Black"
+                       Text="{Binding EligibleDiscName, Mode=TwoWay}"
+                       Grid.Row="1" Grid.Column="0"
+                       Margin="0,0,8,0"
+                       HorizontalTextAlignment="Start" VerticalTextAlignment="Center"
+                       HorizontalOptions="Fill" ClearButtonVisibility="WhileEditing"/>
+                <Label Text="OSCA ID"
+                       Grid.Row="0" Grid.Column="1"
+                       TextColor="Black" FontAttributes="Bold" FontSize="Subtitle"
+                       HorizontalOptions="Start" VerticalOptions="End"
+                       Margin="0,0,0,4"/>
+                <Entry Placeholder="OSCA" BackgroundColor="Black"
+                       Text="{Binding OscaIdNum, Mode=TwoWay}"
+                       Grid.Row="1" Grid.Column="1"
+                       Margin="0,0,0,0"
+                       HorizontalTextAlignment="Start" VerticalTextAlignment="Center"
+                       HorizontalOptions="Fill" ClearButtonVisibility="WhileEditing"/>
+            </Grid>
+
+            <!-- Others Discounted Person Name -->
+            <Label Text="Discounted Person Name"
+                   Grid.Row="1" Grid.Column="0"
+                   TextColor="Black" FontAttributes="Bold" FontSize="Subtitle"
+                   HorizontalOptions="Start" VerticalOptions="End"
+                   Margin="0,0,0,4"
+                   IsVisible="{Binding IsPwdScDisc, Converter={StaticResource InverseBoolConverter}}"/>
+            <Entry Placeholder="Name" BackgroundColor="Black"
+                   Text="{Binding EligibleDiscName, Mode=TwoWay}"
+                   Grid.Row="1" Grid.Column="1"
+                   Margin="0,0,0,0"
+                   HorizontalTextAlignment="Start" VerticalTextAlignment="Center"
+                   IsVisible="{Binding IsPwdScDisc, Converter={StaticResource InverseBoolConverter}}"
+                   HorizontalOptions="Fill" ClearButtonVisibility="WhileEditing"/>
+
+            <!-- Others Discount Details -->
+            <Grid Grid.Row="2" Grid.ColumnSpan="2"
+                  ColumnDefinitions="*,*"
+                  RowDefinitions="Auto,Auto"
+                  IsVisible="{Binding IsPwdScDisc, Converter={StaticResource InverseBoolConverter}}">
+                <Label Text="Discount Percent"
+                       Grid.Row="0" Grid.Column="0"
+                       TextColor="Black" FontAttributes="Bold" FontSize="Subtitle"
+                       HorizontalOptions="Start" VerticalOptions="End"
+                       Margin="0,0,0,4"/>
+                <Entry Placeholder="Percent" BackgroundColor="Black"
+                       Text="{Binding DiscountPercent, Mode=TwoWay}"
+                       Grid.Row="1" Grid.Column="0"
+                       Keyboard="Numeric"
+                       Margin="0,0,8,0"
+                       HorizontalTextAlignment="Start" VerticalTextAlignment="Center"
+                       HorizontalOptions="Fill" ClearButtonVisibility="WhileEditing">
+                        <Entry.Behaviors>
+                            <toolkit:NumericValidationBehavior
+                            MinimumValue="0"
+                            Flags="ValidateOnValueChanged"
+                            InvalidStyle="{StaticResource EntryInvalidStyle}" />
+                        </Entry.Behaviors>
+                    </Entry>
+                <Label Text="Discount Amount"
+                       Grid.Row="0" Grid.Column="1"
+                       TextColor="Black" FontAttributes="Bold" FontSize="Subtitle"
+                       HorizontalOptions="Start" VerticalOptions="End"
+                       Margin="0,0,0,4"/>
+                <Entry Placeholder="Amount" BackgroundColor="Black"
+                       Text="{Binding DiscountAmount, Mode=TwoWay}"
+                       Grid.Row="1" Grid.Column="1"
+                       Margin="0,0,0,0"
+                       HorizontalTextAlignment="Start" VerticalTextAlignment="Center"
+                       HorizontalOptions="Fill" ClearButtonVisibility="WhileEditing">
+                        <Entry.Behaviors>
+                            <toolkit:NumericValidationBehavior
+                                    MinimumValue="0.01"
+                                    Flags="ValidateOnValueChanged"
+                                    InvalidStyle="{StaticResource EntryInvalidStyle}" />
+                        </Entry.Behaviors>
+                        </Entry>
+            </Grid>
+
+            <!-- Submit Button -->
+            <Button Grid.Row="3" Grid.Column="0"
+                    Grid.ColumnSpan="2"
+                    FontAttributes="Bold" FontSize="16"
+                    Text="Submit"
+                    HeightRequest="48"
+                    CornerRadius="8"
+                    Margin="0,16,0,0"
+                    Command="{Binding SubmitCommand}"/>
+        </Grid>
+    </Border>
+</toolkit:Popup>

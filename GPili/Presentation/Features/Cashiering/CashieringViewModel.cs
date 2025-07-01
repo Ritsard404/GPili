@@ -317,17 +317,25 @@ namespace GPili.Presentation.Features.Cashiering
             if (result is ObservableCollection<EPaymentDTO> payments && payments.Any())
             {
                 Tenders.OtherPayments = payments;
-
-                foreach (var p in payments)
-                {
-                    Debug.WriteLine(
-                        $"EPaymentDTO → Reference: {p.Reference}, " +
-                        $"Amount: {p.Amount:F2}, " +
-                        $"SaleTypeId: {p.SaleTypeId}, " +
-                        $"SaleTypeName: {p.SaleTypeName}"
-                    );
-                }
             }
+        }
+    
+        [RelayCommand]
+        private async Task Discount()
+        {
+            if (!Items.Any())
+            {
+                await Shell.Current.DisplayAlert(
+                    "No Eligible Items",
+                    "There are no items available for a discount. Please select an order before applying a discount.",
+                    "OK"
+                );
+                return;
+            }
+
+            var popup = new DiscountView();
+            var result = await Shell.Current.ShowPopupAsync(popup);
+            
         }
     }
 }

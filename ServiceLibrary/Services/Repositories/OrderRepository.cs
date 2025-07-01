@@ -432,6 +432,16 @@ namespace ServiceLibrary.Services.Repositories
                 pendingOrder.VatAmount = pay.VatAmount;
                 pendingOrder.VatZero = pay.VatZero;
 
+                // Map Discount
+                if (pay.Discount != null)
+                {
+                    pendingOrder.EligibleDiscName = pay.Discount.EligibleDiscName;
+                    pendingOrder.OSCAIdNum = pay.Discount.OSCAIdNum;
+                    pendingOrder.DiscountType = pay.Discount.DiscountType;
+                    pendingOrder.DiscountPercent = pay.Discount.DiscountPercent;
+                    pendingOrder.DiscountAmount = pay.Discount.DiscountAmount;
+                }
+
                 // Map EPayments
                 pendingOrder.EPayments = new List<EPayment>();
                 foreach (var dto in pay.OtherPayment)

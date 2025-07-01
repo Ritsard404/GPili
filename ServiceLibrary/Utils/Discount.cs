@@ -4,6 +4,7 @@
     {
         public const string Pwd = "PWD";
         public const string SeniorCitizen = "Senior Citizen";
+        public const string Others = "Others";
     }
     public static class DiscountPercent
     {
