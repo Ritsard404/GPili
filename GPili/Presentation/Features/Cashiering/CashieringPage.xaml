@@ -5,17 +5,17 @@
              xmlns:footer="clr-namespace:GPili.Presentation.Contents"
              xmlns:products="clr-namespace:GPili.Presentation.Contents.Cashiering"
              Title="Cashiering">
-    <Grid RowDefinitions="*, Auto">
+    <Grid RowDefinitions="*, Auto" RowSpacing="5">
         <Grid RowDefinitions="*" ColumnDefinitions="0.65*,0.35*" 
               RowSpacing="5" ColumnSpacing="10" Padding="10,10,10,0"
-              VerticalOptions="Fill" HorizontalOptions="Fill">
-            <Border Grid.Column="0" Stroke="Transparent"
-                HorizontalOptions="Fill" VerticalOptions="Fill">
+              VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+            <Border Grid.Column="0" Stroke="Transparent" StrokeThickness="0"
+                HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
                 <products:ProductSelectionView x:Name="ProductSelection"/>
             </Border>
 
-            <Border Grid.Column="1" Stroke="Transparent"
-                HorizontalOptions="Fill" VerticalOptions="Fill" >
+            <Border Grid.Column="1" Stroke="Transparent" StrokeThickness="0"
+                HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" >
                 <products:OrderSummaryView />
             </Border>
         </Grid>

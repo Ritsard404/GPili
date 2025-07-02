@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:converter="clr-namespace:GPili.Converters"
              x:Class="GPili.Presentation.Contents.Cashiering.OrderSummaryView"
              x:Name="OrderSummaryViewRoot">
@@ -12,71 +13,99 @@
     <Grid RowDefinitions="0.5*, 0.5*" RowSpacing="10">
 
         <Grid Grid.Row="0" RowDefinitions="Auto,*,Auto">
-            <Grid ColumnDefinitions="0.10*,0.10*,0.65*,0.15*"
-                Padding="12"
+            <Border
                 Grid.Row="0"
+                Stroke="Transparent"
+                Padding="12"
+                StrokeThickness="0" StrokeShape="RoundRectangle 12,12,0,0"
                 BackgroundColor="#383949">
+                <Grid ColumnDefinitions="0.10*,0.10*,0.65*,0.15*">
 
-                <Label Text="No."
+                    <Label Text="No."
                    Grid.Column="0"
                    FontAttributes="Bold" />
-                <Label Text="Qty"
+                    <Label Text="Qty"
                    Grid.Column="1"
                    FontAttributes="Bold" />
-                <Label Text="Description"
+                    <Label Text="Description"
                    Grid.Column="2"
                    FontAttributes="Bold" />
-                <Label Text="Amount"
+                    <Label Text="Amount"
                    Grid.Column="3"
                    FontAttributes="Bold" />
-            </Grid>
+                </Grid>
+            </Border>
 
             <!-- SCROLLABLE ITEMS -->
-            <CollectionView x:Name="OrderItemsCollectionView"
-                            Grid.Row="1"
+            <Border  Grid.Row="1"
+                Stroke="Transparent"
+                StrokeThickness="0" 
+                 Padding="12" BackgroundColor="#D9D9D9">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="0,0,12,12" />
+                </Border.StrokeShape>
+                <Border.Triggers>
+                    <DataTrigger TargetType="Border"
+                         Binding="{Binding CurrentItem.IsInitialDisplay}"
+                         Value="True">
+                        <Setter Property="StrokeShape">
+                            <Setter.Value>
+                                <!-- Change the corners as needed when IsInitialDisplay is false -->
+                                <RoundRectangle CornerRadius="0" />
+                            </Setter.Value>
+                        </Setter>
+                    </DataTrigger>
+                </Border.Triggers>
+                <CollectionView x:Name="OrderItemsCollectionView"
                             ItemsSource="{Binding Items}"
                             SelectionMode="Single"
-                            BackgroundColor="#D9D9D9"
                             VerticalOptions="Fill"
+                            
                             ItemSizingStrategy="MeasureAllItems">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Grid ColumnDefinitions="0.10*,0.10*,0.65*,0.15*"
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid ColumnDefinitions="0.10*,0.10*,0.65*,0.15*"
                               Padding="12"
                               Margin="4">
-                            <Label Grid.Column="0"
+                                <Label Grid.Column="0"
                                Text="{Binding ., Converter={StaticResource ItemIndexConverter}, ConverterParameter={x:Reference OrderItemsCollectionView}}"
                                FontAttributes="Bold" TextColor="Black"
                                VerticalOptions="Center"/>
-                            <Label Text="{Binding QtyDisplay}" Grid.Column="1" 
+                                <Label Text="{Binding QtyDisplay}" Grid.Column="1" 
                                    VerticalOptions="Center" TextColor="Black" />
-                            <Label Text="{Binding DisplayNameWithPrice}" 
+                                <Label Text="{Binding DisplayNameWithPrice}" 
                                    Grid.Column="2" TextColor="Black" />
-                            <Label Text="{Binding SubTotal, StringFormat='₱{0:N2}'}" 
+                                <Label Text="{Binding SubTotal, StringFormat='₱{0:N2}'}" 
                                    Grid.Column="3" TextColor="Black" />
 
 
-                            <Grid.GestureRecognizers>
-                                <TapGestureRecognizer
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer
                                     Command="{Binding BindingContext.SelectItemCommand, Source={x:Reference OrderSummaryViewRoot}}"
                                     CommandParameter="{Binding .}" />
-                            </Grid.GestureRecognizers>
-                        </Grid>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-                
-            </CollectionView>
+                                </Grid.GestureRecognizers>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
 
+                </CollectionView>
+
+            </Border>
             <!-- Footer (not scrollable) -->
-            <Grid Grid.Row="2" IsVisible="{Binding CurrentItem.IsInitialDisplay}" ColumnDefinitions="0.10*,0.10*,0.65*,0.15*" Padding="12" BackgroundColor="Gold">
-                <Label Grid.Column="0" Text="*" TextColor="Black"  FontAttributes="Bold" VerticalOptions="Center"/>
-                <Label Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding CurrentItem.InitialQty}" TextColor="Black" FontAttributes="Bold" VerticalOptions="Center"/>
-                <!--<Label Grid.Column="2" Text="{Binding CurrentItemDisplay}" FontAttributes="Bold" VerticalOptions="Center"/>-->
-                <Label Grid.Column="3" Text="{Binding CurrentItemAmount, StringFormat='₱{0:N2}'}" FontAttributes="Bold" VerticalOptions="Center"/>
-            </Grid>
-        
+            <Border  Grid.Row="2" IsVisible="{Binding CurrentItem.IsInitialDisplay}"
+                Stroke="Transparent"
+                StrokeThickness="0" StrokeShape="RoundRectangle 0,0,12,12"
+                 Padding="8" BackgroundColor="Gold">
+                <Grid ColumnDefinitions="0.10*,0.10*,0.65*,0.15*">
+                    <Label Grid.Column="0" Text="*" TextColor="Black"  FontAttributes="Bold" VerticalOptions="Center"/>
+                    <Label Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding CurrentItem.InitialQty}" TextColor="Black" FontAttributes="Bold" VerticalOptions="Center"/>
+                    <!--<Label Grid.Column="2" Text="{Binding CurrentItemDisplay}" FontAttributes="Bold" VerticalOptions="Center"/>-->
+                    <Label Grid.Column="3" Text="{Binding CurrentItemAmount, StringFormat='₱{0:N2}'}" FontAttributes="Bold" VerticalOptions="Center"/>
+                </Grid>
+            </Border>
+
         </Grid>
-        
+
         <Border Grid.Row="1"
             VerticalOptions="Fill" Stroke="Transparent"
             StrokeShape="RoundRectangle 15"
@@ -259,6 +288,6 @@
             </Grid>
 
         </Border>
-       </Grid>
+    </Grid>
 
 </ContentView>

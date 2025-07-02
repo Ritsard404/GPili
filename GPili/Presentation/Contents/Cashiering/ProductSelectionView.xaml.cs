@@ -13,9 +13,7 @@ public partial class ProductSelectionView : ContentView
     protected override void OnBindingContextChanged()
     {
         base.OnBindingContextChanged();
-        _vm = BindingContext as CashieringViewModel
-             ?? throw new InvalidOperationException(
-                   "BindingContext must be CashieringViewModel");
+        _vm = BindingContext as CashieringViewModel;
     }
     protected override void OnParentSet()
     {
