@@ -31,7 +31,9 @@ namespace GPili.Presentation.Features.Cashiering
         private ItemTotals _tenders = new();
 
         [ObservableProperty]
-        private string _selectedKeypadAction = KeypadActions.QTY;
+        [NotifyPropertyChangedFor(nameof(IsPayKeypadSelected))]
+        private string _selectedKeypadAction = KeypadActions.QTY; 
+        public bool IsPayKeypadSelected => SelectedKeypadAction == KeypadActions.PAY;
 
         public async Task InitializeAsync()
         {
@@ -90,15 +92,39 @@ namespace GPili.Presentation.Features.Cashiering
         [RelayCommand]
         private async Task Search()
         {
-            if (!string.IsNullOrWhiteSpace(SearchProduct))
+            await _popUpService.ShowAsync("Loading...", true);
+
+            try
             {
-                Products = await _inventory.SearchProducts(keyword: SearchProduct);
+                if (string.IsNullOrWhiteSpace(SearchProduct))
+                {
+                    Products = await _inventory.GetProducts();
+                    return;
+                }
+
+                var product = await _inventory.GetProductByBarcode(SearchProduct);
+
+                if (product != null)
+                {
+                    var qty = CurrentItem.InitialQty > 0 ? CurrentItem.InitialQty : 1;
+                    var (isSuccess, message) = await _order.AddOrderItem(
+                        prodId: product.Id,
+                        qty: qty,
+                        cashierEmail: CashierState.Info.CashierEmail!);
+
+                    // Optionally handle isSuccess/message here if needed
+
+                    return;
+                }
+
+                Products = await _inventory.SearchProducts(SearchProduct);
             }
-            else
+            finally
             {
-                Products = await _inventory.GetProducts();
+                await _popUpService.ShowAsync("Loaded", false);
             }
         }
+
 
         [RelayCommand]
         private async Task AddItem(Product? product)
@@ -146,6 +172,8 @@ namespace GPili.Presentation.Features.Cashiering
         [RelayCommand]
         private void AddPresetQty(string content)
         {
+            var presetAmounts = new[] { "20", "50", "100", "200", "500", "1000" };
+
             if (SelectedKeypadAction == KeypadActions.QTY)
             {
                 if (content == ".")
@@ -163,10 +191,18 @@ namespace GPili.Presentation.Features.Cashiering
                     CurrentItem.InitialQty = preset;
                 }
             }
-
-            if (SelectedKeypadAction == KeypadActions.PAY)
+            else if (SelectedKeypadAction == KeypadActions.PAY)
             {
-                if (content == ".")
+                if (presetAmounts.Contains(content))
+                {
+                    // Add the value to the current cash tender amount
+                    if (decimal.TryParse(content, out decimal addValue))
+                    {
+                        Tenders.CashTenderAmount += addValue;
+                        Tenders.PayBuffer = Tenders.CashTenderAmount.ToString();
+                    }
+                }
+                else if (content == ".")
                 {
                     if (!Tenders.PayBuffer.Contains("."))
                         Tenders.PayBuffer += ".";
@@ -182,6 +218,7 @@ namespace GPili.Presentation.Features.Cashiering
                 }
             }
         }
+
 
         [RelayCommand]
         private async Task PayOrder(string payContent)
@@ -225,6 +262,7 @@ namespace GPili.Presentation.Features.Cashiering
                 Products = await _inventory.GetProducts();
                 ClearQty();
                 SelectedKeypadAction = KeypadActions.QTY;
+                Tenders.Discount = null;
             }
             else
             {
@@ -320,7 +358,7 @@ namespace GPili.Presentation.Features.Cashiering
                 Tenders.OtherPayments = payments;
             }
         }
-    
+
         [RelayCommand]
         private async Task Discount()
         {
@@ -334,7 +372,7 @@ namespace GPili.Presentation.Features.Cashiering
                 return;
             }
 
-            if(Tenders.DiscountAmount > 0)
+            if (Tenders.DiscountAmount > 0)
             {
                 await Shell.Current.DisplayAlert(
                     "Discount Already Applied",
@@ -356,6 +394,12 @@ namespace GPili.Presentation.Features.Cashiering
             {
                 Tenders.Discount = discount;
             }
+        }
+
+        [RelayCommand]
+        private async Task Manager()
+        {
+            await _navigationService.GoToManager();
         }
     }
 }

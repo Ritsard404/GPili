@@ -6,13 +6,15 @@
              xmlns:products="clr-namespace:GPili.Presentation.Contents.Cashiering"
              Title="Cashiering">
     <Grid RowDefinitions="*, Auto">
-        <Grid RowDefinitions="*" ColumnDefinitions="0.65*,0.35*" VerticalOptions="Fill" HorizontalOptions="Fill">
-            <Border Grid.Column="0" BackgroundColor="Red" 
+        <Grid RowDefinitions="*" ColumnDefinitions="0.65*,0.35*" 
+              RowSpacing="5" ColumnSpacing="10" Padding="10,10,10,0"
+              VerticalOptions="Fill" HorizontalOptions="Fill">
+            <Border Grid.Column="0" Stroke="Transparent"
                 HorizontalOptions="Fill" VerticalOptions="Fill">
                 <products:ProductSelectionView x:Name="ProductSelection"/>
             </Border>
 
-            <Border Grid.Column="1" BackgroundColor="Blue" 
+            <Border Grid.Column="1" Stroke="Transparent"
                 HorizontalOptions="Fill" VerticalOptions="Fill" >
                 <products:OrderSummaryView />
             </Border>

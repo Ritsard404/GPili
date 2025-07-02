@@ -106,7 +106,7 @@ namespace GPili.Presentation.Features.Cashiering
             }
         }
         public decimal TotalAmount => GrossTotal - DiscountAmount;
-        public decimal AmountDue => TotalAmount - DiscountAmount;
+        public decimal AmountDue => TotalAmount;
         public decimal SubTotal => AmountDue - VatAmount;
 
         // Tender & changepublic
@@ -115,7 +115,8 @@ namespace GPili.Presentation.Features.Cashiering
 
         public decimal ChangeAmount => TenderAmount - TotalAmount;
 
-        public bool IsExactPayEnable => CashTenderAmount == 0 && !HasOtherPayments; public void SetExactCashAmount() => CashTenderAmount = AmountDue;
+        public bool IsExactPayEnable => CashTenderAmount == 0 && !HasOtherPayments; 
+        public void SetExactCashAmount() => CashTenderAmount = AmountDue;
 
         // Helper to raise all calculated property changes
         private void NotifyAllTotalsChanged()

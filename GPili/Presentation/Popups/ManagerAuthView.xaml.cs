@@ -18,12 +18,4 @@ public partial class ManagerAuthView : Popup
         AuthEntry.Focus();
     }
 
-    private async void Auth_Completed(object sender, EventArgs e)
-    {
-
-        if (BindingContext is ManagerAuthViewModel vm)
-        {
-            await vm.ValidateManagerEmail();
-        }
-    }
 }

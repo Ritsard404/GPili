@@ -23,9 +23,14 @@
                    Grid.Row="1"
                    HeightRequest="50"
                    BackgroundColor="Black"
-                   Completed="Auth_Completed"
                    ClearButtonVisibility="WhileEditing"
-                   IsPassword="True" />
+                   IsPassword="True">
+                <Entry.Behaviors>
+                    <toolkit:EventToCommandBehavior
+                          EventName="Completed"
+                          Command="{Binding ValidateManagerEmailCommand}" />
+                </Entry.Behaviors>
+            </Entry>
             <Button Text="Authorize" FontAttributes="Bold"
                    Grid.Row="2"
                    Command="{Binding ValidateManagerEmailCommand}"  />

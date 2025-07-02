@@ -58,6 +58,38 @@
                 </VisualStateGroupList>
             </Setter>
         </Style>
+        <Style x:Key="PresetAmountButton" TargetType="Button" BasedOn="{StaticResource KeypadButton}">
+            <Setter Property="BackgroundColor" Value="Gold"/>
+            <Setter Property="TextColor" Value="Black"/>
+            <Setter Property="FontAttributes" Value="Bold"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="VisualStateManager.VisualStateGroups">
+                <VisualStateGroupList>
+                    <VisualStateGroup x:Name="CommonStates">
+                        <VisualState x:Name="Normal">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor" Value="Gold"/>
+                                <Setter Property="TextColor" Value="Black"/>
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState x:Name="Pressed">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor" Value="DarkGrey"/>
+                                <!-- Darker gold or use a different shade -->
+                                <Setter Property="TextColor" Value="White"/>
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState x:Name="Disabled">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor" Value="#FFF8DC"/>
+                                <Setter Property="TextColor" Value="#FFB300"/>
+                                <Setter Property="Opacity" Value="0.5"/>
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateGroupList>
+            </Setter>
+        </Style>
         <Style x:Key="RedButton" TargetType="Button" BasedOn="{StaticResource KeypadButton}">
             <Setter Property="BackgroundColor" Value="Red"/>
             <Setter Property="WidthRequest" Value="120"/>
@@ -94,11 +126,12 @@
         </Style>
     </ContentView.Resources>
 
-    <Grid RowDefinitions="Auto, *" RowSpacing="5" Padding="10">
+    <Grid RowDefinitions="Auto, *" RowSpacing="5">
         <!--// Products and Search-->
         <Grid RowDefinitions="Auto" Grid.Row="0" HorizontalOptions="Fill" VerticalOptions="Fill">
-            <HorizontalStackLayout Spacing="20" Grid.Row="0">
-                <Entry Placeholder="Search Product..." 
+            <Grid ColumnDefinitions="Auto, Auto, *, Auto" Grid.Row="0"
+                  ColumnSpacing="15">
+                <Entry Placeholder="Search Product..." Grid.Column="0"
                        x:Name="SearchEntry"
                        Text="{Binding SearchProduct}"
                        WidthRequest="200"
@@ -114,73 +147,175 @@
                     </Entry.Behaviors>
 
                 </Entry>
-                <Button Command="{Binding SearchCommand}" Text="Search"></Button>
-            </HorizontalStackLayout>
+                <Button Command="{Binding SearchCommand}" Text="Search"
+                        Grid.Column="1"></Button>
+                <Button Text="MANAGER" Grid.Column="3"
+                        Style="{StaticResource RedButton}" FontAttributes="Bold" 
+                        CornerRadius="8" Command="{Binding ManagerCommand}"/>
+            </Grid>
         </Grid>
         <VerticalStackLayout Grid.Row="1" HorizontalOptions="Fill" VerticalOptions="Fill">
-
-            <!-- FIXED HEADER ROW -->
-            <Grid ColumnDefinitions="0.30*,0.15*,0.15*,0.25*,0.15*"
-        Padding="12"
-        BackgroundColor="SkyBlue">
-
-                <Label Text="Name"
-           Grid.Column="0"
-           FontAttributes="Bold" />
-                <Label Text="Price"
-           Grid.Column="1"
-           FontAttributes="Bold" />
-                <Label Text="Unit"
-           Grid.Column="2"
-           FontAttributes="Bold" />
-                <Label Text="Category"
-           Grid.Column="3"
-           FontAttributes="Bold" />
-                <Label Text="Qty"
-           Grid.Column="4"
-           FontAttributes="Bold" />
-            </Grid>
+     
+                <!-- FIXED HEADER ROW -->
+            <Border
+                Stroke="Transparent"
+                StrokeShape="RoundRectangle 12,12,0,0"
+                Background="#383949">
+                <Grid ColumnDefinitions="0.30*,0.15*,0.15*,0.25*,0.15*"
+                        Padding="12">
+                    <Label Text="Name" Grid.Column="0" FontAttributes="Bold" />
+                    <Label Text="Price" Grid.Column="1" FontAttributes="Bold" />
+                    <Label Text="Unit" Grid.Column="2" FontAttributes="Bold" />
+                    <Label Text="Category" Grid.Column="3" FontAttributes="Bold" />
+                    <Label Text="Qty" Grid.Column="4" FontAttributes="Bold" />
+                </Grid>
+            </Border>
 
             <!-- SCROLLABLE ITEMS -->
-            <CollectionView
-                        ItemsSource="{Binding Products}"
-                        SelectionMode="Single"
-                        BackgroundColor="MediumAquamarine"
-                        HeightRequest="245"
-                        Margin="0,0,0,5"
-                        ItemSizingStrategy="MeasureAllItems">
+            <Border
+                Stroke="Transparent"
+                StrokeShape="RoundRectangle 0,0,12,12"
+                Background="#121125" Margin="0,0,0,5">
+                <CollectionView
+                    ItemsSource="{Binding Products}"
+                    SelectionMode="Single"
+                    HeightRequest="245"
+                    Margin="0,0,0,5"
+                    ItemSizingStrategy="MeasureAllItems">
 
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Grid ColumnDefinitions="0.30*,0.15*,0.15*,0.25*,0.15*"
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid ColumnDefinitions="0.30*,0.15*,0.15*,0.25*,0.15*"
                               Padding="12"
                               Margin="4">
 
-                            <Label Text="{Binding Name}"
-                                Grid.Column="0" />
-                            <Label Text="{Binding Price, StringFormat='₱{0:N2}'}"
-                                Grid.Column="1" />
-                            <Label Text="{Binding BaseUnit}"
-                                Grid.Column="2" />
-                            <Label Text="{Binding Category.CtgryName}"
-                                Grid.Column="3" />
-                            <Label Text="{Binding Quantity}"
-                                Grid.Column="4" />
+                                <Label Text="{Binding Name}"
+                                    Grid.Column="0" />
+                                <Label Text="{Binding Price, StringFormat='₱{0:N2}'}"
+                                    Grid.Column="1" />
+                                <Label Text="{Binding BaseUnit}"
+                                    Grid.Column="2" />
+                                <Label Text="{Binding Category.CtgryName}"
+                                    Grid.Column="3" />
+                                <Label Text="{Binding Quantity}"
+                                    Grid.Column="4" />
 
-                            <Grid.GestureRecognizers>
-                                <TapGestureRecognizer
-                                    Command="{Binding BindingContext.AddItemCommand, Source={x:Reference ProductSelectionViewRoot}}"
-                                    CommandParameter="{Binding .}" />
-                            </Grid.GestureRecognizers>
-                        </Grid>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-
-            </CollectionView>
-
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding BindingContext.AddItemCommand, Source={x:Reference ProductSelectionViewRoot}}"
+                                        CommandParameter="{Binding .}" />
+                                </Grid.GestureRecognizers>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Border>
+               
             <!-- KEYPADS -->
-            <Grid ColumnDefinitions="0.5*, 0.5*">
+            <Grid ColumnDefinitions="0.5*, 0.5*" ColumnSpacing="5">
                 <!-- KEYPADS -->
+                <Border Grid.Column="0"
+                       BackgroundColor="#F5F5F5"
+                       VerticalOptions="Fill"
+                       StrokeShape="RoundRectangle 15"
+                       Padding="8"
+                       HorizontalOptions="Fill">
+                    <VerticalStackLayout VerticalOptions="Center">
+                        <!-- Number pad -->
+                        <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto"
+                              RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
+                              ColumnSpacing="5" RowSpacing="5"
+                              VerticalOptions="Center" HorizontalOptions="Center">
+                            <!-- Row 1 -->
+                            <Button Text="1000"
+                                    Grid.Row="0" Grid.Column="0"  HeightRequest="35"
+                                    Style="{StaticResource PresetAmountButton}" IsEnabled="{Binding IsPayKeypadSelected}"
+                                    Command="{Binding AddPresetQtyCommand}" CommandParameter="1000"/>
+                            <Button Text="500"
+                                    Grid.Row="0" Grid.Column="1"  HeightRequest="35"
+                                    Style="{StaticResource PresetAmountButton}" IsEnabled="{Binding IsPayKeypadSelected}"
+                                    Command="{Binding AddPresetQtyCommand}" 
+                                    CommandParameter="500"/>
+                            <Button Text="200"
+                                    Grid.Row="0" Grid.Column="2"  HeightRequest="35"
+                                    Style="{StaticResource PresetAmountButton}" IsEnabled="{Binding IsPayKeypadSelected}"
+                                    Command="{Binding AddPresetQtyCommand}" 
+                                    CommandParameter="200"/>
+                            <!-- Row 1 -->
+                            <Button Text="100"
+                                    Grid.Row="1" Grid.Column="0"  HeightRequest="35"
+                                    Style="{StaticResource PresetAmountButton}" IsEnabled="{Binding IsPayKeypadSelected}"
+                                    Command="{Binding AddPresetQtyCommand}" CommandParameter="100"/>
+                            <Button Text="50"
+                                    Grid.Row="1" Grid.Column="1"  HeightRequest="35"
+                                    Style="{StaticResource PresetAmountButton}" IsEnabled="{Binding IsPayKeypadSelected}"
+                                    Command="{Binding AddPresetQtyCommand}" 
+                                    CommandParameter="50"/>
+                            <Button Text="20"
+                                    Grid.Row="1" Grid.Column="2"  HeightRequest="35"
+                                    Style="{StaticResource PresetAmountButton}" IsEnabled="{Binding IsPayKeypadSelected}"
+                                    Command="{Binding AddPresetQtyCommand}" 
+                                    CommandParameter="20"/>
+                            <!-- Row 1 -->
+                            <Button Text="7"
+                                    Grid.Row="2" Grid.Column="0" 
+                                    StyleClass="KeypadButton" HeightRequest="20"
+                                    Command="{Binding AddPresetQtyCommand}" CommandParameter="7"/>
+                            <Button Text="8"
+                                    Grid.Row="2" Grid.Column="1" 
+                                    StyleClass="KeypadButton" HeightRequest="20"
+                                    Command="{Binding AddPresetQtyCommand}" 
+                                    CommandParameter="8"/>
+                            <Button Text="9"
+                                    Grid.Row="2" Grid.Column="2" 
+                                    StyleClass="KeypadButton" HeightRequest="20"
+                                    Command="{Binding AddPresetQtyCommand}" 
+                                    CommandParameter="9"/>
+                            <!-- Row 2 -->
+                            <Button Text="4"
+                                    Grid.Row="3" Grid.Column="0" 
+                                    StyleClass="KeypadButton" HeightRequest="20"
+                                    Command="{Binding AddPresetQtyCommand}" CommandParameter="4"/>
+                            <Button Text="5"
+                                    Grid.Row="3" Grid.Column="1" 
+                                    StyleClass="KeypadButton" HeightRequest="20"
+                                    Command="{Binding AddPresetQtyCommand}" CommandParameter="5"/>
+                            <Button Text="6"
+                                    Grid.Row="3" Grid.Column="2" 
+                                    StyleClass="KeypadButton" HeightRequest="20"
+                                    Command="{Binding AddPresetQtyCommand}" CommandParameter="6"/>
+                            
+                            <!-- Row 3 -->
+                            <Button Text="1"
+                                    Grid.Row="4" Grid.Column="0" 
+                                    StyleClass="KeypadButton" HeightRequest="20"
+                                    Command="{Binding AddPresetQtyCommand}" CommandParameter="1"/>
+                            <Button Text="2"
+                                    Grid.Row="4" Grid.Column="1" 
+                                    StyleClass="KeypadButton" HeightRequest="20"
+                                    Command="{Binding AddPresetQtyCommand}" CommandParameter="2"/>
+                            <Button Text="3"
+                                    Grid.Row="4" Grid.Column="2" 
+                                    StyleClass="KeypadButton" HeightRequest="20"
+                                    Command="{Binding AddPresetQtyCommand}" CommandParameter="3"/>
+                            
+                            <!-- Row 4 -->
+                            <Button Text="0"
+                                    Grid.Row="5" Grid.Column="0" 
+                                    StyleClass="KeypadButton" HeightRequest="20"
+                                    Command="{Binding AddPresetQtyCommand}" CommandParameter="0"/>
+                            <Button Text="."
+                                    Grid.Row="5" Grid.Column="1" 
+                                    StyleClass="KeypadButton" HeightRequest="20"
+                                    Command="{Binding AddPresetQtyCommand}" CommandParameter="."/>
+                            <Button Text="00" Grid.Row="5" Grid.Column="2" 
+                                    StyleClass="KeypadButton" HeightRequest="20"
+                                    Command="{Binding AddPresetQtyCommand}" CommandParameter="00"/>
+
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+            <!-- KEYPADS -->
                 <Frame Grid.Column="1"
                        BackgroundColor="#F5F5F5"
                        CornerRadius="16"
