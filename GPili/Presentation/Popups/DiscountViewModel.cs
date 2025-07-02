@@ -1,5 +1,6 @@
 ﻿using ServiceLibrary.Services.DTO.Order;
 using ServiceLibrary.Utils;
+using UtilsDiscountPercent = ServiceLibrary.Utils.DiscountPercent;
 
 namespace GPili.Presentation.Popups
 {
@@ -27,10 +28,10 @@ namespace GPili.Presentation.Popups
         private string? _oscaIdNum;
 
         [ObservableProperty]
-        private int _discountPercent;
+        private int _discountPercent = 0;
 
         [ObservableProperty]
-        private decimal _discountAmount;
+        private decimal _discountAmount = 0m;
 
         public double PopupWidth => Shell.Current.CurrentPage.Width * 0.5;
         public double PopupHeight => Shell.Current.CurrentPage.Height * 0.5;
@@ -74,32 +75,54 @@ namespace GPili.Presentation.Popups
         [RelayCommand]
         private void Submit()
         {
-            if(EligibleDiscName == null)
+            if (string.IsNullOrWhiteSpace(EligibleDiscName))
             {
-                Toast.Make("Please enter the eligible person's name for the discount.").Show(); 
+                Toast.Make("Please enter the eligible person's name for the discount.").Show();
                 return;
             }
 
             if (!IsPwdScDisc)
             {
-                if (DiscountAmount != null && DiscountPercent != null)
+                if (DiscountAmount > 0 && DiscountPercent > 0)
                 {
-                    Toast.Make("Please provide either Discount Amount or Percent, not both.").Show();
+                    Toast.Make("Please provide either Discount Amount or Discount Percent, not both.").Show();
                     return;
                 }
+
+                if (DiscountPercent > 0 && DiscountAmount == 0)
+                {
+                    if (DiscountPercent < 0 || DiscountPercent > 100)
+                    {
+                        Toast.Make("Discount percent must be between 0 and 100.").Show();
+                        return;
+                    }
+                }
+
+                if (DiscountPercent == 0 && DiscountAmount > 0)
+                {
+                    if (DiscountAmount < 0)
+                    {
+                        Toast.Make("Discount amount must not be negative.").Show();
+                        return;
+                    }
+                }
+
             }
             else
             {
                 if (!IsSeniorChecked && !IsPwdChecked)
                 {
-                    Toast.Make("Please select either 'PWD' or 'Senior' as the discount type.").Show(); 
+                    Toast.Make("Please select either 'PWD' or 'Senior' as the discount type.").Show();
                     return;
                 }
-                if (OscaIdNum == null)
+
+                if (string.IsNullOrWhiteSpace(OscaIdNum))
                 {
-                    Toast.Make("Please provide a valid OSCA ID.").Show(); return;
+                    Toast.Make("Please provide a valid OSCA ID.").Show();
+                    return;
                 }
 
+                DiscountPercent = UtilsDiscountPercent.PwdSc;
             }
 
             Discount = new DiscountDTO
@@ -112,12 +135,6 @@ namespace GPili.Presentation.Popups
                 DiscountPercent = DiscountPercent,
                 DiscountAmount = DiscountAmount
             };
-            Debug.WriteLine($"Discount Submitted:");
-            Debug.WriteLine($"Name: {Discount.EligibleDiscName}");
-            Debug.WriteLine($"OSCA ID: {Discount.OSCAIdNum}");
-            Debug.WriteLine($"Type: {Discount.DiscountType}");
-            Debug.WriteLine($"Percent: {Discount.DiscountPercent}");
-            Debug.WriteLine($"Amount: {Discount.DiscountAmount}");
 
             // Add logic to close popup or notify view
             Popup.CloseWithResult(Discount);

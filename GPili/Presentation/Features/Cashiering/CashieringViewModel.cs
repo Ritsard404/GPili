@@ -281,6 +281,7 @@ namespace GPili.Presentation.Features.Cashiering
                 {
                     await Toast.Make(message).Show();
                     await LoadItems();
+                    Tenders.Discount = new();
                 }
                 else
                 {
@@ -333,9 +334,28 @@ namespace GPili.Presentation.Features.Cashiering
                 return;
             }
 
+            if(Tenders.DiscountAmount > 0)
+            {
+                await Shell.Current.DisplayAlert(
+                    "Discount Already Applied",
+                    "A discount has already been applied to this order.",
+                    "OK"
+                );
+                return;
+            }
+
+            var popupResult = await _popupService.ShowPopupAsync<ManagerAuthViewModel>();
+            var managerEmail = popupResult as string;
+
+            if (string.IsNullOrWhiteSpace(managerEmail))
+                return;
+
             var popup = new DiscountView();
             var result = await Shell.Current.ShowPopupAsync(popup);
-            
+            if (result is DiscountDTO discount)
+            {
+                Tenders.Discount = discount;
+            }
         }
     }
 }
