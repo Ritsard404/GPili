@@ -25,6 +25,9 @@ namespace ServiceLibrary.Models
         public int? DiscountPercent { get; set; }
         public decimal? DiscountAmount { get; set; }
 
+        // Return Amount
+        public decimal? ReturnedAmount { get; set; }
+
         public required User Cashier { get; set; }
         public ICollection<Item> Items { get; set; } = new List<Item>();
         public ICollection<EPayment> EPayments { get; set; } = new List<EPayment>();

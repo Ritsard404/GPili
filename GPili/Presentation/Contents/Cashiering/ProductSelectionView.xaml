@@ -6,7 +6,7 @@
              x:Name="ProductSelectionViewRoot">
     <ContentView.Resources>
         <Style x:Key="KeypadButton" TargetType="Button">
-            <Setter Property="WidthRequest" Value="75"/>
+            <Setter Property="WidthRequest" Value="90"/>
             <Setter Property="HeightRequest" Value="40"/>
             <Setter Property="FontAttributes" Value="Bold"/>
             <Setter Property="FontSize" Value="16"/>
@@ -131,7 +131,7 @@
         <Grid Grid.Row="0" HorizontalOptions="Fill" VerticalOptions="Fill">
             <Grid ColumnDefinitions="Auto, Auto, *, Auto" Grid.Row="0"
                   ColumnSpacing="15">
-                <Entry Placeholder="Search Product...(F1)" Grid.Column="0"
+                <Entry Placeholder="Search Product...(CTRL+S)" Grid.Column="0"
                        x:Name="SearchEntry"
                        Text="{Binding SearchProduct}"
                        WidthRequest="200"
@@ -150,6 +150,8 @@
                 <Button Command="{Binding SearchCommand}" Text="Search"
                         Grid.Column="1"></Button>
                 <Button Text="MANAGER" Grid.Column="3"
+                        ImageSource="ctrlm.png" ContentLayout="right"
+                        WidthRequest="165"
                         Style="{StaticResource RedButton}" FontAttributes="Bold" 
                         CornerRadius="8" Command="{Binding ManagerCommand}"/>
             </Grid>
@@ -168,7 +170,7 @@
                     <Label Text="Price" Grid.Column="1" FontAttributes="Bold" />
                     <Label Text="Unit" Grid.Column="2" FontAttributes="Bold" />
                     <Label Text="Category" Grid.Column="3" FontAttributes="Bold" />
-                    <Label Text="Qty" Grid.Column="4" FontAttributes="Bold" />
+                    <Label Text="On  Hand" Grid.Column="4" FontAttributes="Bold" />
                 </Grid>
             </Border>
 
@@ -319,29 +321,31 @@
                            RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
                            ColumnSpacing="5" RowSpacing="5" 
                            VerticalOptions="Center" HorizontalOptions="Center">
-                            <Button Text="CLR"
-                                 x:Name="CLR"
-                                 Grid.Row="0" 
-                                 Grid.Column="0" 
+                            <Button Text="CLR" ContentLayout="right"
+                                 x:Name="CLR" ImageSource="f12.png"
+                                 Grid.Row="0" Grid.Column="0" 
                                  Style="{StaticResource GoldButton}"
                                  FontAttributes="Bold" 
                                  CornerRadius="8"
                                  Command="{Binding ClearQtyCommand}"/>
                             <Button Text="DISCOUNT" x:Name="DISCOUNT"
+                                 ImageSource="ctrld.png" ContentLayout="right"
+                                 WidthRequest="165"
                                  Grid.Row="0" Grid.Column="1" 
                                  Style="{StaticResource RedButton}" FontAttributes="Bold" 
                                  CornerRadius="8"
                                  Command="{Binding DiscountCommand}"/>
                            
-                            <Button Text="VOID" 
-                                 x:Name="VOID"
+                            <Button Text="VOID" x:Name="VOID"
+                                 ImageSource="shiftf10.png" ContentLayout="right"
+                                 WidthRequest="165"
                                  Grid.Row="1" Grid.Column="1" 
                                  Style="{StaticResource RedButton}" 
                                  FontAttributes="Bold" CornerRadius="8"
                                  Command="{Binding VoidOrderCommand}"/>
                             <!-- Row 3 -->
-                            <Button Text="PLU"
-                                 x:Name="PLU"
+                            <Button Text="PLU" x:Name="PLU"
+                                 ImageSource="ctrlu.png" ContentLayout="right"
                                  Grid.Row="2" Grid.Column="0"
                                  StyleClass="KeypadButton"
                                  Command="{Binding SelectKeypadActionCommand}"
@@ -357,10 +361,10 @@
                                     </DataTrigger>
                                 </Button.Triggers>
                             </Button>
-                            <Button Text="EXACT PAY" 
-                                 x:Name="EXACT"
-                                 Grid.Row="2" 
-                                 Grid.Column="1" 
+                            <Button Text="EXACT PAY" x:Name="EXACT"
+                                 Grid.Row="2" Grid.Column="1" 
+                                 ImageSource="ctrle.png" ContentLayout="right"
+                                 WidthRequest="165"
                                  IsEnabled="{Binding Tenders.IsExactPayEnable}"
                                  Style="{StaticResource RedButton}" 
                                  FontAttributes="Bold" CornerRadius="8"
@@ -369,6 +373,7 @@
                             <!-- Row 4 -->
                             <Button Text="QTY" x:Name="QTY"
                                  Grid.Row="3" Grid.Column="0"
+                                 ImageSource="q.png" ContentLayout="right"
                                  StyleClass="KeypadButton"
                                  Command="{Binding SelectKeypadActionCommand}"
                                  BackgroundColor="Gold"
@@ -383,9 +388,10 @@
                                     </DataTrigger>
                                 </Button.Triggers>
                             </Button>
-                            <Button Text="ENTER" 
-                                 x:Name="ENTER"
+                            <Button Text="ENTER" x:Name="ENTER"
                                  Grid.Row="3" Grid.Column="1" 
+                                 ImageSource="enter.png" ContentLayout="right"
+                                 WidthRequest="165"
                                  Style="{StaticResource RedButton}" 
                                  FontAttributes="Bold" CornerRadius="8"
                                  Command="{Binding PayOrderCommand}"
@@ -393,9 +399,9 @@
 
                             <!-- Pay buttons -->
 
-                            <Button Text="PAY"
-                                     x:Name="PAY"
+                            <Button Text="PAY" x:Name="PAY"
                                  Grid.Row="4" Grid.Column="0"
+                                 ImageSource="p.png" ContentLayout="right"
                                  BackgroundColor="Green"
                                  TextColor="White"
                                  FontAttributes="Bold"
@@ -411,8 +417,8 @@
                                     </DataTrigger>
                                 </Button.Triggers>
                             </Button>
-                            <Button Text="E-PAYMENT" 
-                                 x:Name="EPAYMENT"
+                            <Button Text="E-PAYMENT" x:Name="EPAYMENT"
+                                 WidthRequest="165"
                                  Grid.Row="4" Grid.Column="4" 
                                  Style="{StaticResource RedButton}" 
                                  FontAttributes="Bold" CornerRadius="8"

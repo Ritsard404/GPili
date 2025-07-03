@@ -6,7 +6,6 @@ namespace ServiceLibrary.Services.Interfaces
 {
     public interface IOrder
     {
-        Task<List<Product>> GetProducts();
 
         Task<(bool isSuccess, string message)> AddOrderItem(long prodId, decimal qty, string cashierEmail);
         Task<(bool isSuccess, string message)> EditQtyTotalPriceItem(long itemId, decimal qty, decimal subtotal);

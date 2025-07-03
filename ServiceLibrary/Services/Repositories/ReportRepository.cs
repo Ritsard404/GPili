@@ -8,6 +8,46 @@ namespace ServiceLibrary.Services.Repositories
 {
     public class ReportRepository(DataContext _dataContext, IGPiliTerminalMachine _terminalMachine) : IReport
     {
+        public async Task<(string CashInDrawer, string CurrentCashDrawer)> CashTrack(string cashierEmail)
+        {
+            var timestamp = await _dataContext.Timestamp
+                .Include(t => t.Cashier)
+                .Where(t => t.Cashier.Email == cashierEmail &&
+                    t.TsOut == null && t.CashInDrawerAmount != null &&
+                    t.CashInDrawerAmount >= 1000)
+                .FirstOrDefaultAsync();
+
+            if (timestamp == null || timestamp.CashInDrawerAmount == null)
+                return ("₱0.00", "₱0.00");
+
+            var tsIn = timestamp.TsIn;
+
+            // Get withdrawals
+            var withdrawals = timestamp.WithdrawnDrawerAmount;
+
+            // Get cash in drawer
+            var cashInDrawer = timestamp.CashInDrawerAmount;
+
+            // Fetch all orders with their cashier
+            var orders = await _dataContext.Invoice
+                .Include(o => o.Cashier)
+                .ToListAsync();
+
+            // Filter and calculate in memory
+            decimal totalCashInDrawer = orders
+                .Where(o =>
+                    o.Cashier.Email == cashierEmail &&
+                    o.Status == InvoiceStatusType.Paid &&
+                    o.CreatedAt >= tsIn &&
+                    o.CashTendered != null &&
+                    o.TotalAmount != 0)
+                .Sum(o => o.CashTendered ?? 0m - o.ChangeAmount ?? 0m - o.ReturnedAmount ?? 0m);
+
+            decimal currentCashDrawer = totalCashInDrawer + cashInDrawer ?? 0m - withdrawals ?? 0m;
+
+            return (cashInDrawer.PesoFormat(), currentCashDrawer.PesoFormat());
+        }
+
         public async Task<InvoiceDTO?> GetInvoiceById(long invId)
         {
             var order = await _dataContext.Invoice
@@ -49,7 +89,7 @@ namespace ServiceLibrary.Services.Repositories
                 Description = item.DisplayNameWithPrice.Length > 20
                     ? item.DisplayNameWithPrice.Substring(0, 20)
                     : item.DisplayNameWithPrice,
-                Amount = item.SubTotal.PesoFormat(),
+                Amount = item.DisplaySubtotalVat,
             }).ToList();
 
             var otherPayments = order.EPayments.Select(ap => new OtherPayment
@@ -83,6 +123,16 @@ namespace ServiceLibrary.Services.Repositories
             };
 
             return invoice;
+        }
+
+        public Task<XInvoiceDTO> GetXInvoice()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ZInvoiceDTO> GetZInvoice()
+        {
+            throw new NotImplementedException();
         }
     }
 }

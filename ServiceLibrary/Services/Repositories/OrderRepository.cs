@@ -5,6 +5,7 @@ using ServiceLibrary.Services.DTO.Order;
 using ServiceLibrary.Services.DTO.Report;
 using ServiceLibrary.Services.Interfaces;
 using ServiceLibrary.Utils;
+using System.Linq;
 
 namespace ServiceLibrary.Services.Repositories
 {
@@ -154,13 +155,7 @@ namespace ServiceLibrary.Services.Repositories
                 .Where(i => i.Invoice == pendingOrder &&
                     i.Status == InvoiceStatusType.Pending)
                 .AsNoTracking()
-                .ToListAsync();
-        }
-
-        public async Task<List<Product>> GetProducts()
-        {
-            return await _dataContext.Product
-                .Where(p => p.IsAvailable)
+                .OrderDescending()
                 .ToListAsync();
         }
 

@@ -104,7 +104,7 @@ namespace GPili.Presentation.Features.Cashiering
 
                 var product = await _inventory.GetProductByBarcode(SearchProduct);
 
-                if (product != null)
+                if (product != null && SelectedKeypadAction != KeypadActions.PLU)
                 {
                     var qty = CurrentItem.InitialQty > 0 ? CurrentItem.InitialQty : 1;
                     var (isSuccess, message) = await _order.AddOrderItem(

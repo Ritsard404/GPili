@@ -28,7 +28,7 @@ namespace ServiceLibrary.Services.Repositories
             // First get all valid orders for the cashier
             var pendingInvoices = await _dataContext.Invoice
                 .Where(i => i.Cashier.Email == cashierEmail &&
-                i.Status == InvoiceStatusType.Paid.ToString() &&
+                i.Status == InvoiceStatusType.Paid &&
                 i.CashTendered != null &&
                 i.TotalAmount < 0)
                 .ToListAsync();
@@ -36,20 +36,21 @@ namespace ServiceLibrary.Services.Repositories
             decimal totalCashInDrawer = pendingInvoices
                 .Sum(i => i.CashTendered ?? 0m - i.ChangeAmount ?? 0m);
 
-            if(cash > available + totalCashInDrawer)
+            if (cash > available + totalCashInDrawer)
                 return (false, "Cash amount exceeds available cash in drawer and pending orders total.");
 
             timestamp.WithdrawnDrawerAmount += cash;
+            timestamp.WithdrawnDrawerCount ++;
 
-            await _auditLog.AddManagerAudit(manager.manager, AuditActionType.Approve.ToString(), "Manager approved cash withdrawal from drawer", cash);
-            await _auditLog.AddCashierAudit(timestamp.Cashier, AuditActionType.CashWithdrawDrawer.ToString(), "Cash withdrawn from drawer", cash);
+            await _auditLog.AddManagerAudit(manager.manager, AuditActionType.Approve, "Manager approved cash withdrawal from drawer", cash);
+            await _auditLog.AddCashierAudit(timestamp.Cashier, AuditActionType.CashWithdrawDrawer, "Cash withdrawn from drawer", cash);
             return (true, "Cash withdrawal recorded.");
         }
 
         public async Task<User[]> GetCashiers()
         {
             var cashiers = await _dataContext.User
-                .Where(u => u.Role == RoleType.Cashier.ToString())
+                .Where(u => u.Role == RoleType.Cashier)
                 .OrderBy(u => u.FName)
                 .ThenBy(u => u.LName)
                 .ToListAsync();
@@ -59,7 +60,7 @@ namespace ServiceLibrary.Services.Repositories
                 Email = "",
                 FName = "",
                 LName = "",
-                Role = RoleType.Cashier.ToString(),
+                Role = RoleType.Cashier,
                 IsActive = true
             });
 
@@ -107,7 +108,7 @@ namespace ServiceLibrary.Services.Repositories
         public async Task<(bool isSuccess, User? cashier)> IsCashierValid(string cashierEmail)
         {
             var cashier = await _dataContext.User
-                .FirstOrDefaultAsync(u => u.Email == cashierEmail && u.Role == RoleType.Cashier.ToString());
+                .FirstOrDefaultAsync(u => u.Email == cashierEmail && u.Role == RoleType.Cashier);
 
             if (cashier == null)
                 return (false, null);
@@ -118,7 +119,7 @@ namespace ServiceLibrary.Services.Repositories
         public async Task<(bool isSuccess, User? manager)> IsManagerValid(string managerEmail)
         {
             var manager = await _dataContext.User
-                .FirstOrDefaultAsync(u => u.Email == managerEmail && u.Role == RoleType.Manager.ToString());
+                .FirstOrDefaultAsync(u => u.Email == managerEmail && u.Role == RoleType.Manager);
 
             if (manager == null)
                 return (false, null);
@@ -130,14 +131,14 @@ namespace ServiceLibrary.Services.Repositories
         {
             // Fetch both users in a single query
             var users = await _dataContext.User
-                .Where(u => (u.Email == managerEmail && u.Role != RoleType.Cashier.ToString()) ||
-                            (u.Email == cashierEmail && u.Role == RoleType.Cashier.ToString()))
+                .Where(u => (u.Email == managerEmail && u.Role != RoleType.Cashier) ||
+                            (u.Email == cashierEmail && u.Role == RoleType.Cashier))
                 .ToListAsync();
 
             var isTrainMode = await _dataContext.PosTerminalInfo.Select(t => t.IsTrainMode).FirstOrDefaultAsync();
 
-            var manager = users.FirstOrDefault(u => u.Email == managerEmail && u.Role != RoleType.Cashier.ToString());
-            var cashier = users.FirstOrDefault(u => u.Email == cashierEmail && u.Role == RoleType.Cashier.ToString());
+            var manager = users.FirstOrDefault(u => u.Email == managerEmail && u.Role != RoleType.Cashier);
+            var cashier = users.FirstOrDefault(u => u.Email == cashierEmail && u.Role == RoleType.Cashier);
 
             if (manager == null && cashier == null)
                 return (false, string.Empty, string.Empty, string.Empty, "Invalid credentials. Please try again.");
@@ -170,13 +171,13 @@ namespace ServiceLibrary.Services.Repositories
 
                     _dataContext.Timestamp.Add(timestamp);
 
-                    await _auditLog.AddManagerAudit(manager, AuditActionType.Approve.ToString(), "Manager approved cashier logged in", null);
-                    await _auditLog.AddCashierAudit(cashier, AuditActionType.Approve.ToString(), "Manager approved cashier logged in", null);
+                    await _auditLog.AddManagerAudit(manager, AuditActionType.Approve, "Manager approved cashier logged in", null);
+                    await _auditLog.AddCashierAudit(cashier, AuditActionType.Approve, "Manager approved cashier logged in", null);
 
                     await _dataContext.SaveChangesAsync();
                     await transaction.CommitAsync();
 
-                    return (true, RoleType.Cashier.ToString(), cashier.Email, $"{cashier.FName} {cashier.LName}", "Cashier logged in successfully.");
+                    return (true, RoleType.Cashier, cashier.Email, $"{cashier.FName} {cashier.LName}", "Cashier logged in successfully.");
                 }
                 catch (Exception ex)
                 {
@@ -195,19 +196,19 @@ namespace ServiceLibrary.Services.Repositories
         {
             // Fetch both users in a single query
             var users = await _dataContext.User
-                .Where(u => (u.Email == managerEmail && u.Role != RoleType.Cashier.ToString()) ||
-                            (u.Email == cashierEmail && u.Role == RoleType.Cashier.ToString()))
+                .Where(u => (u.Email == managerEmail && u.Role != RoleType.Cashier) ||
+                            (u.Email == cashierEmail && u.Role == RoleType.Cashier))
                 .ToListAsync();
 
-            var manager = users.FirstOrDefault(u => u.Email == managerEmail && u.Role != RoleType.Cashier.ToString());
-            var cashier = users.FirstOrDefault(u => u.Email == cashierEmail && u.Role == RoleType.Cashier.ToString());
+            var manager = users.FirstOrDefault(u => u.Email == managerEmail && u.Role != RoleType.Cashier);
+            var cashier = users.FirstOrDefault(u => u.Email == cashierEmail && u.Role == RoleType.Cashier);
 
             // If neither found, fail
             if (manager == null || cashier == null)
                 return (false, "Invalid credentials. Please try again.");
 
             var hasPendingInvoice = await _dataContext.Invoice
-                .AnyAsync(i => i.Cashier == cashier && i.Status == InvoiceStatusType.Pending.ToString());
+                .AnyAsync(i => i.Cashier == cashier && i.Status == InvoiceStatusType.Pending);
 
             if (hasPendingInvoice)
                 return (false, "Cashier has pending item!");
@@ -223,11 +224,11 @@ namespace ServiceLibrary.Services.Repositories
             timestamp.ManagerOut = manager; // Manager who authorized the logout
             timestamp.CashOutDrawerAmount = cash;
 
-            await _auditLog.AddManagerAudit(manager, AuditActionType.Approve.ToString(), "Manager approved cashier logged out", null);
-            await _auditLog.AddCashierAudit(cashier, AuditActionType.Logout.ToString(), "Cashier logged out", null);
+            await _auditLog.AddManagerAudit(manager, AuditActionType.Approve, "Manager approved cashier logged out", null);
+            await _auditLog.AddCashierAudit(cashier, AuditActionType.Logout, "Cashier logged out", null);
 
-            await _auditLog.AddManagerAudit(manager, AuditActionType.Approve.ToString(), "Manager approved cashier cashed out", cash);
-            await _auditLog.AddCashierAudit(cashier, AuditActionType.CashOutDrawer.ToString(), "Cash out drawer set", cash);
+            await _auditLog.AddManagerAudit(manager, AuditActionType.Approve, "Manager approved cashier cashed out", cash);
+            await _auditLog.AddCashierAudit(cashier, AuditActionType.CashOutDrawer, "Cash out drawer set", cash);
 
             await _dataContext.SaveChangesAsync();
 
@@ -258,7 +259,7 @@ namespace ServiceLibrary.Services.Repositories
             timestamp.CashInDrawerAmount = cash;
             await _dataContext.SaveChangesAsync();
 
-            await _auditLog.AddCashierAudit(cashier.cashier, AuditActionType.CashInDrawer.ToString(), "Cash in drawer set", cash);
+            await _auditLog.AddCashierAudit(cashier.cashier, AuditActionType.CashInDrawer, "Cash in drawer set", cash);
 
             return (true, "Cash in drawer set successfully!");
         }

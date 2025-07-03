@@ -1,4 +1,5 @@
 using GPili.Presentation.Features.Cashiering;
+using System.ComponentModel;
 
 namespace GPili.Presentation.Contents.Cashiering;
 
@@ -12,8 +13,27 @@ public partial class ProductSelectionView : ContentView
 
     protected override void OnBindingContextChanged()
     {
+        if (_vm != null)
+            _vm.PropertyChanged -= OnVmPropertyChanged;
+
         base.OnBindingContextChanged();
         _vm = BindingContext as CashieringViewModel;
+
+        if (_vm != null)
+            _vm.PropertyChanged += OnVmPropertyChanged;
+    }
+
+    private void OnVmPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(CashieringViewModel.SelectedKeypadAction) &&
+            _vm.SelectedKeypadAction == KeypadActions.PLU)
+        {
+            MainThread.BeginInvokeOnMainThread(async () =>
+            {
+                await Task.Delay(100);
+                SearchEntry.Focus();
+            });
+        }
     }
     protected override void OnParentSet()
     {
@@ -75,7 +95,6 @@ public partial class ProductSelectionView : ContentView
             }
         }
     }
-
 
     public void HandleKeypadAction(string action)
     {

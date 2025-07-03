@@ -12,6 +12,7 @@ namespace ServiceLibrary.Models
         public decimal? CashInDrawerAmount { get; set; } = 0;
         public decimal? CashOutDrawerAmount { get; set; } = 0;
         public decimal? WithdrawnDrawerAmount { get; set; } = 0;
+        public decimal? WithdrawnDrawerCount { get; set; } = 0;
 
         public bool IsTrainMode { get; set; } = false;
         public required User Cashier { get; set; }

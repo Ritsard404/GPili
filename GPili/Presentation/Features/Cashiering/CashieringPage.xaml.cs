@@ -29,6 +29,11 @@ public partial class CashieringPage : ContentPage
         if (PopupState.PopupInfo.IsPopupOpen)
             return;
             
+    // Detect if Shift is pressed using InputKeyboardSource
+    var shiftState = InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Shift);
+    bool isShiftDown = (shiftState & CoreVirtualKeyStates.Down) == CoreVirtualKeyStates.Down;
+    
+            
     // Detect if Ctrl is pressed using InputKeyboardSource
     var ctrlState = InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Control);
     bool isCtrlDown = (ctrlState & CoreVirtualKeyStates.Down) == CoreVirtualKeyStates.Down;
@@ -40,27 +45,31 @@ public partial class CashieringPage : ContentPage
                 ProductSelection?.HandleKeypadAction(KeypadActions.DISCOUNT);
                 e.Handled = true;
                 return;
-            case VirtualKey.V:
-                ProductSelection?.HandleKeypadAction(KeypadActions.VOID);
-                e.Handled = true;
-                return;
             case VirtualKey.E:
                 ProductSelection?.HandleKeypadAction("EXACT");
+                e.Handled = true;
+                return;
+            case VirtualKey.S:
+                ProductSelection?.FocusSearchEntry();
+                e.Handled = true;
+                return;
+            case VirtualKey.U:
+                ProductSelection?.HandleKeypadAction(KeypadActions.PLU);
                 e.Handled = true;
                 return;
         }
     }
 
-        if (e.Key == VirtualKey.F1)
-        {
-            ProductSelection?.FocusSearchEntry();
-            e.Handled = true;
-        }
+        //if (e.Key == VirtualKey.F1)
+        //{
+        //    ProductSelection?.FocusSearchEntry();
+        //    e.Handled = true;
+        //}
 
         if (ProductSelection?.IsSearchEntryFocused() == true)
             return;
 
-        if (e.Key == VirtualKey.C)
+        if (e.Key == VirtualKey.F12)
         {
             ProductSelection?.HandleKeypadAction(KeypadActions.CLR);
             e.Handled = true;
@@ -70,11 +79,11 @@ public partial class CashieringPage : ContentPage
             ProductSelection?.HandleKeypadAction(KeypadActions.QTY);
             e.Handled = true;
         }
-        if (e.Key == VirtualKey.L)
-        {
-            ProductSelection?.HandleKeypadAction(KeypadActions.PLU);
-            e.Handled = true;
-        }
+        //if (e.Key == VirtualKey.L)
+        //{
+        //    ProductSelection?.HandleKeypadAction(KeypadActions.PLU);
+        //    e.Handled = true;
+        //}
         if (e.Key == VirtualKey.P)
         {
             ProductSelection?.HandleKeypadAction(KeypadActions.PAY);
@@ -85,11 +94,14 @@ public partial class CashieringPage : ContentPage
         //    ProductSelection?.HandleKeypadAction(KeypadActions.DISCOUNT);
         //    e.Handled = true;
         //}
-        //if (e.Key == VirtualKey.V)
-        //{
-        //    ProductSelection?.HandleKeypadAction(KeypadActions.VOID);
-        //    e.Handled = true;
-        //}
+        if (e.Key == VirtualKey.F10)
+        { 
+            if (isShiftDown) 
+                {
+                    ProductSelection?.HandleKeypadAction(KeypadActions.VOID);
+                    e.Handled = true;
+                }
+        }
         //if (e.Key == VirtualKey.E)
         //{
         //    ProductSelection?.HandleKeypadAction("EXACT");

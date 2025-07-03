@@ -100,7 +100,11 @@ namespace ServiceLibrary.Services
                 new() { Name = "Potato Chips", ProdId = "POTCHIPS", ItemType = "Resale", VatType = VatType.Vatable, BaseUnit = "Pack", Barcode = "4801234567893", Quantity = 30, Price = 35.00m, Category = categories[1] },
                 new() { Name = "Cheese Puffs", ProdId = "CHEESEPUFF", ItemType = "Resale", VatType = VatType.Vatable, BaseUnit = "Pack", Barcode = "4801234567894", Quantity = 25, Price = 30.00m, Category = categories[1] },
                 new() { Name = "Fresh Milk 1L", ProdId = "MILK1L", ItemType = "Resale", VatType = VatType.Vatable, BaseUnit = "Bottle", Barcode = "4801234567895", Quantity = 20, Price = 85.00m, Category = categories[2] },
-                new() { Name = "Yogurt 500ml", ProdId = "YOGURT500", ItemType = "Resale", VatType = VatType.Vatable, BaseUnit = "Bottle", Barcode = "4801234567896", Quantity = 15, Price = 65.00m, Category = categories[2] }
+                new() { Name = "Yogurt 500ml", ProdId = "YOGURT500", ItemType = "Resale", VatType = VatType.Vatable, BaseUnit = "Bottle", Barcode = "4801234567896", Quantity = 15, Price = 65.00m, Category = categories[2] },
+
+                new() { Name = "Harina", ProdId = "Harina", ItemType = "Wholesale", VatType = VatType.Zero, BaseUnit = "Grams", Barcode = "4801234367896", Quantity = 15, Price = 65.00m, Category = categories[3] },
+                new() { Name = "Yeast", ProdId = "Yeast", ItemType = "Wholesale", VatType = VatType.Zero, BaseUnit = "Grams", Barcode = "4831234567896", Quantity = 15, Price = 65.00m, Category = categories[3] },
+                new() { Name = "Asin", ProdId = "Asin", ItemType = "Wholesale", VatType = VatType.Exempt, BaseUnit = "Grams", Barcode = "4801233567896", Quantity = 15, Price = 65.00m, Category = categories[2] },
             };
 
             await _context.Product.AddRangeAsync(products);

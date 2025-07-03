@@ -29,6 +29,11 @@ namespace ServiceLibrary.Models
 
         [NotMapped]
         public string DisplayNameWithPrice => $"{Product?.Name} @{Price.PesoFormat():N2}";
+        
+        [NotMapped]
+        public string DisplaySubtotalVat => Product?.VatType == VatType.Vatable ? $"{SubTotal.PesoFormat()}V" :
+            Product?.VatType == VatType.Exempt ? $"{SubTotal.PesoFormat()}E" :
+            $"{SubTotal.PesoFormat()}Z";
 
     }
 }
