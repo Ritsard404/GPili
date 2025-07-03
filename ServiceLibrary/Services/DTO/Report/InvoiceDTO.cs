@@ -27,7 +27,6 @@
         public required string VatZero { get; set; }
 
         public string? ElligiblePersonDiscount { get; set; }
-        public required string PrintCount { get; set; }
     }
 
     public class BusinesDetails

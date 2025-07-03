@@ -165,6 +165,9 @@ namespace ServiceLibrary.Migrations
                     b.Property<string>("EligibleDiscName")
                         .HasColumnType("TEXT");
 
+                    b.Property<decimal>("GrossAmount")
+                        .HasColumnType("TEXT");
+
                     b.Property<long>("InvoiceNumber")
                         .HasColumnType("INTEGER");
 
@@ -176,9 +179,6 @@ namespace ServiceLibrary.Migrations
 
                     b.Property<string>("OSCAIdNum")
                         .HasColumnType("TEXT");
-
-                    b.Property<int>("PrintCount")
-                        .HasColumnType("INTEGER");
 
                     b.Property<decimal?>("ReturnedAmount")
                         .HasColumnType("TEXT");
@@ -216,6 +216,40 @@ namespace ServiceLibrary.Migrations
                     b.HasIndex("CashierEmail");
 
                     b.ToTable("Invoice");
+                });
+
+            modelBuilder.Entity("ServiceLibrary.Models.InvoiceDocument", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<byte[]>("InvoiceBlob")
+                        .HasColumnType("BLOB");
+
+                    b.Property<long?>("InvoiceId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ManagerEmail")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ReprintCount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InvoiceId");
+
+                    b.HasIndex("ManagerEmail");
+
+                    b.ToTable("InvoiceDocument");
                 });
 
             modelBuilder.Entity("ServiceLibrary.Models.Item", b =>
@@ -728,6 +762,21 @@ namespace ServiceLibrary.Migrations
                         .IsRequired();
 
                     b.Navigation("Cashier");
+                });
+
+            modelBuilder.Entity("ServiceLibrary.Models.InvoiceDocument", b =>
+                {
+                    b.HasOne("ServiceLibrary.Models.Invoice", "Invoice")
+                        .WithMany()
+                        .HasForeignKey("InvoiceId");
+
+                    b.HasOne("ServiceLibrary.Models.User", "Manager")
+                        .WithMany()
+                        .HasForeignKey("ManagerEmail");
+
+                    b.Navigation("Invoice");
+
+                    b.Navigation("Manager");
                 });
 
             modelBuilder.Entity("ServiceLibrary.Models.Item", b =>

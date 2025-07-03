@@ -9,7 +9,7 @@
             public const string DailySalesReports = "C:\\Reports\\DailySalesReports";
             public const string XInvoiceReports = "C:\\Reports\\XInvoiceReports";
             public const string ZInvoiceReports = "C:\\Reports\\ZInvoiceReports";
-            public const string Cashtracks = "C:\\Reports\\Cashtracks";
+            public const string CashTracks = "C:\\Reports\\CashTracks";
             public const string TransactionLogs = "C:\\Reports\\TransactionLogs";
         }
         public static class Logs

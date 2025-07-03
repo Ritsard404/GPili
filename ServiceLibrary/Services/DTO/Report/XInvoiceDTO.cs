@@ -35,6 +35,7 @@ namespace ServiceLibrary.Services.DTO.Report
         public required TransactionSummary TransactionSummary { get; set; }
 
         public required string ShortOver { get; set; }
+        public required bool IsTrainMode { get; set; }
     }
 
     public class PaymentDetail

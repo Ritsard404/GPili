@@ -5,7 +5,7 @@
 namespace ServiceLibrary.Migrations
 {
     /// <inheritdoc />
-    public partial class GPili1 : Migration
+    public partial class GPili2 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

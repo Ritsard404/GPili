@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ServiceLibrary.Migrations
 {
     /// <inheritdoc />
-    public partial class GPili : Migration
+    public partial class GPili1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -114,7 +114,7 @@ namespace ServiceLibrary.Migrations
                     Name = table.Column<string>(type: "TEXT", nullable: false),
                     Account = table.Column<string>(type: "TEXT", nullable: false),
                     Type = table.Column<string>(type: "TEXT", nullable: false),
-                    IsActive = table.Column<string>(type: "TEXT", nullable: false)
+                    IsActive = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -206,6 +206,7 @@ namespace ServiceLibrary.Migrations
                     Id = table.Column<long>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     InvoiceNumber = table.Column<long>(type: "INTEGER", nullable: false),
+                    GrossAmount = table.Column<decimal>(type: "TEXT", nullable: false),
                     TotalAmount = table.Column<decimal>(type: "TEXT", nullable: false),
                     SubTotal = table.Column<decimal>(type: "TEXT", nullable: true),
                     CashTendered = table.Column<decimal>(type: "TEXT", nullable: true),
@@ -222,13 +223,13 @@ namespace ServiceLibrary.Migrations
                     DiscountType = table.Column<string>(type: "TEXT", nullable: true),
                     DiscountPercent = table.Column<int>(type: "INTEGER", nullable: true),
                     DiscountAmount = table.Column<decimal>(type: "TEXT", nullable: true),
+                    ReturnedAmount = table.Column<decimal>(type: "TEXT", nullable: true),
                     CashierEmail = table.Column<string>(type: "TEXT", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
                     StatusChangeDate = table.Column<DateTime>(type: "TEXT", nullable: true),
                     Status = table.Column<string>(type: "TEXT", nullable: false),
                     IsRead = table.Column<bool>(type: "INTEGER", nullable: false),
-                    IsTrainMode = table.Column<bool>(type: "INTEGER", nullable: false),
-                    PrintCount = table.Column<int>(type: "INTEGER", nullable: false)
+                    IsTrainMode = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -252,6 +253,7 @@ namespace ServiceLibrary.Migrations
                     CashInDrawerAmount = table.Column<decimal>(type: "TEXT", nullable: true),
                     CashOutDrawerAmount = table.Column<decimal>(type: "TEXT", nullable: true),
                     WithdrawnDrawerAmount = table.Column<decimal>(type: "TEXT", nullable: true),
+                    WithdrawnDrawerCount = table.Column<decimal>(type: "TEXT", nullable: true),
                     IsTrainMode = table.Column<bool>(type: "INTEGER", nullable: false),
                     CashierEmail = table.Column<string>(type: "TEXT", nullable: false),
                     ManagerInEmail = table.Column<string>(type: "TEXT", nullable: false),
@@ -331,6 +333,34 @@ namespace ServiceLibrary.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "InvoiceDocument",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    InvoiceBlob = table.Column<byte[]>(type: "BLOB", nullable: true),
+                    Type = table.Column<string>(type: "TEXT", nullable: false),
+                    ReprintCount = table.Column<int>(type: "INTEGER", nullable: false),
+                    InvoiceId = table.Column<long>(type: "INTEGER", nullable: true),
+                    ManagerEmail = table.Column<string>(type: "TEXT", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_InvoiceDocument", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_InvoiceDocument_Invoice_InvoiceId",
+                        column: x => x.InvoiceId,
+                        principalTable: "Invoice",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_InvoiceDocument_User_ManagerEmail",
+                        column: x => x.ManagerEmail,
+                        principalTable: "User",
+                        principalColumn: "Email");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Item",
                 columns: table => new
                 {
@@ -394,6 +424,16 @@ namespace ServiceLibrary.Migrations
                 column: "CashierEmail");
 
             migrationBuilder.CreateIndex(
+                name: "IX_InvoiceDocument_InvoiceId",
+                table: "InvoiceDocument",
+                column: "InvoiceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_InvoiceDocument_ManagerEmail",
+                table: "InvoiceDocument",
+                column: "ManagerEmail");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Item_InvoiceId",
                 table: "Item",
                 column: "InvoiceId");
@@ -438,6 +478,9 @@ namespace ServiceLibrary.Migrations
 
             migrationBuilder.DropTable(
                 name: "Inventory");
+
+            migrationBuilder.DropTable(
+                name: "InvoiceDocument");
 
             migrationBuilder.DropTable(
                 name: "Item");

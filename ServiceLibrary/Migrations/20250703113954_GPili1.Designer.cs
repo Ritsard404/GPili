@@ -11,8 +11,8 @@ using ServiceLibrary.Data;
 namespace ServiceLibrary.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250630080855_GPili")]
-    partial class GPili
+    [Migration("20250703113954_GPili1")]
+    partial class GPili1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -168,6 +168,9 @@ namespace ServiceLibrary.Migrations
                     b.Property<string>("EligibleDiscName")
                         .HasColumnType("TEXT");
 
+                    b.Property<decimal>("GrossAmount")
+                        .HasColumnType("TEXT");
+
                     b.Property<long>("InvoiceNumber")
                         .HasColumnType("INTEGER");
 
@@ -180,8 +183,8 @@ namespace ServiceLibrary.Migrations
                     b.Property<string>("OSCAIdNum")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("PrintCount")
-                        .HasColumnType("INTEGER");
+                    b.Property<decimal?>("ReturnedAmount")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -216,6 +219,40 @@ namespace ServiceLibrary.Migrations
                     b.HasIndex("CashierEmail");
 
                     b.ToTable("Invoice");
+                });
+
+            modelBuilder.Entity("ServiceLibrary.Models.InvoiceDocument", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<byte[]>("InvoiceBlob")
+                        .HasColumnType("BLOB");
+
+                    b.Property<long?>("InvoiceId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ManagerEmail")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ReprintCount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InvoiceId");
+
+                    b.HasIndex("ManagerEmail");
+
+                    b.ToTable("InvoiceDocument");
                 });
 
             modelBuilder.Entity("ServiceLibrary.Models.Item", b =>
@@ -576,9 +613,8 @@ namespace ServiceLibrary.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("IsActive")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -626,6 +662,9 @@ namespace ServiceLibrary.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<decimal?>("WithdrawnDrawerAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal?>("WithdrawnDrawerCount")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -726,6 +765,21 @@ namespace ServiceLibrary.Migrations
                         .IsRequired();
 
                     b.Navigation("Cashier");
+                });
+
+            modelBuilder.Entity("ServiceLibrary.Models.InvoiceDocument", b =>
+                {
+                    b.HasOne("ServiceLibrary.Models.Invoice", "Invoice")
+                        .WithMany()
+                        .HasForeignKey("InvoiceId");
+
+                    b.HasOne("ServiceLibrary.Models.User", "Manager")
+                        .WithMany()
+                        .HasForeignKey("ManagerEmail");
+
+                    b.Navigation("Invoice");
+
+                    b.Navigation("Manager");
                 });
 
             modelBuilder.Entity("ServiceLibrary.Models.Item", b =>

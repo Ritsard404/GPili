@@ -1,19 +1,16 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ServiceLibrary.Data;
+using ServiceLibrary.Services;
+using ServiceLibrary.Services.Interfaces;
 
 namespace TestData.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class TestController : ControllerBase
+    public class TestController(DataContext _context, IPrinterService _printer, IReport report) : ControllerBase
     {
-        private readonly DataContext _context;
-
-        public TestController(DataContext context)
-        {
-            _context = context;
-        }
 
         [HttpGet("tables")]
         public async Task<IActionResult> GetTables()
@@ -78,5 +75,43 @@ namespace TestData.Controllers
                 });
             }
         }
+
+        [HttpGet()]
+        public async Task<IActionResult> Reprint(long inv)
+        {
+            try
+            {
+                await _printer.ReprintInvoice(inv);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    Error = "Failed to fetch products",
+                    Message = ex.Message
+                });
+            }
+        }
+
+        [HttpGet("[action]")]
+        public async Task<IActionResult> InvoiceDocuments()
+        {
+            try
+            {
+                var result = await report.InvoiceDocuments(DateTime.Now.AddDays(-1), DateTime.Now.AddDays(1));
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    Error = "Failed to fetch products",
+                    Message = ex.Message
+                });
+            }
+        }
+
     }
 } 

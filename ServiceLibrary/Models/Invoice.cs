@@ -39,7 +39,5 @@ namespace ServiceLibrary.Models
         public required string Status { get; set; }
         public bool IsRead { get; set; } = false;
         public bool IsTrainMode { get; set; } = false;
-
-        public int PrintCount { get; set; } = 0;
     }
 }

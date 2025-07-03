@@ -1,12 +1,15 @@
-﻿using ServiceLibrary.Services.DTO.Report;
+﻿using ServiceLibrary.Models;
+using ServiceLibrary.Services.DTO.Report;
 
 namespace ServiceLibrary.Services.Interfaces
 {
     public interface IReport
     {
         Task<InvoiceDTO?> GetInvoiceById(long invId);
-        Task<(string CashInDrawer, string CurrentCashDrawer)> CashTrack(string cashierEmail);
+        Task<(string CashInDrawer, string CurrentCashDrawer, string CashierName)> CashTrack(string cashierEmail);
         Task<XInvoiceDTO> GetXInvoice();
         Task<ZInvoiceDTO> GetZInvoice();
+
+        Task<List<(long Id, string Type, string CreatedAt)>> InvoiceDocuments(DateTime fromDate, DateTime toDate);
     }
 }

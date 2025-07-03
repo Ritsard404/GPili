@@ -8,4 +8,11 @@
         public const string Pending = "Pending";
         public const string Paid = "Paid";
     }
+
+    public static class InvoiceDocumentType
+    {
+        public const string Invoice = "Invoice";
+        public const string ZReport = "ZReport";
+        public const string XReport = "XReport";
+    }
 }

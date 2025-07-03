@@ -9,7 +9,7 @@ namespace ServiceLibrary.Services.Repositories
 {
     public class ReportRepository(DataContext _dataContext, IGPiliTerminalMachine _terminalMachine) : IReport
     {
-        public async Task<(string CashInDrawer, string CurrentCashDrawer)> CashTrack(string cashierEmail)
+        public async Task<(string CashInDrawer, string CurrentCashDrawer, string CashierName)> CashTrack(string cashierEmail)
         {
             var isTrainMode = await _terminalMachine.IsTrainMode();
 
@@ -20,8 +20,8 @@ namespace ServiceLibrary.Services.Repositories
                     t.CashInDrawerAmount >= 1000 && t.IsTrainMode == isTrainMode)
                 .FirstOrDefaultAsync();
 
-            if (timestamp == null || timestamp.CashInDrawerAmount == null)
-                return ("₱0.00", "₱0.00");
+            if (timestamp == null || timestamp.CashInDrawerAmount == null )
+                return ("₱0.00", "₱0.00", "");
 
             var tsIn = timestamp.TsIn;
 
@@ -48,7 +48,7 @@ namespace ServiceLibrary.Services.Repositories
 
             decimal currentCashDrawer = totalCashInDrawer + cashInDrawer ?? 0m - withdrawals ?? 0m;
 
-            return (cashInDrawer.PesoFormat(), currentCashDrawer.PesoFormat());
+            return (cashInDrawer.PesoFormat(), currentCashDrawer.PesoFormat(), timestamp.Cashier.FullName);
         }
 
         public async Task<InvoiceDTO?> GetInvoiceById(long invId)
@@ -121,8 +121,7 @@ namespace ServiceLibrary.Services.Repositories
                 VatSales = order.VatSales.PesoFormat(),
                 VatAmount = order.VatAmount.PesoFormat(),
                 VatZero = order.VatZero.PesoFormat(),
-                ElligiblePersonDiscount = order.EligibleDiscName?.ToUpper(),
-                PrintCount = order.PrintCount.ToString()
+                ElligiblePersonDiscount = order.EligibleDiscName?.ToUpper()
             };
 
             return invoice;
@@ -237,7 +236,8 @@ namespace ServiceLibrary.Services.Repositories
 
                 Payments = payments,
                 TransactionSummary = summary,
-                ShortOver = shortOverDec.PesoFormat()
+                ShortOver = shortOverDec.PesoFormat(),
+                IsTrainMode = isTrainMode
             };
 
             // Mark orders as read if any exist
@@ -489,6 +489,20 @@ namespace ServiceLibrary.Services.Repositories
             await _dataContext.SaveChangesAsync();
 
             return dto;
+        }
+
+        public async Task<List<(long Id, string Type, string CreatedAt)>> InvoiceDocuments(DateTime fromDate, DateTime toDate)
+        {
+            return await _dataContext.InvoiceDocument
+                .Include(d => d.Invoice)
+                .Include(d => d.Manager)
+                .Where(d => d.CreatedAt >= fromDate && d.CreatedAt <= toDate)
+                    .Select(d => new ValueTuple<long, string, string>(
+                        d.Id,
+                        d.Type,
+                        d.CreatedAt.DateFormat()
+                    ))
+                .ToListAsync();
         }
 
         private string GetOrderNumber(long? orderId)

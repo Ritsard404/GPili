@@ -28,6 +28,7 @@ namespace ServiceLibrary.Data
         public DbSet<Timestamp> Timestamp { get; set; }
         public DbSet<User> User { get; set; }
         public DbSet<Journal> AccountJournal { get; set; }
+        public DbSet<InvoiceDocument> InvoiceDocument { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
