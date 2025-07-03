@@ -4,7 +4,7 @@
              x:Class="GPili.Presentation.Contents.FooterView">
     <HorizontalStackLayout Spacing="30" Padding="10, 0" Margin="0,0,0,5" VerticalOptions="End" HorizontalOptions="FillAndExpand">
 
-        <Label HorizontalOptions="StartAndExpand" VerticalOptions="Center">
+        <Label HorizontalOptions="StartAndExpand" HeightRequest="25" VerticalOptions="Center">
             <Label.FormattedText>
                 <FormattedString>
                     <Span Text="Powered by " />
@@ -14,7 +14,7 @@
         </Label>
         <Label Text="|" VerticalOptions="Center" />
 
-        <Label x:Name="SysVer" 
+        <Label x:Name="NetworkStatus" 
                VerticalOptions="Center"
                HorizontalOptions="CenterAndExpand" />
         <Label Text="|" VerticalOptions="Center" />

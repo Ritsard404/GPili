@@ -491,17 +491,18 @@ namespace ServiceLibrary.Services.Repositories
             return dto;
         }
 
-        public async Task<List<(long Id, string Type, string CreatedAt)>> InvoiceDocuments(DateTime fromDate, DateTime toDate)
+        public async Task<List<GetInvoiceDocumentDTO>> InvoiceDocuments(DateTime fromDate, DateTime toDate)
         {
             return await _dataContext.InvoiceDocument
                 .Include(d => d.Invoice)
                 .Include(d => d.Manager)
                 .Where(d => d.CreatedAt >= fromDate && d.CreatedAt <= toDate)
-                    .Select(d => new ValueTuple<long, string, string>(
-                        d.Id,
-                        d.Type,
-                        d.CreatedAt.DateFormat()
-                    ))
+                .Select(d => new GetInvoiceDocumentDTO
+                {
+                    Id = d.Id,
+                    Type = d.Type,
+                    CreatedAt = d.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd hh:mm:ss")
+                })
                 .ToListAsync();
         }
 

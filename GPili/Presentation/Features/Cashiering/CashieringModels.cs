@@ -110,9 +110,10 @@ namespace GPili.Presentation.Features.Cashiering
         public decimal SubTotal => AmountDue - VatAmount;
 
         // Tender & changepublic
-        public decimal TenderAmount => CashTenderAmount +
-            ((OtherPayments?.Sum(a => a.Amount) ?? 0) > TotalAmount - CashTenderAmount ? TotalAmount - CashTenderAmount : (OtherPayments?.Sum(a => a.Amount) ?? 0));
+        public decimal TenderAmount =>
+            CashTenderAmount + Math.Min(OtherPayments?.Sum(a => a.Amount) ?? 0, Math.Max(0, TotalAmount - CashTenderAmount));
 
+        //public decimal TenderAmount => CashTenderAmount + (OtherPayments?.Sum(a => a.Amount) ?? 0);
         public decimal ChangeAmount => TenderAmount - TotalAmount;
 
         public bool IsExactPayEnable => CashTenderAmount == 0 && !HasOtherPayments; 

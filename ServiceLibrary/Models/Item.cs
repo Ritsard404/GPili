@@ -16,7 +16,7 @@ namespace ServiceLibrary.Models
 
         public bool IsTrainingMode { get; set; } = false;
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime? UpdatedAt { get; set; }
 
         public required virtual Product Product { get; set; }

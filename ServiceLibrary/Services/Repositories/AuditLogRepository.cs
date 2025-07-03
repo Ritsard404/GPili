@@ -104,7 +104,8 @@ namespace ServiceLibrary.Services.Repositories
                     Status = status,
                     User_Email = invoice.Cashier.Email,
                     QtyPerBaseUnit = "1",
-                    QtyBalanceInBaseUnit = "0"
+                    QtyBalanceInBaseUnit = "0",
+                    IsPushed = false
                 });
             }
 
@@ -191,7 +192,8 @@ namespace ServiceLibrary.Services.Repositories
                 Status = invoice.Status,
                 User_Email = invoice.Cashier.Email,
                 QtyPerBaseUnit = "1",
-                QtyBalanceInBaseUnit = "0"
+                QtyBalanceInBaseUnit = "0",
+                IsPushed = false
             };
 
             _dataContext.AccountJournal.Add(journal);
@@ -265,7 +267,8 @@ namespace ServiceLibrary.Services.Repositories
                     Status = status,
                     User_Email = invoice.Cashier.Email,
                     QtyPerBaseUnit = "1",
-                    QtyBalanceInBaseUnit = "0"
+                    QtyBalanceInBaseUnit = "0",
+                    IsPushed = false
                 });
 
 
@@ -313,7 +316,8 @@ namespace ServiceLibrary.Services.Repositories
                         Status = status,
                         User_Email = invoice.Cashier.Email,
                         QtyPerBaseUnit = "1",
-                        QtyBalanceInBaseUnit = "0"
+                        QtyBalanceInBaseUnit = "0",
+                        IsPushed = false
                     });
 
                 }
@@ -384,7 +388,8 @@ namespace ServiceLibrary.Services.Repositories
                 Status = status,
                 User_Email = invoice.Cashier.Email,
                 QtyPerBaseUnit = "1",
-                QtyBalanceInBaseUnit = "0"
+                QtyBalanceInBaseUnit = "0",
+                IsPushed = false
             });
 
             await _dataContext.SaveChangesAsync();

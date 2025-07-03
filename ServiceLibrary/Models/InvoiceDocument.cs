@@ -12,6 +12,6 @@ namespace ServiceLibrary.Models
         public int ReprintCount { get; set; } = 1;
         public Invoice? Invoice { get; set; }
         public User? Manager { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
 }

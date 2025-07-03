@@ -5,7 +5,7 @@
              xmlns:footer="clr-namespace:GPili.Presentation.Contents"
              xmlns:products="clr-namespace:GPili.Presentation.Contents.Cashiering"
              Title="Cashiering">
-    <Grid RowDefinitions="*, Auto" RowSpacing="5">
+    <Grid RowDefinitions="*, Auto">
         <Grid RowDefinitions="*" ColumnDefinitions="0.65*,0.35*" 
               RowSpacing="5" ColumnSpacing="10" Padding="10,10,10,0"
               VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">

@@ -141,77 +141,77 @@
                           HorizontalOptions="EndAndExpand">
                     <HorizontalStackLayout IsVisible="Hidden" Spacing="10" HorizontalOptions="End" >
                         <Label Text="GROSS:" 
-                FontSize="14"
-                FontAttributes="Bold"
-                VerticalOptions="Center"/>
-                        <Entry WidthRequest="100" 
-                IsReadOnly="True" 
-                Text="{Binding Tenders.GrossTotal, StringFormat='₱ {0:N2}'}"
-                FontAttributes="Bold"
-                BackgroundColor="White"
-                TextColor="Black"
-                VerticalOptions="Center"
-                HorizontalTextAlignment="End"/>
+                            FontSize="14"
+                            FontAttributes="Bold"
+                            VerticalOptions="Center"/>
+                                    <Entry WidthRequest="100" 
+                            IsReadOnly="True" 
+                            Text="{Binding Tenders.GrossTotal, StringFormat='₱ {0:N2}'}"
+                            FontAttributes="Bold"
+                            BackgroundColor="White"
+                            TextColor="Black"
+                            VerticalOptions="Center"
+                            HorizontalTextAlignment="End"/>
                     </HorizontalStackLayout>
                     <HorizontalStackLayout   Spacing="10" HorizontalOptions="End">
                         <Label Text="SUBTOTAL: " 
-                FontSize="14"
-                FontAttributes="Bold"
-                VerticalOptions="Center"></Label>
-                        <Entry WidthRequest="100" 
-                IsReadOnly="True" 
-                Text="{Binding Tenders.SubTotal, StringFormat='₱ {0:N2}'}" 
-                FontAttributes="Bold"
-                BackgroundColor="White"
-                TextColor="Black"
-                VerticalOptions="Center"
-                HorizontalTextAlignment="End"
-                />
+                            FontSize="14"
+                            FontAttributes="Bold"
+                            VerticalOptions="Center"></Label>
+                                    <Entry WidthRequest="100" 
+                            IsReadOnly="True" 
+                            Text="{Binding Tenders.SubTotal, StringFormat='₱ {0:N2}'}" 
+                            FontAttributes="Bold"
+                            BackgroundColor="White"
+                            TextColor="Black"
+                            VerticalOptions="Center"
+                            HorizontalTextAlignment="End"
+                            />
                     </HorizontalStackLayout>
                     <HorizontalStackLayout HorizontalOptions="End" Spacing="10">
                         <Label Text="TOTAL: " 
-                FontSize="14"
-                FontAttributes="Bold"
-                VerticalOptions="Center"></Label>
-                        <Entry WidthRequest="100" 
-                IsReadOnly="True" 
-                Text="{Binding Tenders.TotalAmount, StringFormat='₱ {0:N2}'}" 
-                FontAttributes="Bold"
-                BackgroundColor="White"
-                TextColor="Black"
-                VerticalOptions="Center"
-                HorizontalTextAlignment="End"
-                />
+                            FontSize="14"
+                            FontAttributes="Bold"
+                            VerticalOptions="Center"></Label>
+                                    <Entry WidthRequest="100" 
+                            IsReadOnly="True" 
+                            Text="{Binding Tenders.TotalAmount, StringFormat='₱ {0:N2}'}" 
+                            FontAttributes="Bold"
+                            BackgroundColor="White"
+                            TextColor="Black"
+                            VerticalOptions="Center"
+                            HorizontalTextAlignment="End"
+                            />
                     </HorizontalStackLayout>
                     <HorizontalStackLayout HorizontalOptions="End" Spacing="10">
                         <Label Text="CASH: " 
-                FontSize="14"
-                FontAttributes="Bold"
-                VerticalOptions="Center"></Label>
-                        <Entry WidthRequest="100" 
-                IsReadOnly="True" 
-                Text="{Binding Tenders.CashTenderAmount, StringFormat='₱ {0:N2}'}" 
-                FontAttributes="Bold"
-                BackgroundColor="White"
-                TextColor="Black"
-                VerticalOptions="Center"
-                HorizontalTextAlignment="End"
-                />
+                            FontSize="14"
+                            FontAttributes="Bold"
+                            VerticalOptions="Center"></Label>
+                                    <Entry WidthRequest="100" 
+                            IsReadOnly="True" 
+                            Text="{Binding Tenders.CashTenderAmount, StringFormat='₱ {0:N2}'}" 
+                            FontAttributes="Bold"
+                            BackgroundColor="White"
+                            TextColor="Black"
+                            VerticalOptions="Center"
+                            HorizontalTextAlignment="End"
+                            />
                     </HorizontalStackLayout>
                     <HorizontalStackLayout HorizontalOptions="End" Spacing="10">
                         <Label Text="BALANCE: " 
-                FontSize="14"
-                FontAttributes="Bold"
-                VerticalOptions="Center"></Label>
-                        <Entry WidthRequest="100" 
-                IsReadOnly="True" 
-                Text="{Binding Tenders.ChangeAmount, StringFormat='₱ {0:N2}'}" 
-                FontAttributes="Bold"
-                BackgroundColor="White"
-                TextColor="Black"
-                VerticalOptions="Center"
-                HorizontalTextAlignment="End"
-                />
+                            FontSize="14"
+                            FontAttributes="Bold"
+                            VerticalOptions="Center"></Label>
+                                    <Entry WidthRequest="100" 
+                            IsReadOnly="True" 
+                            Text="{Binding Tenders.ChangeAmount, StringFormat='₱ {0:N2}'}" 
+                            FontAttributes="Bold"
+                            BackgroundColor="White"
+                            TextColor="Black"
+                            VerticalOptions="Center"
+                            HorizontalTextAlignment="End"
+                            />
                     </HorizontalStackLayout>
                 </VerticalStackLayout>
                 <VerticalStackLayout Grid.Column="1"
@@ -225,38 +225,38 @@
                     <!-- Show fallback if no other payments -->
                     <HorizontalStackLayout Spacing="10" >
                         <Label Text="DISCOUNT:" 
-                FontSize="14"
-                FontAttributes="Bold"
-                VerticalOptions="Center"/>
-                        <Entry WidthRequest="100" 
-                IsReadOnly="True" 
-                Text="{Binding Tenders.DiscountAmount, StringFormat='₱ {0:N2}'}"
-                FontAttributes="Bold"
-                BackgroundColor="White"
-                TextColor="Black"
-                VerticalOptions="Center"
-                HorizontalTextAlignment="End"/>
+                            FontSize="14"
+                            FontAttributes="Bold"
+                            VerticalOptions="Center"/>
+                                    <Entry WidthRequest="100" 
+                            IsReadOnly="True" 
+                            Text="{Binding Tenders.DiscountAmount, StringFormat='₱ {0:N2}'}"
+                            FontAttributes="Bold"
+                            BackgroundColor="White"
+                            TextColor="Black"
+                            VerticalOptions="Center"
+                            HorizontalTextAlignment="End"/>
                     </HorizontalStackLayout>
                     <HorizontalStackLayout Spacing="10" 
                                 HorizontalOptions="End"
                                 IsVisible="{Binding Tenders.DiscountAmount, Converter={StaticResource GreaterThanZeroToBoolConverter}}">
                         <Label Text="{Binding Tenders.Discount.DiscountType, StringFormat='{0}:'}" 
-                FontSize="14"
-                FontAttributes="Bold"
-                VerticalOptions="Center"/>
-                        <Entry WidthRequest="100" 
-                IsReadOnly="True" 
-                Text="{Binding Tenders.Discount.DiscountPercent, StringFormat='{0}%'}"
-                FontAttributes="Bold"
-                BackgroundColor="White"
-                TextColor="Black"
-                VerticalOptions="Center"
-                HorizontalTextAlignment="End"/>
+                            FontSize="14"
+                            FontAttributes="Bold"
+                            VerticalOptions="Center"/>
+                                    <Entry WidthRequest="100" 
+                            IsReadOnly="True" 
+                            Text="{Binding Tenders.Discount.DiscountPercent, StringFormat='{0}%'}"
+                            FontAttributes="Bold"
+                            BackgroundColor="White"
+                            TextColor="Black"
+                            VerticalOptions="Center"
+                            HorizontalTextAlignment="End"/>
                     </HorizontalStackLayout>
                     <CollectionView ItemsSource="{Binding Tenders.OtherPayments}"
-                 SelectionMode="None" 
-                 HorizontalOptions="End"
-                 IsVisible="{Binding Tenders.HasOtherPayments}">
+                         SelectionMode="None" 
+                         HorizontalOptions="End"
+                         IsVisible="{Binding Tenders.HasOtherPayments}">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
                                 <HorizontalStackLayout HorizontalOptions="End" Spacing="10">
@@ -282,17 +282,17 @@
                                 HorizontalOptions="End"
                                 IsVisible="{Binding Tenders.HasOtherPayments, Converter={StaticResource InverseBoolConverter}}">
                         <Label Text="OTHERS:" 
-                FontSize="14"
-                FontAttributes="Bold"
-                VerticalOptions="Center"/>
-                        <Entry WidthRequest="100" 
-                IsReadOnly="True" 
-                Text="₱ 0.00"
-                FontAttributes="Bold"
-                BackgroundColor="White"
-                TextColor="Black"
-                VerticalOptions="Center"
-                HorizontalTextAlignment="End"/>
+                            FontSize="14"
+                            FontAttributes="Bold"
+                            VerticalOptions="Center"/>
+                                    <Entry WidthRequest="100" 
+                            IsReadOnly="True" 
+                            Text="₱ 0.00"
+                            FontAttributes="Bold"
+                            BackgroundColor="White"
+                            TextColor="Black"
+                            VerticalOptions="Center"
+                            HorizontalTextAlignment="End"/>
                     </HorizontalStackLayout>
 
                 </VerticalStackLayout>

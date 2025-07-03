@@ -10,6 +10,6 @@ namespace ServiceLibrary.Services.Interfaces
         Task<XInvoiceDTO> GetXInvoice();
         Task<ZInvoiceDTO> GetZInvoice();
 
-        Task<List<(long Id, string Type, string CreatedAt)>> InvoiceDocuments(DateTime fromDate, DateTime toDate);
+        Task<List<GetInvoiceDocumentDTO>> InvoiceDocuments(DateTime fromDate, DateTime toDate);
     }
 }

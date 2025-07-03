@@ -19,7 +19,7 @@ namespace ServiceLibrary.Models
         public required string VatType { get; set; }
         public required virtual Category Category { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime UpdatedAt { get; set; }
     }
 }

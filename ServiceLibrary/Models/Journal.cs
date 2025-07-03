@@ -46,6 +46,7 @@ namespace ServiceLibrary.Models
         public required string User_Email { get; set; }
         public required string QtyPerBaseUnit { get; set; }
         public required string QtyBalanceInBaseUnit { get; set; }
+        public required bool IsPushed { get; set; } = false;
     }
 
 }
