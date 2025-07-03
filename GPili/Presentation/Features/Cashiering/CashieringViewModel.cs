@@ -250,7 +250,8 @@ namespace GPili.Presentation.Features.Cashiering
                 VatSales = Tenders.VatSales,
                 VatAmount = Tenders.VatAmount,
                 VatZero = Tenders.VatZero,
-                TotalTendered = Tenders.TenderAmount
+                TotalTendered = Tenders.TenderAmount,
+                GrossAmount = Tenders.GrossTotal
             };
 
             var result = await _order.PayOrder(payOrder);

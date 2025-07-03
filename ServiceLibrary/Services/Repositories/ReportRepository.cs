@@ -304,7 +304,196 @@ namespace ServiceLibrary.Services.Repositories
 
             decimal presentAccumulatedSales = previousAccumulatedSales + salesForTheDay;
 
-            throw new NotImplementedException();
+            // Financial calculations with default values and ReturnedAmount
+            decimal grossSales = regularOrders.Sum(o => o?.GrossAmount ?? defaultDecimal);
+            decimal totalVoid = voidOrders.Sum(o => o?.TotalAmount ?? defaultDecimal);
+            decimal totalReturns = returnOrders.Sum(o => o?.ReturnedAmount ?? defaultDecimal);
+            decimal totalDiscounts = regularOrders.Sum(o => o?.DiscountAmount ?? defaultDecimal);
+            decimal cashSales = regularOrders.Sum(o =>
+                (o?.CashTendered ?? defaultDecimal) -
+                (o?.ChangeAmount ?? defaultDecimal) -
+                (o?.ReturnedAmount ?? defaultDecimal));
+
+            decimal netAmount = grossSales - totalReturns - totalVoid - totalDiscounts;
+
+            // VAT calculations with defaults - Adjusted for ReturnedAmount
+            decimal vatableSales = regularOrders.Sum(v =>
+                (v?.VatSales ?? defaultDecimal) *
+                (1 - ((v?.ReturnedAmount ?? defaultDecimal) / (v?.TotalAmount ?? 1m))));
+
+            decimal vatAmount = regularOrders.Sum(o =>
+                (o?.VatAmount ?? defaultDecimal) *
+                (1 - ((o?.ReturnedAmount ?? defaultDecimal) / (o?.TotalAmount ?? 1m))));
+
+            decimal vatExempt = regularOrders.Sum(o =>
+                (o?.VatExempt ?? defaultDecimal) *
+                (1 - ((o?.ReturnedAmount ?? defaultDecimal) / (o?.TotalAmount ?? 1m))));
+
+            decimal zeroRated = 0m;
+
+            // Cash in Drawer
+            decimal cashInDrawer = allTimestamps
+                .Where(t => t.TsOut.HasValue
+                    && t.TsOut.Value.Date == today)
+                .Sum(s => s.CashOutDrawerAmount) ?? defaultDecimal;
+
+            // Opening Fund
+            decimal openingFund = allTimestamps
+                .Where(t => t.TsIn.Value.Date == today)
+                .Sum(s => s.CashInDrawerAmount) ?? defaultDecimal;
+
+            decimal actualCash = openingFund + cashSales;
+            decimal expectedCash = cashInDrawer + withdrawnAmount ?? defaultDecimal;
+            decimal shortOver = (expectedCash - actualCash) - totalReturns;
+
+            // Discount calculations adjusted for ReturnedAmount
+            decimal seniorDiscount = regularOrders
+                .Where(s => s.DiscountType == DiscountType.SeniorCitizen)
+                .Sum(s => (s.DiscountAmount ?? 0m) *
+                    (1 - ((s.ReturnedAmount ?? 0m) / (s.TotalAmount > 0 ? s.TotalAmount : 1m))));
+
+            string seniorCount = regularOrders
+                .Where(s => s.DiscountType == DiscountType.SeniorCitizen)
+                .Count()
+                .ToString();
+
+            decimal pwdDiscount = regularOrders
+                .Where(s => s.DiscountType == DiscountType.Pwd)
+                .Sum(s => (s.DiscountAmount ?? 0m) *
+                    (1 - ((s.ReturnedAmount ?? 0m) / (s.TotalAmount > 0 ? s.TotalAmount : 1m))));
+
+            string pwdCount = regularOrders
+                .Where(s => s.DiscountType == DiscountType.Pwd)
+                .Count()
+                .ToString();
+
+            decimal otherDiscount = regularOrders
+                .Where(s => s.DiscountType == DiscountType.Others)
+                .Sum(s => (s.DiscountAmount ?? 0m) *
+                    (1 - ((s.ReturnedAmount ?? 0m) / (s.TotalAmount > 0 ? s.TotalAmount : 1m))));
+
+            string otherCount = regularOrders
+                .Where(s => s.DiscountType == DiscountType.Others)
+                .Count()
+                .ToString();
+
+            // Safe payment processing - Adjusted for ReturnedAmount
+            var payments = new Payments
+            {
+                Cash = cashSales,
+                OtherPayments = orders
+                .SelectMany(o => o.EPayments != null && o.CreatedAt.Date == today ? o.EPayments : new List<EPayment>())
+                .GroupBy(ap => ap.SaleType?.Name ?? "Unknown")
+                .Select(g => new PaymentDetail
+                {
+                    Name = g.Key + $" ({g.Count()}):",
+                    Amount = g.Sum(x => x.Amount * (1 - ((x.Invoice?.ReturnedAmount ?? defaultDecimal) / (x.Invoice?.TotalAmount ?? 1m)))),
+                }).ToList()
+            };
+
+            // Build DTO with zero defaults
+            var dto = new ZInvoiceDTO
+            {
+                BusinessName = posInfo.RegisteredName ?? "N/A",
+                OperatorName = posInfo.OperatedBy ?? "N/A",
+                AddressLine = posInfo.Address ?? "N/A",
+                VatRegTin = posInfo.VatTinNumber ?? "N/A",
+                Min = posInfo.MinNumber ?? "N/A",
+                SerialNumber = posInfo.PosSerialNumber ?? "N/A",
+
+                ReportDate = DateTime.Now.ToString("MMMM dd, yyyy"),
+                ReportTime = DateTime.Now.ToString("hh:mm tt"),
+                StartDateTime = startDate.ToString("MM/dd/yy hh:mm tt"),
+                EndDateTime = endDate.ToString("MM/dd/yy hh:mm tt"),
+
+                // Order numbers
+                BeginningSI = GetOrderNumber(orders.Min(o => o?.InvoiceNumber)),
+                EndingSI = GetOrderNumber(orders.Max(o => o?.InvoiceNumber)),
+                BeginningVoid = GetOrderNumber(allVoidOrders.Min(o => o?.InvoiceNumber)),
+                EndingVoid = GetOrderNumber(allVoidOrders.Max(o => o?.InvoiceNumber)),
+                BeginningReturn = GetOrderNumber(allReturnOrders.Min(o => o?.InvoiceNumber)),
+                EndingReturn = GetOrderNumber(allReturnOrders.Max(o => o?.InvoiceNumber)),
+                TransactCount = orders.Count().ToString(),
+
+                // Always zero when empty
+                ResetCounter = isTrainMode ? posInfo.ResetCounterTrainNo.ToString() : posInfo.ResetCounterNo.ToString(),
+                ZCounter = isTrainMode ? posInfo.ZCounterTrainNo.ToString() : posInfo.ZCounterNo.ToString(),
+
+                // Financial summaries - Now using ReturnedAmount
+                PresentAccumulatedSales = presentAccumulatedSales.PesoFormat(),
+                PreviousAccumulatedSales = previousAccumulatedSales.PesoFormat(),
+                SalesForTheDay = salesForTheDay.PesoFormat(),
+
+                SalesBreakdown = new SalesBreakdown
+                {
+                    VatableSales = vatableSales.PesoFormat(),
+                    VatAmount = vatAmount.PesoFormat(),
+                    VatExemptSales = vatExempt.PesoFormat(),
+                    ZeroRatedSales = zeroRated.PesoFormat(),
+                    GrossAmount = grossSales.PesoFormat(),
+                    LessDiscount = totalDiscounts.PesoFormat(),
+                    LessReturn = totalReturns.PesoFormat(),
+                    LessVoid = totalVoid.PesoFormat(),
+                    LessVatAdjustment = defaultDecimal.PesoFormat(),
+                    NetAmount = netAmount.PesoFormat()
+                },
+
+                TransactionSummary = new TransactionSummary
+                {
+                    CashInDrawer = cashInDrawer.PesoFormat(),
+                    OtherPayments = payments.OtherPayments
+                },
+
+                DiscountSummary = new DiscountSummary
+                {
+                    SeniorCitizen = seniorDiscount.PesoFormat(),
+                    SeniorCitizenCount = seniorCount,
+                    PWD = pwdDiscount.PesoFormat(),
+                    PWDCount = pwdCount,
+                    Other = otherDiscount.PesoFormat(),
+                    OtherCount = otherCount
+                },
+
+                SalesAdjustment = new SalesAdjustment
+                {
+                    Return = totalReturns.PesoFormat(),
+                    ReturnCount = returnOrders.Count().ToString(),
+                    Void = totalVoid.PesoFormat(),
+                    VoidCount = voidOrders.Count().ToString(),
+                },
+
+                VatAdjustment = new VatAdjustment
+                {
+                    SCTrans = defaultDecimal.PesoFormat(),
+                    PWDTrans = defaultDecimal.PesoFormat(),
+                    RegDiscTrans = defaultDecimal.PesoFormat(),
+                    ZeroRatedTrans = defaultDecimal.PesoFormat(),
+                    VatOnReturn = defaultDecimal.PesoFormat(),
+                    OtherAdjustments = defaultDecimal.PesoFormat()
+                },
+
+                OpeningFund = openingFund.PesoFormat(),
+                Withdrawal = withdrawnAmount.PesoFormat(),
+                PaymentsReceived = (cashSales + payments.OtherPayments.Sum(s => s.Amount)).PesoFormat(),
+                ShortOver = shortOver.PesoFormat()
+            };
+
+            if (isTrainMode)
+            {
+                posInfo.ZCounterTrainNo += 1;
+            }
+            else
+            {
+                posInfo.ZCounterNo += 1;
+            }
+            await _dataContext.SaveChangesAsync();
+
+            return dto;
+        }
+
+        private string GetOrderNumber(long? orderId)
+        {
+            return orderId.HasValue ? orderId.Value.ToString("D12") : 0.ToString("D12");
         }
     }
 }

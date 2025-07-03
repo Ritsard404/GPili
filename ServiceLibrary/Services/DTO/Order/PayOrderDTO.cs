@@ -5,6 +5,7 @@ namespace ServiceLibrary.Services.DTO.Order
 {
     public class PayOrderDTO
     {
+        public required decimal GrossAmount { get; set; }
         public required decimal TotalAmount { get; set; }
         public required decimal SubTotal { get; set; }
         public required decimal CashTendered { get; set; }

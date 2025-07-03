@@ -43,6 +43,7 @@ namespace ServiceLibrary.Services.Repositories
                     Status = InvoiceStatusType.Pending,
                     Cashier = cashierResult.cashier,
                     TotalAmount = 0, // Will be updated below
+                    GrossAmount = 0,
                     IsTrainMode = isTrainMode,
                     CreatedAt = DateTime.UtcNow
                 };
@@ -415,6 +416,7 @@ namespace ServiceLibrary.Services.Repositories
                 pendingOrder.Status = InvoiceStatusType.Paid;
                 pendingOrder.StatusChangeDate = DateTime.UtcNow;
                 pendingOrder.TotalAmount = pay.TotalAmount;
+                pendingOrder.GrossAmount = pay.GrossAmount;
                 pendingOrder.SubTotal = pay.SubTotal;
                 pendingOrder.Cashier = cashierResult.cashier;
                 pendingOrder.CashTendered = pay.CashTendered;
