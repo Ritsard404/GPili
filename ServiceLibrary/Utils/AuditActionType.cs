@@ -23,6 +23,16 @@
         public const string VoidItem = "Void Item";
         public const string ReturnItem = "Return Item";
 
+        // Products
+        public const string AddProduct = "Add Product";
+        public const string UpdateProduct = "Update Product";
+        public const string RemoveProduct = "Remove Product";
+
+        // Categories
+        public const string AddCategory = "Add Category";
+        public const string UpdateCategory = "Update Category";
+        public const string RemoveCategory = "Remove Category";
+
         // Order
         public const string AddOrder = "Add Order";
         public const string UpdateOrder = "Update Order";

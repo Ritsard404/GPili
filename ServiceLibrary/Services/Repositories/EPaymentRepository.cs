@@ -8,7 +8,8 @@ namespace ServiceLibrary.Services.Repositories
 {
     public class EPaymentRepository(DataContext _dataContext,
         IAuth _auth,
-        IGPiliTerminalMachine _terminalMachine) : IEPayment
+        IGPiliTerminalMachine _terminalMachine,
+        IAuditLog _auditLog) : IEPayment
     {
         public async Task<(bool isSuccess, string message)> AddEPayments(List<AddEPaymentsDTO> EPayments, string cashierEmail)
         {
@@ -51,12 +52,87 @@ namespace ServiceLibrary.Services.Repositories
             return (true, "E-Payment/s Added Successfully");
         }
 
+        public async Task<(bool isSuccess, string message)> AddSaleType(SaleType saleType, string managerEmail)
+        {
+            if (saleType == null || string.IsNullOrWhiteSpace(saleType.Name) || string.IsNullOrWhiteSpace(saleType.Account) || string.IsNullOrWhiteSpace(saleType.Type))
+                return (false, "All SaleType fields are required.");
+
+            // Check for unique name (case-insensitive)
+            var isExisting = await _dataContext.SaleType.AnyAsync(s => s.Name.ToLower() == saleType.Name.ToLower());
+            if (isExisting)
+                return (false, "A SaleType with this name already exists.");
+
+            var managerResult = await _auth.IsManagerValid(managerEmail);
+            if (!managerResult.isSuccess || managerResult.manager == null)
+                return (false, "Invalid Manager");
+
+            _dataContext.SaleType.Add(saleType);
+            await _dataContext.SaveChangesAsync();
+
+            await _auditLog.AddManagerAudit(managerResult.manager, 
+                AuditActionType.Create, $"Added new SaleType: {saleType.Name}", null);
+
+            return (true, "SaleType added successfully");
+        }
+
+        public async Task<(bool isSuccess, string message)> DeleteSaleType(long id, string managerEmail)
+        {
+            var existing = await _dataContext.SaleType.FirstOrDefaultAsync(s => s.Id == id);
+            if (existing == null)
+                return (false, "SaleType not found.");
+
+            var managerResult = await _auth.IsManagerValid(managerEmail);
+            if (!managerResult.isSuccess || managerResult.manager == null)
+                return (false, "Invalid Manager");
+
+            _dataContext.SaleType.Remove(existing);
+            await _dataContext.SaveChangesAsync();
+
+            await _auditLog.AddManagerAudit(managerResult.manager, AuditActionType.Delete, $"Deleted SaleType: {existing.Name}", null);
+
+            return (true, "SaleType deleted successfully");
+        }
+
         public async Task<List<SaleType>> SaleTypes()
         {
             return await _dataContext.SaleType
                 .AsNoTracking()
                 .ToListAsync();
         }
+
+        public async Task<(bool isSuccess, string message)> UpdateSaleType(SaleType saleType, string managerEmail)
+        {
+            if (saleType == null || string.IsNullOrWhiteSpace(saleType.Name) || string.IsNullOrWhiteSpace(saleType.Account) || string.IsNullOrWhiteSpace(saleType.Type))
+                return (false, "All SaleType fields are required.");
+
+            var existing = await _dataContext.SaleType.FirstOrDefaultAsync(s => s.Id == saleType.Id);
+            if (existing == null)
+                return (false, "SaleType not found.");
+
+            // Check for unique name (except self, case-insensitive)
+            var isExisting = await _dataContext.SaleType.AnyAsync(s => s.Name.ToLower() == saleType.Name.ToLower() && s.Id != saleType.Id);
+            if (isExisting)
+                return (false, "A SaleType with this name already exists.");
+
+            var managerResult = await _auth.IsManagerValid(managerEmail);
+            if (!managerResult.isSuccess || managerResult.manager == null)
+                return (false, "Invalid Manager");
+
+            existing.Name = saleType.Name;
+            existing.Account = saleType.Account;
+            existing.Type = saleType.Type;
+            existing.IsActive = saleType.IsActive;
+
+            _dataContext.SaleType.Update(existing);
+            await _dataContext.SaveChangesAsync();
+
+            await _auditLog.AddManagerAudit(managerResult.manager, 
+                AuditActionType.Update, 
+                $"Updated SaleType: {saleType.Name}", null);
+
+            return (true, "SaleType updated successfully");
+        }
+
         private async Task<Invoice?> PendingOrder()
         {
             var isTrainMode = await _terminalMachine.IsTrainMode();

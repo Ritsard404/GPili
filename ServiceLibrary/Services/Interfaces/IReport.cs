@@ -9,7 +9,7 @@ namespace ServiceLibrary.Services.Interfaces
         Task<(string CashInDrawer, string CurrentCashDrawer, string CashierName)> CashTrack(string cashierEmail);
         Task<XInvoiceDTO> GetXInvoice();
         Task<ZInvoiceDTO> GetZInvoice();
-
         Task<List<GetInvoiceDocumentDTO>> InvoiceDocuments(DateTime fromDate, DateTime toDate);
+
     }
 }

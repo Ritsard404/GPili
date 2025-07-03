@@ -20,7 +20,7 @@ namespace ServiceLibrary.Services.Repositories
                     t.CashInDrawerAmount >= 1000 && t.IsTrainMode == isTrainMode)
                 .FirstOrDefaultAsync();
 
-            if (timestamp == null || timestamp.CashInDrawerAmount == null )
+            if (timestamp == null || timestamp.CashInDrawerAmount == null)
                 return ("₱0.00", "₱0.00", "");
 
             var tsIn = timestamp.TsIn;
@@ -490,6 +490,7 @@ namespace ServiceLibrary.Services.Repositories
 
             return dto;
         }
+
 
         public async Task<List<GetInvoiceDocumentDTO>> InvoiceDocuments(DateTime fromDate, DateTime toDate)
         {

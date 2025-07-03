@@ -16,5 +16,14 @@ namespace ServiceLibrary.Services.Interfaces
 
         Task<User[]> GetCashiers();
 
+        // User Crud
+        Task<User[]> Users();
+        Task<(bool isSuccess, string message)> NewCashier(User cashier, string managerEmail);
+        Task<(bool isSuccess, string message)> UpdateCashier(User cashier, string managerEmail);
+        Task<(bool isSuccess, string message)> DeleteCashier(long id, string managerEmail);
+        Task<(bool isSuccess, string message)> NewManager(User manager);
+        Task<(bool isSuccess, string message)> UpdateManager(User manager);
+        Task<(bool isSuccess, string message)> DeleteManager(string email);
+
     }
 }
