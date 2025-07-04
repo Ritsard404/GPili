@@ -11,5 +11,7 @@ namespace ServiceLibrary.Services.Interfaces
         Task<(bool isSuccess, string message)> AddItemsJournal(long invId);
         Task<(bool isSuccess, string message)> AddTendersJournal(long invId);
         Task<(bool isSuccess, string message)> AddTotalsJournal(long invId);
+
+        Task<(bool isSuccess, string message)> PushJournals(DateTime selectedDate, IProgress<(int current, int total, string status)>? progress = null);
     }
 }

@@ -21,7 +21,7 @@ namespace ServiceLibrary.Services
             {
                 await SeedUsersAsync();
                 await SeedPosTerminalInfoAsync();
-                await SeedCategoriesAndProductsAsync();
+                //await SeedCategoriesAndProductsAsync();
                 await SeedSaleTypesAsync();
             }
             catch(Exception ex)
@@ -65,8 +65,10 @@ namespace ServiceLibrary.Services
                 OperatedBy = "GPili Corporation",
                 Address = "123 Main Street, City, Province",
                 VatTinNumber = "123-456-789-000",
-                CostCenter = "CC001",
+                CostCenter = "Store 1",
                 BranchCenter = "BC001",
+                DbName = "arseneso_barandog",
+                UseCenter = "MAIN",
                 PrinterName = "POSPrinter",
                 Vat = 12,
                 DiscountMax = 250.00m, // Example VAT max value

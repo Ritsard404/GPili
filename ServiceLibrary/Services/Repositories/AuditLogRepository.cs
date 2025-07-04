@@ -3,11 +3,17 @@ using ServiceLibrary.Data;
 using ServiceLibrary.Models;
 using ServiceLibrary.Services.Interfaces;
 using ServiceLibrary.Utils;
+using static ServiceLibrary.Utils.FolderPath;
 
 namespace ServiceLibrary.Services.Repositories
 {
     public class AuditLogRepository(DataContext _dataContext) : IAuditLog
     {
+        private static readonly HttpClient _httpClient = new()
+        {
+            BaseAddress = new Uri(JournalLink.Ebisx)
+        };
+
         private async Task<bool> IsTrainMode()
         {
             return await _dataContext.PosTerminalInfo.Select(t => t.IsTrainMode).FirstOrDefaultAsync();
@@ -20,7 +26,7 @@ namespace ServiceLibrary.Services.Repositories
         }
         public async Task<(bool isSuccess, string message)> AddCashierAudit(User cashier, string action, string changes, decimal? amount)
         {
-            var isTrainMode = await  IsTrainMode();
+            var isTrainMode = await IsTrainMode();
 
             _dataContext.AuditLog.Add(new AuditLog
             {
@@ -37,7 +43,7 @@ namespace ServiceLibrary.Services.Repositories
 
         public async Task<(bool isSuccess, string message)> AddItemsJournal(long invId)
         {
-            var terminalinfo = await  GetTerminalInfo();
+            var terminalinfo = await GetTerminalInfo();
             if (terminalinfo == null)
                 return (false, "Terminal information not found.");
 
@@ -117,7 +123,7 @@ namespace ServiceLibrary.Services.Repositories
 
         public async Task<(bool isSuccess, string message)> AddManagerAudit(User manager, string action, string changes, decimal? amount)
         {
-            var isTrainMode = await  IsTrainMode();
+            var isTrainMode = await IsTrainMode();
 
             _dataContext.AuditLog.Add(new AuditLog
             {
@@ -134,7 +140,7 @@ namespace ServiceLibrary.Services.Repositories
 
         public async Task<(bool isSuccess, string message)> AddPwdScJournal(long invId)
         {
-            var terminalinfo = await  GetTerminalInfo();
+            var terminalinfo = await GetTerminalInfo();
             if (terminalinfo == null)
                 return (false, "Terminal information not found.");
 
@@ -204,7 +210,7 @@ namespace ServiceLibrary.Services.Repositories
 
         public async Task<(bool isSuccess, string message)> AddTendersJournal(long invId)
         {
-            var terminalinfo = await  GetTerminalInfo();
+            var terminalinfo = await GetTerminalInfo();
             if (terminalinfo == null)
                 return (false, "Terminal information not found.");
 
@@ -331,7 +337,7 @@ namespace ServiceLibrary.Services.Repositories
 
         public async Task<(bool isSuccess, string message)> AddTotalsJournal(long invId)
         {
-            var terminalinfo = await  GetTerminalInfo();
+            var terminalinfo = await GetTerminalInfo();
             if (terminalinfo == null)
                 return (false, "Terminal information not found.");
 
@@ -394,6 +400,64 @@ namespace ServiceLibrary.Services.Repositories
 
             await _dataContext.SaveChangesAsync();
             return (true, "Totals journal entry successfully added.");
+        }
+
+        public async Task<(bool isSuccess, string message)> PushJournals(DateTime selectedDate, IProgress<(int current, int total, string status)>? progress = null)
+        {
+            var dateString = selectedDate.ToString("yyyy-MM-dd");
+            var journals = await _dataContext.AccountJournal
+                .Where(d => d.Entry_Date == dateString && !d.IsPushed)
+                .ToListAsync();
+
+            int total = journals.Count, current = 0, errors = 0;
+            var errorMessages = new List<string>();
+
+            progress?.Report((0, total, $"Found {total} entries to push for {dateString}."));
+
+            foreach (var journal in journals)
+            {
+                try
+                {
+                    progress?.Report((current, total, $"Pushing journal {journal.UniqueId}..."));
+                    var url = $"asspos/mobilepostransactions.php?{ToQueryString(journal)}";
+                    using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+                    var response = await _httpClient.GetAsync(url, cts.Token);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        journal.IsPushed = true;
+                    }
+                    else
+                    {
+                        errors++;
+                        errorMessages.Add($"Failed: {journal.UniqueId} ({response.StatusCode})");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    errors++;
+                    errorMessages.Add($"Exception: {journal.UniqueId} ({ex.Message})");
+                }
+                current++;
+                progress?.Report((current, total, $"Processed {current}/{total}"));
+                if (current < total) await Task.Delay(1500);
+            }
+
+            if (journals.Any(j => j.IsPushed))
+                await _dataContext.SaveChangesAsync();
+
+            var isSuccess = errors == 0;
+            var message = isSuccess
+                ? $"All {total} journals pushed successfully."
+                : $"{total - errors} journals pushed, {errors} errors. {string.Join("; ", errorMessages)}";
+            return (isSuccess, message);
+
+            static string ToQueryString(Journal journal)
+            {
+                return string.Join("&", typeof(Journal).GetProperties()
+                    .Where(p => p.Name != nameof(Journal.UniqueId) && p.Name != nameof(Journal.IsPushed))
+                    .Select(p => $"{p.Name.ToLowerInvariant()}={Uri.EscapeDataString(p.GetValue(journal)?.ToString() ?? "")}"));
+            }
         }
     }
 }

@@ -50,7 +50,7 @@ namespace GPili.Presentation.Features.Cashiering
                 do
                 {
                     var input = await Shell.Current.DisplayPromptAsync(
-                        title: "Cash Drawer",
+                        title: "Cash In Drawer",
                         message: "Please enter the amount of cash to store in the drawer (₱1000 or more):",
                         accept: "Store Cash", "", "1000.00", -1, Keyboard.Numeric);
 
@@ -400,6 +400,12 @@ namespace GPili.Presentation.Features.Cashiering
         [RelayCommand]
         private async Task Manager()
         {
+            var result = await _popupService.ShowPopupAsync<ManagerAuthViewModel>();
+            var managerEmail = result as string;
+
+            if (string.IsNullOrWhiteSpace(managerEmail))
+                return;
+
             await _navigationService.GoToManager();
         }
     }

@@ -23,5 +23,8 @@ namespace ServiceLibrary.Services.Interfaces
 
         // Transactions
         Task<Inventory[]> InventoryTransactions(DateTime fromDate, DateTime toDate);
+
+        // Load Products
+        Task<(bool isSuccess, string message)> LoadOnlineProducts(IProgress<(int current, int total, string status)>? progress = null);
     }
 }

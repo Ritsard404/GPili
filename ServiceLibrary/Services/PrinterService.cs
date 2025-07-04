@@ -628,6 +628,8 @@ namespace ServiceLibrary.Services
 
         public void PrintCashTrack(string cashInDrawer, string currentCashDrawer, string cashierName)
         {
+            
+
             // Build the report content
             var sb = new StringBuilder();
                 sb.AppendLine(new string('=', ReceiptWidth));

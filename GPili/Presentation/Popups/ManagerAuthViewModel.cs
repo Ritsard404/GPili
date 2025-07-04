@@ -20,7 +20,7 @@ namespace GPili.Presentation.Popups
             if (string.IsNullOrWhiteSpace(ManagerEmail))
                 return;
 
-            var (isSuccess, user) = await _auth.IsManagerValid(ManagerEmail);
+            var (isSuccess, user) = await _auth.IsManagerValid(ManagerEmail.Trim());
 
             if (isSuccess)
             {

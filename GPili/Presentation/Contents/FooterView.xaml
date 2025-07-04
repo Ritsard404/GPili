@@ -14,7 +14,7 @@
         </Label>
         <Label Text="|" VerticalOptions="Center" />
 
-        <Label x:Name="NetworkStatus" 
+        <Label x:Name="NetworkStatus" FontAttributes="Bold"
                VerticalOptions="Center"
                HorizontalOptions="CenterAndExpand" />
         <Label Text="|" VerticalOptions="Center" />

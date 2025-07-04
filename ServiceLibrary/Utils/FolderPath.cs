@@ -22,5 +22,9 @@
         {
             public const string Test = "C:\\Database";
         }
+        public static class JournalLink
+        {
+            public const string Ebisx = "https://ebisx.com/";
+        }
     }
 }

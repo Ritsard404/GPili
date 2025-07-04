@@ -21,8 +21,12 @@ namespace ServiceLibrary.Models
         public required int Vat { get; set; } // VAT (Value Added Tax)
         public required decimal DiscountMax { get; set; } 
 
+        // API Flags
         public required string CostCenter { get; set; }
         public required string BranchCenter { get; set; }
+        public required string UseCenter { get; set; }
+        public required string DbName { get; set; }
+
         public required string PrinterName { get; set; }
 
         public int ResetCounterNo { get; set; } = 0;

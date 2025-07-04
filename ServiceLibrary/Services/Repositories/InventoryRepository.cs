@@ -1,15 +1,25 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ServiceLibrary.Data;
 using ServiceLibrary.Models;
+using ServiceLibrary.Services.DTO.Inventory;
 using ServiceLibrary.Services.Interfaces;
 using ServiceLibrary.Utils;
+using System.Diagnostics;
+using System.Net.Http.Json;
+using static ServiceLibrary.Utils.FolderPath;
 
 namespace ServiceLibrary.Services.Repositories
 {
     public class InventoryRepository(DataContext _dataContext,
         IAuditLog _auditLog,
-        IAuth _auth) : IInventory
+        IAuth _auth,
+        IGPiliTerminalMachine _terminalMachine) : IInventory
     {
+        private static readonly HttpClient _httpClient = new()
+        {
+            BaseAddress = new Uri(JournalLink.Ebisx)
+        };
+
         public async Task<Product?> GetProductByBarcode(string barcode)
         {
             return await _dataContext.Product
@@ -147,7 +157,7 @@ namespace ServiceLibrary.Services.Repositories
             _dataContext.Product.Add(product);
             await _dataContext.SaveChangesAsync();
 
-            await _auditLog.AddManagerAudit(managerResult.manager, 
+            await _auditLog.AddManagerAudit(managerResult.manager,
                 AuditActionType.Create, $"Added new product: {product.Name} (Barcode: {product.Barcode})", null);
 
             return (true, "Product added successfully");
@@ -165,7 +175,7 @@ namespace ServiceLibrary.Services.Repositories
                 return (false, "Product not found.");
 
             // Validate required fields
-            if (string.IsNullOrWhiteSpace(product.Name)||
+            if (string.IsNullOrWhiteSpace(product.Name) ||
                 string.IsNullOrWhiteSpace(product.BaseUnit) ||
                 string.IsNullOrWhiteSpace(product.ItemType) ||
                 string.IsNullOrWhiteSpace(product.VatType) ||
@@ -207,7 +217,7 @@ namespace ServiceLibrary.Services.Repositories
             _dataContext.Product.Update(existing);
             await _dataContext.SaveChangesAsync();
 
-            await _auditLog.AddManagerAudit(managerResult.manager, 
+            await _auditLog.AddManagerAudit(managerResult.manager,
                 AuditActionType.Update, $"Updated product: {product.Name} (Barcode: {product.Barcode})", null);
 
             return (true, "Product updated successfully");
@@ -228,7 +238,7 @@ namespace ServiceLibrary.Services.Repositories
             _dataContext.Product.Update(existing);
             await _dataContext.SaveChangesAsync();
 
-            await _auditLog.AddManagerAudit(managerResult.manager, 
+            await _auditLog.AddManagerAudit(managerResult.manager,
                 AuditActionType.Delete, $"Deleted product: {existing.Name} (Barcode: {existing.Barcode})", null);
 
             return (true, "Product deleted successfully");
@@ -256,7 +266,7 @@ namespace ServiceLibrary.Services.Repositories
             _dataContext.Category.Add(category);
             await _dataContext.SaveChangesAsync();
 
-            await _auditLog.AddManagerAudit(managerResult.manager, 
+            await _auditLog.AddManagerAudit(managerResult.manager,
                 AuditActionType.Create, $"Added new category: {category.CtgryName}", null);
 
             return (true, "Category added successfully");
@@ -284,8 +294,8 @@ namespace ServiceLibrary.Services.Repositories
             _dataContext.Category.Update(existing);
             await _dataContext.SaveChangesAsync();
 
-            await _auditLog.AddManagerAudit(managerResult.manager, 
-                AuditActionType.Update, 
+            await _auditLog.AddManagerAudit(managerResult.manager,
+                AuditActionType.Update,
                 $"Updated category: {category.CtgryName}", null);
 
             return (true, "Category updated successfully");
@@ -309,10 +319,146 @@ namespace ServiceLibrary.Services.Repositories
             _dataContext.Category.Remove(existing);
             await _dataContext.SaveChangesAsync();
 
-            await _auditLog.AddManagerAudit(managerResult.manager, 
+            await _auditLog.AddManagerAudit(managerResult.manager,
                 AuditActionType.Delete, $"Deleted category: {existing.CtgryName}", null);
 
             return (true, "Category deleted successfully");
+        }
+
+        public async Task<(bool isSuccess, string message)> LoadOnlineProducts(IProgress<(int current, int total, string status)>? progress = null)
+        {
+            await using var transaction = await _dataContext.Database.BeginTransactionAsync();
+
+            try
+            {
+                var posInfo = await _terminalMachine.GetTerminalInfo();
+                if (posInfo == null)
+                    return (false, "Terminal information not found.");
+
+                progress?.Report((0, 0, "Requesting product data from server..."));
+                var response = await _httpClient.GetFromJsonAsync<LoadProductsDTO>($"asspos/mobileloaditems.php?db_name={posInfo.DbName}&usecenter={posInfo.UseCenter}");
+
+                if (response?.Products == null || !response.Products.Any())
+                    return (false, "No product items found in the API response.");
+
+                int total = response.Products.Count;
+                int processed = 0;
+
+                // 1. Categories
+                progress?.Report((0, total, "Processing categories..."));
+                var uniqueCategories = response.Products
+                    .Select(x => x.ItemGroup?.Trim())
+                    .Where(x => !string.IsNullOrWhiteSpace(x))
+                    .GroupBy(x => x.ToLower())
+                    .Select(g => g.First())
+                    .ToList();
+
+                var existingCategories = await _dataContext.Category.ToListAsync();
+                int catCount = 0;
+                foreach (var categoryName in uniqueCategories)
+                {
+                    var normalizedCategoryName = categoryName?.Trim() ?? "NA";
+                    var exists = existingCategories.Any(c => c.CtgryName.ToUpper() == normalizedCategoryName.ToUpper());
+                    if (!exists)
+                    {
+                        var category = new Category { CtgryName = normalizedCategoryName.ToUpper() };
+                        await _dataContext.Category.AddAsync(category);
+                        catCount++;
+                    }
+                }
+
+                if (catCount > 0)
+                    await _dataContext.SaveChangesAsync();
+
+                var dbCategories = await _dataContext.Category.ToListAsync();
+
+                // 2. Product Items
+                if (total > 0)
+                    progress?.Report((1, total, "Starting product import..."));
+                foreach (var item in response.Products)
+                {
+                    processed++;
+                    progress?.Report((processed, total, $"Processing item {processed}/{total}: {item.Description}"));
+
+                    if (string.IsNullOrWhiteSpace(item.ItemGroup))
+                        continue;
+
+                    var category = dbCategories.FirstOrDefault(c => c.CtgryName.ToLower() == item.ItemGroup.Trim().ToLower());
+                    if (category == null)
+                    {
+                        category = new Category { CtgryName = item.ItemGroup.Trim() };
+                        await _dataContext.Category.AddAsync(category);
+                        await _dataContext.SaveChangesAsync();
+                        dbCategories.Add(category);
+                    }
+
+                    var existingProduct = await _dataContext.Product.FirstOrDefaultAsync(m => m.ProdId == item.ItemId);
+
+                    string barcode;
+                    if (string.IsNullOrWhiteSpace(item.Barcode))
+                        barcode = item.ItemId;
+                    else
+                        barcode = item.Barcode;
+
+                    if (existingProduct == null)
+                    {
+                        var product = new Product
+                        {
+                            ProdId = item.ItemId,
+                            Name = item.ItemId,
+                            Barcode = barcode,
+                            BaseUnit = item.BaseUnit,
+                            Cost = decimal.TryParse(item.Cost, out var cost) ? cost : 0,
+                            Price = decimal.TryParse(item.Price, out var price) ? price : 0,
+                            ItemType = item.ItemType,
+                            VatType = MapVatType(item.VatType),
+                            Category = category,
+                            IsAvailable = true,
+                        };
+                        await _dataContext.Product.AddAsync(product); 
+                    }
+                    else
+                    {
+                        existingProduct.Cost = decimal.TryParse(item.Cost, out var cost) ? cost : existingProduct.Cost;
+                        existingProduct.Price = decimal.TryParse(item.Price, out var price) ? price : existingProduct.Price;
+                        existingProduct.BaseUnit = item.BaseUnit;
+                        existingProduct.ItemType = item.ItemType;
+                        existingProduct.VatType = MapVatType(item.VatType);
+                        existingProduct.Category = category;
+                        existingProduct.Barcode = barcode;
+                        existingProduct.ItemType = item.ItemId;
+                    }
+
+                    if (processed % 50 == 0)
+                        await Task.Yield();
+                }
+
+                await _dataContext.SaveChangesAsync();
+                await transaction.CommitAsync();
+                progress?.Report((total, total, "Product data loaded successfully."));
+                return (true, "Product data loaded successfully.");
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+
+                progress?.Report((0, 0, $"Failed to load product data: {ex.Message}"));
+                Debug.WriteLine($"Error loading product data: {ex.Message}");
+                return (false, $"Failed to load product data: {ex.Message}");
+            }
+        }
+
+        private static string MapVatType(string? apiVatType)
+        {
+            if (string.IsNullOrWhiteSpace(apiVatType))
+                return VatType.Vatable;
+
+            var vat = apiVatType.Trim().ToUpperInvariant();
+            if (vat.Contains("EXEMPT"))
+                return VatType.Exempt;
+            if (vat.Contains("ZERO"))
+                return VatType.Zero;
+            return VatType.Vatable;
         }
     }
 }

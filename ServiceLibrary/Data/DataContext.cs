@@ -12,7 +12,6 @@ namespace ServiceLibrary.Data
 
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
-            // Remove EnsureCreated as we'll use migrations instead
             Database.Migrate();
         }
 
