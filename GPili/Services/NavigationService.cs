@@ -47,6 +47,7 @@ namespace GPili.Services
         public async Task Logout()
         {
             await NavigateToAsync(AppRoutes.Login);
+            CashierState.Info.UpdateCashierInfo("","","");
         }
         public Task NavigateToAsync(string route, IDictionary<string, object> routeParameters =
             null)

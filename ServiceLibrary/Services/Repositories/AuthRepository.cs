@@ -8,36 +8,44 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ServiceLibrary.Services.Repositories
 {
-    public class AuthRepository(DataContext _dataContext, IAuditLog _auditLog) : IAuth
+    public class AuthRepository(DataContext _dataContext, IAuditLog _auditLog, IGPiliTerminalMachine _terminalMachine) : IAuth
     {
         public async Task<(bool isSuccess, string message)> CashWithdrawDrawer(string cashierEmail, string managerEmail, decimal cash)
         {
+            var isTrainMode = await _terminalMachine.IsTrainMode();
+
             var timestamp = await _dataContext.Timestamp
                 .Include(t => t.Cashier)
-                .Where(t => t.Cashier.Email == cashierEmail && t.TsOut == null && t.CashInDrawerAmount != null && t.CashInDrawerAmount >= 1000)
+                .Where(t => t.Cashier.Email == cashierEmail &&
+                    t.TsOut == null && t.CashInDrawerAmount != null &&
+                    t.CashInDrawerAmount >= 1000 && t.IsTrainMode == isTrainMode)
                 .FirstOrDefaultAsync();
 
             var manager = await IsManagerValid(managerEmail);
             if (!manager.isSuccess || manager.manager == null)
                 return (false, "Invalid manager credential.");
 
-            if (timestamp?.CashInDrawerAmount is not { } available)
+            if (timestamp?.CashInDrawerAmount is not { } startingCash)
                 return (false, "No active session or drawer amount not set.");
 
             var tsIn = timestamp.TsIn;
 
-            // First get all valid orders for the cashier
-            var pendingInvoices = await _dataContext.Invoice
-                .Where(i => i.Cashier.Email == cashierEmail &&
-                i.Status == InvoiceStatusType.Paid &&
-                i.CashTendered != null &&
-                i.TotalAmount < 0)
+            // Fetch all orders with the cashier
+            var orders = await _dataContext.Invoice
+                .Include(o => o.Cashier)
                 .ToListAsync();
 
-            decimal totalCashInDrawer = pendingInvoices
-                .Sum(i => i.CashTendered ?? 0m - i.ChangeAmount ?? 0m);
+            // First get all valid orders for the cashier
+            decimal totalCashInDrawer = orders
+                .Where(o =>
+                    o.Cashier.Email == cashierEmail &&
+                    o.Status == InvoiceStatusType.Paid &&
+                    o.CreatedAt >= tsIn &&
+                    o.CashTendered != null &&
+                    o.TotalAmount != 0 && o.IsTrainMode == isTrainMode)
+                .Sum(o => o.CashTendered ?? 0m - o.ChangeAmount ?? 0m - o.ReturnedAmount ?? 0m);
 
-            if (cash > available + totalCashInDrawer)
+            if (cash > startingCash + totalCashInDrawer)
                 return (false, "Cash amount exceeds available cash in drawer and pending orders total.");
 
             timestamp.WithdrawnDrawerAmount += cash;
