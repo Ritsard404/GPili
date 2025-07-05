@@ -343,6 +343,8 @@ namespace ServiceLibrary.Services.Repositories
 
                 int total = response.Products.Count;
                 int processed = 0;
+                int batchSize = 100;
+                int batchCounter = 0;
 
                 // 1. Categories
                 progress?.Report((0, total, "Processing categories..."));
@@ -378,7 +380,7 @@ namespace ServiceLibrary.Services.Repositories
                 foreach (var item in response.Products)
                 {
                     processed++;
-                    progress?.Report((processed, total, $"Processing item {processed}/{total}: {item.Description}"));
+                    progress?.Report((processed, total, $"Processing {processed} of {total} items..."));
 
                     if (string.IsNullOrWhiteSpace(item.ItemGroup))
                         continue;
@@ -429,11 +431,18 @@ namespace ServiceLibrary.Services.Repositories
                         existingProduct.ItemType = item.ItemId;
                     }
 
-                    if (processed % 50 == 0)
-                        await Task.Yield();
+                    batchCounter++;
+                    if (batchCounter % 100 == 0)
+                    {
+                        await _dataContext.SaveChangesAsync();
+                        batchCounter = 0;
+                    }
+
+                    if (processed % 2 == 0)
+                        await Task.Delay(1); // let UI update
                 }
 
-                await _dataContext.SaveChangesAsync();
+                await _dataContext.SaveChangesAsync(); // final save
                 await transaction.CommitAsync();
                 progress?.Report((total, total, "Product data loaded successfully."));
                 return (true, "Product data loaded successfully.");

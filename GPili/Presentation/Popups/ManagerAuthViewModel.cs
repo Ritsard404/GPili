@@ -24,12 +24,12 @@ namespace GPili.Presentation.Popups
 
             if (isSuccess)
             {
-                await Toast.Make("Manager Authorized Action!").Show();
+                await Toast.Make("Manager Authorized Action!", ToastDuration.Short).Show();
                 await _popupService.ClosePopupAsync(ManagerEmail);
             }
             else
             {
-                await Toast.Make("Invalid manager auth.").Show();
+                await Toast.Make("Invalid manager auth.", ToastDuration.Short).Show();
             }
 
         }

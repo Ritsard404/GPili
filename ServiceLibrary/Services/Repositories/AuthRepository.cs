@@ -8,11 +8,11 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ServiceLibrary.Services.Repositories
 {
-    public class AuthRepository(DataContext _dataContext, IAuditLog _auditLog, IGPiliTerminalMachine _terminalMachine) : IAuth
+    public class AuthRepository(DataContext _dataContext, IAuditLog _auditLog) : IAuth
     {
         public async Task<(bool isSuccess, string message)> CashWithdrawDrawer(string cashierEmail, string managerEmail, decimal cash)
         {
-            var isTrainMode = await _terminalMachine.IsTrainMode();
+            var isTrainMode = await _dataContext.PosTerminalInfo.Select(t => t.IsTrainMode).FirstOrDefaultAsync();
 
             var timestamp = await _dataContext.Timestamp
                 .Include(t => t.Cashier)
@@ -37,13 +37,16 @@ namespace ServiceLibrary.Services.Repositories
 
             // First get all valid orders for the cashier
             decimal totalCashInDrawer = orders
-                .Where(o =>
-                    o.Cashier.Email == cashierEmail &&
-                    o.Status == InvoiceStatusType.Paid &&
-                    o.CreatedAt >= tsIn &&
-                    o.CashTendered != null &&
-                    o.TotalAmount != 0 && o.IsTrainMode == isTrainMode)
-                .Sum(o => o.CashTendered ?? 0m - o.ChangeAmount ?? 0m - o.ReturnedAmount ?? 0m);
+                 .Where(o =>
+                     o.Cashier.Email == cashierEmail &&
+                     o.Status == InvoiceStatusType.Paid &&
+                     o.CreatedAt >= tsIn &&
+                     o.IsTrainMode == isTrainMode)
+                 .Sum(o =>
+                     o.CashTendered.GetValueOrDefault()
+                     - o.ChangeAmount.GetValueOrDefault()
+                     - o.ReturnedAmount.GetValueOrDefault()
+                 );
 
             if (cash > startingCash + totalCashInDrawer)
                 return (false, "Cash amount exceeds available cash in drawer and pending orders total.");

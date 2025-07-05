@@ -22,13 +22,12 @@
                 <Grid RowDefinitions="Auto, Auto" ColumnDefinitions="0.10*,0.10*,0.65*,0.15*">
 
                     <HorizontalStackLayout Grid.Row="0" Grid.ColumnSpan="4" Spacing="10" HorizontalOptions="End" >
-                        <Label WidthRequest="100" 
-                        Text="{Binding Tenders.GrossTotal, StringFormat='₱ {0:N2}'}"
-                        FontAttributes="Bold"
-                        TextColor="#AAFF00"
-                               FontSize="Medium"
-                        VerticalOptions="Center"
-                        HorizontalTextAlignment="End"/>
+                        <Label Text="{Binding Tenders.GrossTotal, StringFormat='₱ {0:N2}'}"
+                            FontAttributes="Bold"
+                            TextColor="#AAFF00"
+                                   FontSize="Medium"
+                            VerticalOptions="Center"
+                            HorizontalTextAlignment="End"/>
                     </HorizontalStackLayout>
 
                     <Label Text="No."

@@ -32,7 +32,7 @@ namespace GPili.Presentation.Features.Cashiering
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsPayKeypadSelected))]
-        private string _selectedKeypadAction = KeypadActions.QTY; 
+        private string _selectedKeypadAction = KeypadActions.QTY;
         public bool IsPayKeypadSelected => SelectedKeypadAction == KeypadActions.PAY;
 
         public async Task InitializeAsync()
@@ -63,14 +63,14 @@ namespace GPili.Presentation.Features.Cashiering
                     }
                     else
                     {
-                        await Toast.Make("Enter a valid amount of ₱1000 or more.").Show();
+                        await Toast.Make("Enter a valid amount of ₱1000 or more.", ToastDuration.Short).Show();
                     }
                 } while (!validCash);
 
                 await _popUpService.ShowAsync("Loading Products...", true);
 
                 await _auth.SetCashInDrawer(CashierState.Info.CashierEmail!, cashValue);
-                await Toast.Make($"₱{cashValue} has been stored in the drawer.").Show();
+                await Toast.Make($"₱{cashValue} has been stored in the drawer.", ToastDuration.Short).Show();
                 isCashedDrawer = true;
             }
 
@@ -112,8 +112,11 @@ namespace GPili.Presentation.Features.Cashiering
                         qty: qty,
                         cashierEmail: CashierState.Info.CashierEmail!);
 
-                    // Optionally handle isSuccess/message here if needed
 
+                    Products = await _inventory.GetProducts();
+
+                    await LoadItems();
+                    SearchProduct = string.Empty;
                     return;
                 }
 
@@ -139,7 +142,7 @@ namespace GPili.Presentation.Features.Cashiering
 
             if (!isSuccess)
             {
-                await Toast.Make(message).Show();
+                await Toast.Make(message, ToastDuration.Short).Show();
                 return;
             }
 
@@ -165,7 +168,7 @@ namespace GPili.Presentation.Features.Cashiering
             catch (Exception ex)
             {
                 Debug.WriteLine(ex);
-                await Toast.Make("An error occurred while selecting the item.").Show();
+                await Toast.Make("An error occurred while selecting the item.", ToastDuration.Short).Show();
             }
         }
 
@@ -231,7 +234,7 @@ namespace GPili.Presentation.Features.Cashiering
 
             if (payContent == KeypadActions.ENTER && Tenders.ChangeAmount < 0)
             {
-                await Toast.Make("Please enter a valid amount to pay.").Show();
+                await Toast.Make("Please enter a valid amount to pay.", ToastDuration.Short).Show();
                 await _popUpService.ShowAsync("Paid", false);
                 return;
             }
@@ -257,7 +260,7 @@ namespace GPili.Presentation.Features.Cashiering
             var result = await _order.PayOrder(payOrder);
             if (result.isSuccess)
             {
-                await Toast.Make("Order paid successfully!").Show();
+                await Toast.Make("Order paid successfully!", ToastDuration.Short).Show();
 
                 await LoadItems();
                 Products = await _inventory.GetProducts();
@@ -267,7 +270,7 @@ namespace GPili.Presentation.Features.Cashiering
             }
             else
             {
-                await Toast.Make(result.message).Show();
+                await Toast.Make(result.message, ToastDuration.Short).Show();
             }
 
             await _popUpService.ShowAsync("Paid", false);
@@ -318,13 +321,13 @@ namespace GPili.Presentation.Features.Cashiering
                     managerEmail: managerEmail);
                 if (isSuccess)
                 {
-                    await Toast.Make(message).Show();
+                    await Toast.Make(message, ToastDuration.Short).Show();
                     await LoadItems();
                     Tenders.Discount = new();
                 }
                 else
                 {
-                    await Toast.Make(message).Show();
+                    await Toast.Make(message, ToastDuration.Short).Show();
                 }
 
             }
@@ -400,6 +403,15 @@ namespace GPili.Presentation.Features.Cashiering
         [RelayCommand]
         private async Task Manager()
         {
+            if (Items.Any())
+            {
+                var cts = new CancellationTokenSource();
+                _ = Task.Delay(1000).ContinueWith(_ => cts.Cancel());
+
+                await Toast.Make("Cashier has pending item/s. Action denied.", ToastDuration.Long).Show(cts.Token);
+                return;
+            }
+
             var result = await _popupService.ShowPopupAsync<ManagerAuthViewModel>();
             var managerEmail = result as string;
 

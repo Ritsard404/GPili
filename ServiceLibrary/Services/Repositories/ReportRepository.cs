@@ -16,8 +16,8 @@ namespace ServiceLibrary.Services.Repositories
             var timestamp = await _dataContext.Timestamp
                 .Include(t => t.Cashier)
                 .Where(t => t.Cashier.Email == cashierEmail &&
-                    t.TsOut == null && t.CashInDrawerAmount != null &&
-                    t.CashInDrawerAmount >= 1000 && t.IsTrainMode == isTrainMode)
+                    t.TsOut == null && t.CashInDrawerAmount != null && 
+                    t.IsTrainMode == isTrainMode)
                 .FirstOrDefaultAsync();
 
             if (timestamp == null || timestamp.CashInDrawerAmount == null)
@@ -38,15 +38,20 @@ namespace ServiceLibrary.Services.Repositories
 
             // Filter and calculate in memory
             decimal totalCashInDrawer = orders
-                .Where(o =>
-                    o.Cashier.Email == cashierEmail &&
-                    o.Status == InvoiceStatusType.Paid &&
-                    o.CreatedAt >= tsIn &&
-                    o.CashTendered != null &&
-                    o.TotalAmount != 0 && o.IsTrainMode == isTrainMode)
-                .Sum(o => o.CashTendered ?? 0m - o.ChangeAmount ?? 0m - o.ReturnedAmount ?? 0m);
+                 .Where(o =>
+                     o.Cashier.Email == cashierEmail &&
+                     o.Status == InvoiceStatusType.Paid &&
+                     o.CreatedAt >= tsIn &&
+                     o.IsTrainMode == isTrainMode)
+                 .Sum(o =>
+                     o.CashTendered.GetValueOrDefault()
+                     - o.ChangeAmount.GetValueOrDefault()
+                     - o.ReturnedAmount.GetValueOrDefault()
+                 );
 
-            decimal currentCashDrawer = totalCashInDrawer + cashInDrawer ?? 0m - withdrawals ?? 0m;
+            decimal currentCashDrawer = totalCashInDrawer
+                + cashInDrawer.GetValueOrDefault()
+                - withdrawals.GetValueOrDefault();
 
             return (cashInDrawer.PesoFormat(), currentCashDrawer.PesoFormat(), timestamp.Cashier.FullName);
         }
@@ -176,9 +181,9 @@ namespace ServiceLibrary.Services.Repositories
                                                    (o?.ChangeAmount ?? defaultDecimal) -
                                                    (o?.ReturnedAmount ?? defaultDecimal));
 
-            decimal actualCash = openingFundDec + validOrdersTotal;
-            decimal expectedCash = ts?.CashOutDrawerAmount ?? defaultDecimal + withdrawnAmount ?? defaultDecimal;
-            decimal shortOverDec = (expectedCash - actualCash) - refundDec;
+            decimal expectedCash = openingFundDec + validOrdersTotal - withdrawnAmount.GetValueOrDefault();
+            decimal actualCash = ts?.CashOutDrawerAmount ?? defaultDecimal;
+            decimal shortOverDec = (actualCash - expectedCash) - refundDec;
 
             // Safe payment processing - Adjusted for ReturnedAmount
             var payments = new Payments

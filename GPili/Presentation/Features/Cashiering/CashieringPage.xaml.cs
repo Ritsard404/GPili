@@ -8,17 +8,18 @@ using Windows.UI.Core;
 #endif
 public partial class CashieringPage : ContentPage
 {
+    #if WINDOWS
+    private FrameworkElement _rootElement;
+    #endif
     public CashieringPage()
     {
         InitializeComponent();
-
-
 #if WINDOWS
-        // Attach to Window content for full key coverage
+        // Get the root element reference for later use
         var window = (Microsoft.Maui.Controls.Application.Current?.Windows?.FirstOrDefault())?.Handler?.PlatformView as Microsoft.UI.Xaml.Window;
         if (window?.Content is FrameworkElement root)
         {
-            root.KeyDown += Root_KeyDown;
+            _rootElement = root;
         }
 #endif
     }
@@ -55,6 +56,10 @@ public partial class CashieringPage : ContentPage
                 return;
             case VirtualKey.U:
                 ProductSelection?.HandleKeypadAction(KeypadActions.PLU);
+                e.Handled = true;
+                return;
+            case VirtualKey.M:
+                ProductSelection?.HandleKeypadAction(KeypadActions.MANAGER);
                 e.Handled = true;
                 return;
         }
@@ -137,10 +142,26 @@ public partial class CashieringPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-
+#if WINDOWS
+        if (_rootElement != null)
+        {
+            _rootElement.KeyDown -= Root_KeyDown; // Remove if already attached
+            _rootElement.KeyDown += Root_KeyDown;
+        }
+#endif
         await Task.Delay(1500);
-
         if (BindingContext is CashieringViewModel vm)
             await vm.InitializeAsync();
     }
+
+#if WINDOWS
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+        if (_rootElement != null)
+        {
+            _rootElement.KeyDown -= Root_KeyDown;
+        }
+    }
+#endif
 }

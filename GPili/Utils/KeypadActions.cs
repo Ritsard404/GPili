@@ -23,5 +23,7 @@
         public const string BTN8 = "BTN8";
         public const string BTN9 = "BTN9";
         public const string BTNDECIMAL = "BTNDECIMAL";
+
+        public const string MANAGER = "MANAGER";
     }
 }

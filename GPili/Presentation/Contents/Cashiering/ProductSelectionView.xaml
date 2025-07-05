@@ -149,9 +149,9 @@
                 </Entry>
                 <Button Command="{Binding SearchCommand}" Text="Search"
                         Grid.Column="1"></Button>
-                <Button Text="MANAGER" Grid.Column="3"
+                <Button Text="MANAGER" Grid.Column="3" x:Name="MANAGER"
                         ImageSource="ctrlm.png" ContentLayout="right"
-                        WidthRequest="165"
+                        WidthRequest="165" 
                         Style="{StaticResource RedButton}" FontAttributes="Bold" 
                         CornerRadius="8" Command="{Binding ManagerCommand}"/>
             </Grid>

@@ -77,7 +77,7 @@ namespace GPili.Presentation.Popups
         {
             if (string.IsNullOrWhiteSpace(EligibleDiscName))
             {
-                Toast.Make("Please enter the eligible person's name for the discount.").Show();
+                Toast.Make("Please enter the eligible person's name for the discount.", ToastDuration.Short).Show();
                 return;
             }
 
@@ -85,7 +85,7 @@ namespace GPili.Presentation.Popups
             {
                 if (DiscountAmount > 0 && DiscountPercent > 0)
                 {
-                    Toast.Make("Please provide either Discount Amount or Discount Percent, not both.").Show();
+                    Toast.Make("Please provide either Discount Amount or Discount Percent, not both.", ToastDuration.Short).Show();
                     return;
                 }
 
@@ -93,7 +93,7 @@ namespace GPili.Presentation.Popups
                 {
                     if (DiscountPercent < 0 || DiscountPercent > 100)
                     {
-                        Toast.Make("Discount percent must be between 0 and 100.").Show();
+                        Toast.Make("Discount percent must be between 0 and 100.", ToastDuration.Short).Show();
                         return;
                     }
                 }
@@ -102,7 +102,7 @@ namespace GPili.Presentation.Popups
                 {
                     if (DiscountAmount < 0)
                     {
-                        Toast.Make("Discount amount must not be negative.").Show();
+                        Toast.Make("Discount amount must not be negative.", ToastDuration.Short).Show();
                         return;
                     }
                 }
@@ -112,13 +112,13 @@ namespace GPili.Presentation.Popups
             {
                 if (!IsSeniorChecked && !IsPwdChecked)
                 {
-                    Toast.Make("Please select either 'PWD' or 'Senior' as the discount type.").Show();
+                    Toast.Make("Please select either 'PWD' or 'Senior' as the discount type.", ToastDuration.Short).Show();
                     return;
                 }
 
                 if (string.IsNullOrWhiteSpace(OscaIdNum))
                 {
-                    Toast.Make("Please provide a valid OSCA ID.").Show();
+                    Toast.Make("Please provide a valid OSCA ID.", ToastDuration.Short).Show();
                     return;
                 }
 

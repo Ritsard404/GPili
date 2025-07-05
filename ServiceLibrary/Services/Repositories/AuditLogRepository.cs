@@ -411,6 +411,8 @@ namespace ServiceLibrary.Services.Repositories
 
             int total = journals.Count, current = 0, errors = 0;
             var errorMessages = new List<string>();
+            int batchSize = 100;
+            int batchCounter = 0;
 
             progress?.Report((0, total, $"Found {total} entries to push for {dateString}."));
 
@@ -418,7 +420,7 @@ namespace ServiceLibrary.Services.Repositories
             {
                 try
                 {
-                    progress?.Report((current, total, $"Pushing journal {journal.UniqueId}..."));
+                    progress?.Report((current, total, $"Pushing {current + 1}/{total}"));
                     var url = $"asspos/mobilepostransactions.php?{ToQueryString(journal)}";
                     using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
                     var response = await _httpClient.GetAsync(url, cts.Token);
@@ -439,8 +441,14 @@ namespace ServiceLibrary.Services.Repositories
                     errorMessages.Add($"Exception: {journal.UniqueId} ({ex.Message})");
                 }
                 current++;
-                progress?.Report((current, total, $"Processed {current}/{total}"));
-                if (current < total) await Task.Delay(1500);
+                batchCounter++;
+                progress?.Report((current, total, $"Pushing journal {current} of {total} to server..."));
+                if (batchCounter % batchSize == 0)
+                {
+                    await _dataContext.SaveChangesAsync();
+                    batchCounter = 0;
+                }
+                if (current < total) await Task.Delay(10);
             }
 
             if (journals.Any(j => j.IsPushed))

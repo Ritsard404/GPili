@@ -34,16 +34,14 @@ public partial class UserFooterView : ContentView, IDisposable
             {
                 var now = DateTime.Now;
                 var isConnected = Connectivity.NetworkAccess == NetworkAccess.Internet;
-                if (Date != null)
+                Dispatcher.Dispatch(() =>
                 {
-                    // Use MainThread to ensure UI update is on the correct thread
-                    await MainThread.InvokeOnMainThreadAsync(() =>
-                    {
+                    if (Date != null)
                         Date.Text = "Date: " + now.ToString("dd/MM/yyyy(ddd) hh:mm:ss");
-                        NetworkStatus.Text = isConnected ? "Online" : "Offline";
-                        NetworkStatus.TextColor = isConnected ? Colors.Green : Colors.Red;
-                    });
-                }
+
+                    NetworkStatus.Text = isConnected ? "Online" : "Offline";
+                    NetworkStatus.TextColor = isConnected ? Colors.Green : Colors.Red;
+                });
             }
         }
         catch (OperationCanceledException)

@@ -155,7 +155,7 @@ namespace ServiceLibrary.Services
             // Totals
             content.AppendLine(CenterText($"{"Total:",-15}{invoiceInfo.TotalAmount,17}"))
                 // #TODO To Add Discount
-                .AppendLine(CenterText($"{"Sub Total:",-15}{invoiceInfo.SubTotal,17}"))
+                //.AppendLine(CenterText($"{"Sub Total:",-15}{invoiceInfo.SubTotal,17}"))
                 .AppendLine(CenterText($"{"Due Amount:",-15}{invoiceInfo.DueAmount,17}"));
 
             // Other Payments

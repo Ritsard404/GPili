@@ -26,8 +26,15 @@ internal static class ApplicationExtensions
     }
     public static IServiceCollection AddDatabase(this IServiceCollection services)
     {
-        //var dbPath = Path.Combine(FileSystem.AppDataDirectory, "GPili.db");
-        var dbPath = Path.Combine(FolderPath.Database.Test, "GPili.db");
+        string dbPath;
+
+        #if DEBUG
+                // Use test path in Debug mode
+                dbPath = Path.Combine(FolderPath.Database.Test, "GPili.db");
+        #else
+            // Use persistent path in Release mode
+            dbPath = GetPersistentDatabasePath();
+        #endif
 
         // Ensure directory exists
         var dbDirectory = Path.GetDirectoryName(dbPath);
@@ -41,6 +48,22 @@ internal static class ApplicationExtensions
 
         return services;
     }
+    private static string GetPersistentDatabasePath()
+    {
+        #if ANDROID
+            // External public path (survives uninstall with permission)
+            var basePath = Path.Combine("/storage/emulated/0/YourAppName/Database");
+        #elif WINDOWS || MACCATALYST
+                // App-scoped local data
+                var basePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "GPili");
+        #else
+            // Default MAUI internal storage
+            var basePath = Path.Combine(FileSystem.AppDataDirectory, "Database");
+        #endif
+
+        return Path.Combine(basePath, "GPili.db");
+    }
+
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
         services.AddSingleton<INavigationService, NavigationService>();

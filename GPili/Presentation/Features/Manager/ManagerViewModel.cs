@@ -33,7 +33,7 @@ namespace GPili.Presentation.Features.Manager
         {
             if (Connectivity.NetworkAccess != NetworkAccess.Internet)
             {
-                await Toast.Make("No internet connection. Please check your network.").Show();
+                await Toast.Make("No internet connection. Please check your network.", ToastDuration.Short).Show();
                 return;
             }
 
@@ -75,7 +75,7 @@ namespace GPili.Presentation.Features.Manager
         {
             if (Connectivity.NetworkAccess != NetworkAccess.Internet)
             {
-                await Toast.Make("No internet connection. Please check your network.").Show();
+                await Toast.Make("No internet connection. Please check your network.", ToastDuration.Short).Show();
                 return;
             }
 
@@ -140,7 +140,7 @@ namespace GPili.Presentation.Features.Manager
                 IsLoading = false;
             }
         }
-        
+
         [RelayCommand]
         private async Task CashWithdraw()
         {
@@ -171,7 +171,7 @@ namespace GPili.Presentation.Features.Manager
                     }
                     else
                     {
-                        await Toast.Make("Enter a valid amount.").Show();
+                        await Toast.Make("Enter a valid amount.", ToastDuration.Short).Show();
                     }
                 } while (!validCash);
 
@@ -184,11 +184,11 @@ namespace GPili.Presentation.Features.Manager
 
                 if (isSuccess)
                 {
-                    await Toast.Make(message).Show();
+                    await Toast.Make(message, ToastDuration.Short).Show();
                 }
                 else
                 {
-                    await Toast.Make($"Withdraw failed: {message}").Show();
+                    await Toast.Make($"Withdraw failed: {message}", ToastDuration.Short).Show();
                 }
 
             }
@@ -255,25 +255,26 @@ namespace GPili.Presentation.Features.Manager
                     }
                     else
                     {
-                        await Toast.Make("Enter a valid amount of ₱1000 or more.").Show();
+                        await Toast.Make("Enter a valid amount of ₱1000 or more.", ToastDuration.Short).Show();
                     }
                 } while (!validCash);
 
                 IsLoading = true;
+
                 var (isSuccess, message) = await _auth.LogOut(
-                    CashierState.Info.CashierEmail!,
-                    managerEmail,
-                    cashValue);
+                    cashierEmail: CashierState.Info.CashierEmail!,
+                    managerEmail: managerEmail,
+                    cash: cashValue);
 
                 if (isSuccess)
                 {
                     await _printer.PrintXReading();
-                    await Toast.Make("Cashier logged out successfully.").Show();
+                    await Toast.Make("Cashier logged out successfully.", ToastDuration.Short).Show();
                     await _navigationService.Logout();
                 }
                 else
                 {
-                    await Toast.Make($"Logout failed: {message}").Show();
+                    await Toast.Make($"Logout failed: {message}", ToastDuration.Short).Show();
                 }
             }
             catch (Exception ex)
