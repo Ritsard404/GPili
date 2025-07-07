@@ -93,7 +93,10 @@ internal static class ApplicationExtensions
         services.AddTransientPopup<EditItemView, EditItemViewModel>();
         services.AddTransientPopup<EPaymentView, EPaymentViewModel>();
         services.AddTransientPopup<DiscountView, DiscountViewModel>();
+
+        // Manager
         services.AddTransientPopup<DateSelectionPopup, SelectionOfDateViewModel>();
+        services.AddTransientPopup<TerminalMachinePopup, TerminalMachineViewModel>();
 
         return services;
     }

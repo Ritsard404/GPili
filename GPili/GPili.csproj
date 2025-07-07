@@ -96,6 +96,7 @@
 		<PackageReference Include="UraniumUI" Version="2.12.1" />
 		<PackageReference Include="UraniumUI.Icons.FontAwesome" Version="2.12.1" />
 		<PackageReference Include="UraniumUI.Material" Version="2.12.1" />
+		<PackageReference Include="UraniumUI.Validations.DataAnnotations" Version="2.12.1" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -105,6 +106,9 @@
 	<ItemGroup>
 	  <Compile Update="Presentation\Popups\EPaymentView.xaml.cs">
 	    <DependentUpon>EPaymentView.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Presentation\Popups\Manager\TerminalMachinePopup.xaml.cs">
+	    <DependentUpon>TerminalMachinePopup.xaml</DependentUpon>
 	  </Compile>
 	</ItemGroup>
 
@@ -142,7 +146,7 @@
 	  <MauiXaml Update="Presentation\Popups\ManagerAuthView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Presentation\Popups\Manager\TerminalMachine.xaml">
+	  <MauiXaml Update="Presentation\Popups\Manager\TerminalMachinePopup.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>

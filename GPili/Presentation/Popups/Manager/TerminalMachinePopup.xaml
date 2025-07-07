@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+            xmlns:input="clr-namespace:InputKit.Shared.Controls;assembly=InputKit.Maui"
+            xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+            xmlns:validation="clr-namespace:InputKit.Shared.Validations;assembly=InputKit.Maui"
+            xmlns:v="clr-namespace:UraniumUI.Validations;assembly=UraniumUI.Validations.DataAnnotations"
+            xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+            x:Class="GPili.Presentation.Popups.Manager.TerminalMachinePopup"
+            Color="Transparent">
+    <toolkit:Popup.Resources>
+        <ResourceDictionary>
+            <Style x:Key="EntryInvalidStyle" TargetType="Entry">
+                <Setter Property="BackgroundColor" Value="#FFEBEE" />
+                <!-- Light red background -->
+                <Setter Property="TextColor" Value="Red" />
+            </Style>
+            <Style x:Key="Save" TargetType="Button" BasedOn="{StaticResource KeypadButton}">
+                <Setter Property="BackgroundColor" Value="Green"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="CornerRadius" Value="8"/>
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="Green"/>
+                                    <Setter Property="TextColor" Value="White"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="DarkGrey"/>
+                                    <!-- Darker gold or use a different shade -->
+                                    <Setter Property="TextColor" Value="White"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Disabled">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="#FFF8DC"/>
+                                    <Setter Property="TextColor" Value="#FFB300"/>
+                                    <Setter Property="Opacity" Value="0.5"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+            <Style x:Key="Void" TargetType="Button" BasedOn="{StaticResource KeypadButton}">
+                <Setter Property="BackgroundColor" Value="Red"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="CornerRadius" Value="8"/>
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="Red"/>
+                                    <Setter Property="TextColor" Value="White"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="DarkGrey"/>
+                                    <!-- Darker red -->
+                                    <Setter Property="TextColor" Value="White"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Disabled">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="#FFB3B3"/>
+                                    <!-- Lighter red -->
+                                    <Setter Property="TextColor" Value="#B20000"/>
+                                    <Setter Property="Opacity" Value="0.5"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+
+        </ResourceDictionary>
+    </toolkit:Popup.Resources>
+    <Border
+        Stroke="Black"
+        StrokeShape="RoundRectangle 15"
+        StrokeThickness="3"
+        BackgroundColor="White"
+        WidthRequest="{Binding PopupWidth}"
+        HeightRequest="{Binding PopupHeight}">
+        <Grid RowDefinitions="Auto, *, Auto" RowSpacing="5"
+                  ColumnDefinitions="*, *" ColumnSpacing="10"
+                  Padding="10">
+
+            <Label Text="POS Terminal Information" TextColor="Black"
+                   Grid.Row="0" Grid.ColumnSpan="2"
+                   FontSize="18" FontAttributes="Bold"
+                   HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+            <ScrollView  Padding="10" Grid.Row="1" Grid.ColumnSpan="2">
+                <input:FormView SubmitCommand="{Binding SaveCommand}" Spacing="20">
+                    <ScrollView>
+                        <VerticalStackLayout Spacing="20">
+                            <material:TextField Title="POS Serial Number"
+                                Text="{Binding TerminalConfig.PosSerialNumber, Mode=TwoWay}"
+                                TextColor="Black" BorderColor="Black" AccentColor="#00BCD4">
+                                <validation:RequiredValidation />
+                            </material:TextField>
+
+                            <material:TextField Title="MIN Number"
+                                Text="{Binding TerminalConfig.MinNumber, Mode=TwoWay}"
+                                TextColor="Black" BorderColor="Black" AccentColor="#00BCD4">
+                                <validation:RequiredValidation />
+                            </material:TextField>
+
+                            <material:TextField Title="Accreditation Number"
+                                Text="{Binding TerminalConfig.AccreditationNumber, Mode=TwoWay}"
+                                TextColor="Black" BorderColor="Black" AccentColor="#00BCD4">
+                                <validation:RequiredValidation />
+                            </material:TextField>
+
+                            <material:TextField Title="PTU Number"
+                                Text="{Binding TerminalConfig.PtuNumber, Mode=TwoWay}"
+                                TextColor="Black" BorderColor="Black" AccentColor="#00BCD4">
+                                <validation:RequiredValidation />
+                            </material:TextField>
+
+                            <material:DatePickerField Title="Date Issued"
+                                                      TextColor="Black"
+                                      Date="{Binding TerminalConfig.DateIssued, Mode=TwoWay}"
+                                      AccentColor="#00BCD4">
+                                <validation:RequiredValidation />
+                            </material:DatePickerField>
+
+                            <material:DatePickerField Title="Valid Until"
+                                                      TextColor="Black"
+                                      Date="{Binding TerminalConfig.ValidUntil, Mode=TwoWay}"
+                                      AccentColor="#00BCD4">
+                                <validation:RequiredValidation />
+                            </material:DatePickerField>
+
+                            <material:TextField Title="POS Name"
+                                Text="{Binding TerminalConfig.PosName, Mode=TwoWay}"
+                                TextColor="Black" BorderColor="Black" AccentColor="#00BCD4">
+                                <validation:RequiredValidation />
+                            </material:TextField>
+
+                            <material:TextField Title="Registered Name"
+                                Text="{Binding TerminalConfig.RegisteredName, Mode=TwoWay}"
+                                TextColor="Black" BorderColor="Black" AccentColor="#00BCD4">
+                                <validation:RequiredValidation />
+                            </material:TextField>
+
+                            <material:TextField Title="Operated By"
+                                Text="{Binding TerminalConfig.OperatedBy, Mode=TwoWay}"
+                                TextColor="Black" BorderColor="Black" AccentColor="#00BCD4">
+                                <validation:RequiredValidation />
+                            </material:TextField>
+
+                            <material:TextField Title="Address"
+                                Text="{Binding TerminalConfig.Address, Mode=TwoWay}"
+                                TextColor="Black" BorderColor="Black" AccentColor="#00BCD4">
+                                <validation:RequiredValidation />
+                            </material:TextField>
+
+                            <material:TextField Title="VAT TIN Number"
+                                Text="{Binding TerminalConfig.VatTinNumber, Mode=TwoWay}"
+                                TextColor="Black" BorderColor="Black" AccentColor="#00BCD4">
+                                <validation:RequiredValidation />
+                            </material:TextField>
+
+                            <material:TextField Title="VAT (%)"
+                                Text="{Binding TerminalConfig.Vat, Mode=TwoWay}"
+                                Keyboard="Numeric"
+                                TextColor="Black" BorderColor="Black" AccentColor="#00BCD4">
+                                <validation:RequiredValidation />
+                                <validation:RegexValidation Message="Must be a number" Pattern="^[0-9]+$"/>
+                            </material:TextField>
+
+                            <material:TextField Title="Discount Max"
+                                Text="{Binding TerminalConfig.DiscountMax, Mode=TwoWay}"
+                                Keyboard="Numeric"
+                                TextColor="Black" BorderColor="Black" AccentColor="#00BCD4">
+                                <validation:RequiredValidation />
+                                <validation:RegexValidation Message="Must be a number" Pattern="^[0-9]+(\\.[0-9]+)?$"/>
+                            </material:TextField>
+
+                            <material:TextField Title="Cost Center"
+                                Text="{Binding TerminalConfig.CostCenter, Mode=TwoWay}"
+                                TextColor="Black" BorderColor="Black" AccentColor="#00BCD4">
+                                <validation:RequiredValidation />
+                            </material:TextField>
+
+                            <material:TextField Title="Branch Center"
+                                Text="{Binding TerminalConfig.BranchCenter, Mode=TwoWay}"
+                                TextColor="Black" BorderColor="Black" AccentColor="#00BCD4">
+                                <validation:RequiredValidation />
+                            </material:TextField>
+
+                            <material:TextField Title="Use Center"
+                                Text="{Binding TerminalConfig.UseCenter, Mode=TwoWay}"
+                                TextColor="Black" BorderColor="Black" AccentColor="#00BCD4">
+                                <validation:RequiredValidation />
+                            </material:TextField>
+
+                            <material:TextField Title="Database Name"
+                                Text="{Binding TerminalConfig.DbName, Mode=TwoWay}"
+                                TextColor="Black" BorderColor="Black" AccentColor="#00BCD4">
+                                <validation:RequiredValidation />
+                            </material:TextField>
+
+                            <material:TextField Title="Printer Name"
+                                Text="{Binding TerminalConfig.PrinterName, Mode=TwoWay}"
+                                TextColor="Black" BorderColor="Black" AccentColor="#00BCD4">
+                                <validation:RequiredValidation />
+                            </material:TextField>
+                        </VerticalStackLayout>
+                    </ScrollView>
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,20,0,0">
+                        <Button Text="Cancel"
+                Command="{Binding ClosePopupCommand}"
+                Style="{StaticResource Void}" Grid.Column="0"/>
+                        <Button Text="Save"
+                input:FormView.IsSubmitButton="True"
+                Style="{StaticResource Save}" Grid.Column="1"/>
+                    </Grid>
+                </input:FormView>
+
+            </ScrollView>
+                
+        </Grid>
+    </Border>
+</toolkit:Popup>

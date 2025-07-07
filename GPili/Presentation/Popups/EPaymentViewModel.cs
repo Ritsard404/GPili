@@ -78,7 +78,7 @@ namespace GPili.Presentation.Popups
             if (hasError)
             {
                 await Snackbar.Make(
-                    message: "Please ensure all filled E-Payment entries have both a valid reference and an amount greater than 0."
+                    message: "Please ensure all filled E-Payment entries have both a valid reference and an amount greater than 0.",
                     duration: TimeSpan.FromSeconds(1)).Show();
                 return;
             }

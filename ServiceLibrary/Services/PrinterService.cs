@@ -394,7 +394,7 @@ namespace ServiceLibrary.Services
 
             EnsureDirectoryExists(reportPath);
 
-            string fileName = $"ZInvoice-{DateTimeOffset.UtcNow:MMMM-dd-yyyy-HH-mm-ss}.txt";
+            string fileName = $"ZInvoice-{DateTime.Now:MMMM-dd-yyyy-HH-mm-ss}.txt";
             var filePath = Path.Combine(reportPath, fileName);
 
             var content = new StringBuilder();

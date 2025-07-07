@@ -1,5 +1,6 @@
 ﻿using GPili.Presentation.Popups;
 using GPili.Presentation.Popups.Manager;
+using ServiceLibrary.Models;
 using ServiceLibrary.Services.Interfaces;
 
 namespace GPili.Presentation.Features.Manager
@@ -320,6 +321,17 @@ namespace GPili.Presentation.Features.Manager
         private async Task GoBack()
         {
             await _navigationService.GoBack();
+        }
+    
+        [RelayCommand]
+        private async Task Settings()
+        {
+            IsLoading = true;
+
+            var popup = new TerminalMachinePopup();
+            var result = await Shell.Current.ShowPopupAsync(popup);
+
+            IsLoading = false;
         }
     
     }
