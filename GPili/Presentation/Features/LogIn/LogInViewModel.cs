@@ -64,7 +64,7 @@ namespace GPili.Presentation.Features.LogIn
                 switch (role)
                 {
                     case RoleType.Manager:
-                        await _navigationService.GoToManager();
+                        await _navigationService.GoToManager(null);
                         CashierState.Info.UpdateCashierInfo(name, email, role);
                         return;
 

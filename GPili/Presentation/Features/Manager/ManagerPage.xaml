@@ -7,7 +7,7 @@
              xmlns:converter="clr-namespace:GPili.Converters"
              Title="ManagerPage">
     <ContentPage.Resources>
-        <converter:InverseBoolConverter x:Key="InverseBoolConverter"/>
+        <converter:InverseBoolConverter x:Key="InverseBoolConverter" />
         <ResourceDictionary>
             <Style x:Key="ButtonStyle" TargetType="Button">
                 <Setter Property="BorderColor" Value="black" />
@@ -75,7 +75,7 @@
     
     <Grid ColumnDefinitions="0.7*, 0.3*"
       RowDefinitions="*, Auto"
-      ColumnSpacing="10" Padding="10">
+      ColumnSpacing="10" Padding="10,10,10,5">
 
         <!-- Left Panel -->
         <Grid Grid.Column="0" Grid.Row="0">
@@ -109,22 +109,25 @@
                                 Grid.Row="0" Grid.Column="2"/>
 
                         <Button Text="Cash Pull-Out" ImageSource="cash_pullout.png"
-                                ContentLayout="top, 0"
+                                ContentLayout="top, 0" IsEnabled="{Binding IsCashiering}"
                                 Grid.Row="1" Grid.Column="0"
                                 Command="{Binding CashWithdrawCommand}"/>
 
                         <Button Text="Cash Track" ImageSource="cashtrack.png"
-                                ContentLayout="top, 0"
+                                ContentLayout="top, 0" IsEnabled="{Binding IsCashiering}"
                                 Grid.Row="1" Grid.Column="2"
                                 Command="{Binding CashTrackCommand}"/>
 
 
                         <Button Text="Change Mode"
-                                Grid.Row="3" Grid.Column="0"/>
+                                Grid.Row="3" Grid.Column="0"
+                                IsVisible="{Binding IsCashiering, Converter={StaticResource InverseBoolConverter}}"/>
+                        
                         <Button Text="Log Out" ImageSource="logout.png"
                                 ContentLayout="top, 0" Style="{StaticResource RedButton}"
                                 Grid.Row="3" Grid.Column="2"
-                                Command="{Binding LogoutCashierCommand}"/>
+                                Command="{Binding LogoutCashierCommand}"
+                                IsVisible="{Binding IsCashiering}"/>
 
                     </Grid>
                 </Grid>

@@ -2,7 +2,7 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="GPili.Presentation.Contents.FooterView">
-    <HorizontalStackLayout Spacing="30" Padding="10, 0" Margin="0,0,0,5" VerticalOptions="End" HorizontalOptions="FillAndExpand">
+    <HorizontalStackLayout Spacing="30" Padding="10, 0" VerticalOptions="End" HorizontalOptions="FillAndExpand">
 
         <Label HorizontalOptions="StartAndExpand" HeightRequest="25" VerticalOptions="Center">
             <Label.FormattedText>

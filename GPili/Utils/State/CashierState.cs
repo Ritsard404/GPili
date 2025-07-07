@@ -22,5 +22,11 @@ namespace GPili.Utils.State
             CashierEmail = email;
             Role = role;
         }
+        public void Reset()
+        {
+            CashierName = null;
+            CashierEmail = null;
+            Role = null;
+        }
     }
 }

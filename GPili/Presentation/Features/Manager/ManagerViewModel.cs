@@ -3,6 +3,7 @@ using ServiceLibrary.Services.Interfaces;
 
 namespace GPili.Presentation.Features.Manager
 {
+    [QueryProperty(nameof(ManagerEmail), nameof(ManagerEmail))]
     public partial class ManagerViewModel(IInventory _inventory,
         IAuditLog _auditLog,
         IAuth _auth,
@@ -12,6 +13,12 @@ namespace GPili.Presentation.Features.Manager
         INavigationService _navigationService,
         IPrinterService _printer) : ObservableObject
     {
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsCashiering))]
+        private string? _managerEmail;
+
+        public bool IsCashiering => !string.IsNullOrEmpty(ManagerEmail);
+
         [ObservableProperty]
         private DateTime _dateToPushJournal = DateTime.Now;
 
@@ -153,27 +160,27 @@ namespace GPili.Presentation.Features.Manager
                     return;
 
                 decimal cashValue = 0;
-                bool validCash = false;
+                //bool validCash = false;
 
-                do
-                {
+                //do
+                //{
                     var input = await Shell.Current.DisplayPromptAsync(
                         title: "Cash Withdraw",
                         message: "Please enter the total amount of cash in the drawer:",
                         accept: "Submit Cash", "", "0.00", -1, Keyboard.Numeric);
 
-                    if (input == null)
-                        continue; // user clicked cancel — keep looping
+                    //if (input == null)
+                    //    continue; // user clicked cancel — keep looping
 
                     if (decimal.TryParse(input, out cashValue))
                     {
-                        validCash = true;
+                        //validCash = true;
                     }
                     else
                     {
                         await Toast.Make("Enter a valid amount.", ToastDuration.Short).Show();
                     }
-                } while (!validCash);
+                //} while (!validCash);
 
                 IsLoading = true;
 
@@ -237,27 +244,37 @@ namespace GPili.Presentation.Features.Manager
                     return;
 
                 decimal cashValue = 0;
-                bool validCash = false;
+                //bool validCash = false;
 
-                do
+                //do
+                //{
+                //    var input = await Shell.Current.DisplayPromptAsync(
+                //        title: "Cash Out Drawer",
+                //        message: "Please enter the total amount of cash in the drawer:",
+                //        accept: "Submit Cash", "", "1000.00", -1, Keyboard.Numeric);
+
+                //    if (input == null)
+                //        continue; // user clicked cancel — keep looping
+
+                //    if (decimal.TryParse(input, out cashValue) && cashValue >= 1000)
+                //    {
+                //        validCash = true;
+                //    }
+                //    else
+                //    {
+                //        await Toast.Make("Enter a valid amount of ₱1000 or more.", ToastDuration.Short).Show();
+                //    }
+                //} while (!validCash);
+
+                var input = await Shell.Current.DisplayPromptAsync(
+                    title: "Cash Out Drawer",
+                    message: "Please enter the total amount of cash in the drawer:",
+                    accept: "Submit Cash", "", "1000.00", -1, Keyboard.Numeric);
+
+                if (decimal.TryParse(input, out cashValue) && cashValue < 1000)
                 {
-                    var input = await Shell.Current.DisplayPromptAsync(
-                        title: "Cash Out Drawer",
-                        message: "Please enter the total amount of cash in the drawer:",
-                        accept: "Submit Cash", "", "1000.00", -1, Keyboard.Numeric);
-
-                    if (input == null)
-                        continue; // user clicked cancel — keep looping
-
-                    if (decimal.TryParse(input, out cashValue) && cashValue >= 1000)
-                    {
-                        validCash = true;
-                    }
-                    else
-                    {
-                        await Toast.Make("Enter a valid amount of ₱1000 or more.", ToastDuration.Short).Show();
-                    }
-                } while (!validCash);
+                    await Toast.Make("Enter a valid amount of ₱1000 or more.", ToastDuration.Short).Show();
+                }
 
                 IsLoading = true;
 
@@ -270,6 +287,7 @@ namespace GPili.Presentation.Features.Manager
                 {
                     await _printer.PrintXReading();
                     await Toast.Make("Cashier logged out successfully.", ToastDuration.Short).Show();
+                    ManagerEmail = null;
                     await _navigationService.Logout();
                 }
                 else

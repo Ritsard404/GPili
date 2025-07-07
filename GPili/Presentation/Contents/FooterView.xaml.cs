@@ -12,8 +12,6 @@ public partial class FooterView : ContentView, IDisposable
     {
         InitializeComponent();
 
-        PosName.Text = $"POS: {POSInfo.Terminal.PosName}{(POSInfo.Terminal.IsTrainMode ? " (Training)" : "")}";
-
         _timer = new PeriodicTimer(TimeSpan.FromSeconds(1));
         UpdateDate();
 
@@ -39,8 +37,10 @@ public partial class FooterView : ContentView, IDisposable
                 Dispatcher.Dispatch(() =>
                 {
                     if (Date != null)
-                        Date.Text = "Date: " + now.ToString("dd/MM/yyyy(ddd) hh:mm:ss");
+                        Date.Text = "Date: " + now.ToString("dd/MM/yyyy(ddd) hh:mm:ss tt");
 
+
+                    PosName.Text = $"POS: {POSInfo.Terminal.PosName}{(POSInfo.Terminal.IsTrainMode ? " (Training)" : "")}";
                     NetworkStatus.Text = isConnected ? "Online" : "Offline";
                     NetworkStatus.TextColor = isConnected ? Colors.Green : Colors.Red;
                 });

@@ -418,7 +418,7 @@ namespace GPili.Presentation.Features.Cashiering
             if (string.IsNullOrWhiteSpace(managerEmail))
                 return;
 
-            await _navigationService.GoToManager();
+            await _navigationService.GoToManager(managerEmail);
         }
     }
 }

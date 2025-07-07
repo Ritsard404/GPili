@@ -12,18 +12,22 @@ namespace GPili.Services
         Task InitializeAsync();
         Task NavigateToAsync(string route, IDictionary<string, object> routeParameters = null);
         Task GoBack();
-        Task GoToManager();
+        Task GoToManager(string? managerEmail);
         Task Logout();
     }
-    public class NavigationService(IAuth _auth, IInventory _inventory, IGPiliTerminalMachine _terminalMachine) : INavigationService
+    public class NavigationService(IAuth _auth, IGPiliTerminalMachine _terminalMachine) : INavigationService
     {
         public async Task GoBack()
         {
             await Shell.Current.GoToAsync("..");
         }
-        public async Task GoToManager()
+        public async Task GoToManager(string? managerEmail)
         {
-            await NavigateToAsync(AppRoutes.Manager);
+            await NavigateToAsync(AppRoutes.Manager, 
+                new Dictionary<string, object>
+                {
+                    {"ManagerEmail", managerEmail }
+                });
         }
         public async Task InitializeAsync()
         {
@@ -39,7 +43,7 @@ namespace GPili.Services
             }
             else
             {
-                CashierState.Info.UpdateCashierInfo("", "", "");
+                CashierState.Info.Reset();
                 await NavigateToAsync(AppRoutes.Login);
             }
 
@@ -47,7 +51,7 @@ namespace GPili.Services
         public async Task Logout()
         {
             await NavigateToAsync(AppRoutes.Login);
-            CashierState.Info.UpdateCashierInfo("","","");
+            CashierState.Info.Reset();
         }
         public Task NavigateToAsync(string route, IDictionary<string, object> routeParameters =
             null)

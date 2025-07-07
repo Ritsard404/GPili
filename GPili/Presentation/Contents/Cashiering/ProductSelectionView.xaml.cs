@@ -131,6 +131,10 @@ public partial class ProductSelectionView : ContentView
             case KeypadActions.ENTER:
                 ENTER.SendClicked();
                 break;
+
+            case KeypadActions.MANAGER:
+                MANAGER.SendClicked();
+                break;
         }
     }
 }

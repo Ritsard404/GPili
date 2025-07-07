@@ -24,6 +24,5 @@ namespace ServiceLibrary.Services.Interfaces
         Task<(bool isSuccess, string message)> NewManager(User manager);
         Task<(bool isSuccess, string message)> UpdateManager(User manager);
         Task<(bool isSuccess, string message)> DeleteManager(string email);
-
     }
 }

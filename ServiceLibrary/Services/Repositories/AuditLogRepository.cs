@@ -428,6 +428,7 @@ namespace ServiceLibrary.Services.Repositories
                     if (response.IsSuccessStatusCode)
                     {
                         journal.IsPushed = true;
+                        await Task.Delay(1500);
                     }
                     else
                     {
