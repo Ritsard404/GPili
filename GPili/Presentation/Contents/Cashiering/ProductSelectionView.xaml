@@ -134,6 +134,7 @@
                 <Entry Placeholder="Search Product...(CTRL+S)" Grid.Column="0"
                        x:Name="SearchEntry"
                        Text="{Binding SearchProduct}"
+                       TextChanged="SearchEntry_TextChanged"
                        WidthRequest="200"
                        ClearButtonVisibility="WhileEditing"
                        Background="White"

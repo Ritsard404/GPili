@@ -6,6 +6,9 @@ namespace GPili.Presentation.Contents.Cashiering;
 public partial class ProductSelectionView : ContentView
 {
     private CashieringViewModel _vm;
+    private string _lastBarcode = null;
+    private DateTime _lastScanTime = DateTime.MinValue;
+
     public ProductSelectionView()
     {
         InitializeComponent();
@@ -135,6 +138,24 @@ public partial class ProductSelectionView : ContentView
             case KeypadActions.MANAGER:
                 MANAGER.SendClicked();
                 break;
+        }
+    }
+
+    private void SearchEntry_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        // Only trigger if the text is not empty and has changed
+        if (!string.IsNullOrWhiteSpace(e.NewTextValue) && e.NewTextValue != _lastBarcode)
+        {
+            _lastBarcode = e.NewTextValue;
+            _lastScanTime = DateTime.Now;
+
+            // Trigger the SearchCommand
+            if (_vm?.SearchCommand.CanExecute(null) == true)
+                _vm.SearchCommand.Execute(null);
+        }
+        else if (string.IsNullOrWhiteSpace(e.NewTextValue))
+        {
+            _lastBarcode = null;
         }
     }
 }

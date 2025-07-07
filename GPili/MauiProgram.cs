@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
+using UraniumUI;
 
 #if WINDOWS
 using Microsoft.Maui.LifecycleEvents;
@@ -24,8 +25,11 @@ namespace GPili
                     fonts.AddFont("Nunito-Bold.ttf", "NunitoBold");
                     fonts.AddFont("Nunito-ExtraBold.ttf", "NunitoExtrabold");
                     fonts.AddFont("Nunito-Black.ttf", "NunitoBlack");
+                    fonts.AddFontAwesomeIconFonts();
                 })
-                .UseMauiCommunityToolkit();
+                .UseMauiCommunityToolkit()
+                .UseUraniumUI()
+                .UseUraniumUIMaterial();
 
 
 #if WINDOWS
