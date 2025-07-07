@@ -1,8 +1,3 @@
-using Microsoft.Maui.Controls;
-using Microsoft.Maui.Devices;
-using Microsoft.Maui.Dispatching;
-using System;
-
 namespace GPili.Presentation.Contents
 {
     public partial class FooterView : ContentView, IDisposable

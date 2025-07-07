@@ -107,7 +107,7 @@ namespace ServiceLibrary.Services
         public async Task PrintInvoice(InvoiceDTO invoiceInfo)
         {
             var folderPath = FolderPath.SalesReport.Invoices;
-            var filePath = Path.Combine(folderPath, $"{invoiceInfo.InvoiceNum} {invoiceInfo.InvoiceDate}.txt");
+            var filePath = Path.Combine(folderPath, $"{invoiceInfo.InvoiceNum}_{DateTime.Now.ToString("yyyy-dd-MM")}.txt");
             var isTrainMode = invoiceInfo.BusinesDetails.IsTrainMode;
 
             EnsureDirectoryExists(folderPath);

@@ -10,6 +10,13 @@ namespace GPili.Converters
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
             => value is bool b ? !b : value;
     }
+    public class BoolToTextStatus : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            => (bool)value ? "Available" : "Unavailable";
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            => value is bool b ? !b : value;
+    }
     public class GreaterThanZeroToBoolConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

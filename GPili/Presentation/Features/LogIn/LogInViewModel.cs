@@ -59,14 +59,19 @@ namespace GPili.Presentation.Features.LogIn
 
                 if (!isSuccess)
                 {
-                    await Snackbar.Make(message, duration: TimeSpan.FromSeconds(1)).Show();
+                    await Snackbar.Make(message, duration: TimeSpan.FromSeconds(2)).Show();
                     return;
                 }
 
                 switch (role)
                 {
+                    case RoleType.Developer:
+                        await _navigationService.GoToManager(email, role == RoleType.Developer);
+                        CashierState.Info.UpdateCashierInfo(name, email, role);
+                        return;
+
                     case RoleType.Manager:
-                        await _navigationService.GoToManager(null);
+                        await _navigationService.GoToManager(email);
                         CashierState.Info.UpdateCashierInfo(name, email, role);
                         return;
 

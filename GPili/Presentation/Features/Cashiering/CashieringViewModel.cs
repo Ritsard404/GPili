@@ -414,10 +414,7 @@ namespace GPili.Presentation.Features.Cashiering
             var result = await _popupService.ShowPopupAsync<ManagerAuthViewModel>();
             var managerEmail = result as string;
 
-            if (string.IsNullOrWhiteSpace(managerEmail))
-                return;
-
-            await _navigationService.GoToManager(managerEmail);
+            await _navigationService.GoToManager();
         }
     }
 }

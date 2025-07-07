@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+            x:Class="GPili.Presentation.Features.Manager.ProductsPage"
+            xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+            xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+            xmlns:validation="clr-namespace:InputKit.Shared.Validations;assembly=InputKit.Maui"
+            xmlns:v="clr-namespace:UraniumUI.Validations;assembly=UraniumUI.Validations.DataAnnotations"
+            xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
+            xmlns:model="clr-namespace:ServiceLibrary.Models;assembly=ServiceLibrary"
+            xmlns:footer="clr-namespace:GPili.Presentation.Contents"
+             xmlns:converter="clr-namespace:GPili.Converters"
+             x:Name="ProductsPageRoot">
+    <ContentPage.Resources>
+        <converter:BoolToTextStatus x:Key="BoolToTextStatus" />
+        <ResourceDictionary>
+            <Style x:Key="ButtonStyle" TargetType="Button">
+                <Setter Property="BorderColor" Value="black" />
+                <Setter Property="BorderWidth" Value="1" />
+                <Setter Property="BackgroundColor" Value="Aqua" />
+                <Setter Property="TextColor" Value="{StaticResource Gray900}" />
+                <Setter Property="CornerRadius" Value="15" />
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup Name="CommonStates">
+                            <VisualState Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="Aquamarine" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState Name="PointerOver">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="White" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="Aqua" />
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
+        <Style x:Key="RedButton" TargetType="Button">
+            <Setter Property="BackgroundColor" Value="Red"/>
+            <Setter Property="TextColor" Value="White"/>
+            <Setter Property="FontAttributes" Value="Bold"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="VisualStateManager.VisualStateGroups">
+                <VisualStateGroupList>
+                    <VisualStateGroup x:Name="CommonStates">
+                        <VisualState x:Name="Normal">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor" Value="Red"/>
+                                <Setter Property="TextColor" Value="White"/>
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState x:Name="Pressed">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor" Value="DarkGrey"/>
+                                <!-- Darker red -->
+                                <Setter Property="TextColor" Value="White"/>
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState x:Name="Disabled">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor" Value="#FFB3B3"/>
+                                <!-- Lighter red -->
+                                <Setter Property="TextColor" Value="#B20000"/>
+                                <Setter Property="Opacity" Value="0.5"/>
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateGroupList>
+            </Setter>
+        </Style>
+    </ContentPage.Resources>
+    <Grid  RowDefinitions="Auto,*, Auto, Auto" RowSpacing="10"
+               HorizontalOptions="Fill" VerticalOptions="Fill"
+               Padding="10">
+        <!--Search Bar-->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto, Auto, *, Auto" ColumnSpacing="10">
+            <material:TextField Title="Search Product..." Text="{Binding SearchProduct}"
+                                    Grid.Column="0"
+                                    WidthRequest="300"
+                                    Icon="{FontImageSource FontFamily=FASolid, Glyph={x:Static fa:Solid.MagnifyingGlass}, Color=Black}"
+                                    BorderColor="White" TextColor="White" AccentColor="Aqua">
+                <material:TextField.Behaviors>
+                    <toolkit:EventToCommandBehavior
+                          EventName="Completed"
+                          Command="{Binding SearchCommand}" />
+                </material:TextField.Behaviors>
+            </material:TextField>
+            <Button Grid.Column="1" StyleClass="FilledButton" 
+                    Text="Search" FontSize="Small"
+                    Command="{Binding SearchCommand}">
+            </Button>
+            <Button Grid.Column="3" StyleClass="FilledButton" 
+                    Text="New Product" FontSize="Small">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="FASolid"
+                                     Glyph="{x:Static fa:Solid.Plus}"
+                                     Color="Black" Size="16"/>
+                </Button.ImageSource>
+            </Button>
+        </Grid>
+        <!--Product List-->
+        <Grid Grid.Row="1">
+            <ScrollView Orientation="Horizontal">
+                <Grid RowDefinitions="Auto,*">
+                    <!-- FIXED HEADER ROW -->
+                    <Border Grid.Row="0"
+                Stroke="Transparent"
+                StrokeShape="RoundRectangle 12,12,0,0"
+                StrokeThickness="0" 
+                Background="#383949">
+                        <Grid ColumnDefinitions="180,100,100,100,80,100,180,80,120,120" Padding="12"
+                      ColumnSpacing="10">
+                            <Label Text="Name" Grid.Column="0" FontAttributes="Bold" />
+                            <Label Text="Price" Grid.Column="1" FontAttributes="Bold" />
+                            <Label Text="Cost" Grid.Column="2" FontAttributes="Bold" />
+                            <Label Text="Unit" Grid.Column="3" FontAttributes="Bold" />
+                            <Label Text="Status" Grid.Column="4" FontAttributes="Bold" />
+                            <Label Text="Vat Type" Grid.Column="5" FontAttributes="Bold" />
+                            <Label Text="Category" Grid.Column="6" FontAttributes="Bold" />
+                            <Label Text="On Hand" Grid.Column="7" FontAttributes="Bold" />
+                            <Label Text="Timestamp" Grid.Column="8" FontAttributes="Bold" />
+                            <Label Text="Action" HorizontalOptions="Center" Grid.Column="9" FontAttributes="Bold" />
+                        </Grid>
+                    </Border>
+
+                    <!-- SCROLLABLE ITEMS -->
+                    <Border Grid.Row="1"
+                Stroke="Transparent"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 0,0,12,12"
+                Background="#121125" Margin="0,0,0,5">
+                        <CollectionView
+                    ItemsSource="{Binding Products}"
+                    SelectionMode="Single"
+                    Margin="0,0,0,5"
+                    ItemSizingStrategy="MeasureAllItems">
+
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="model:Product">
+                                    <Grid ColumnDefinitions="180,100,100,100,80,100,180,80,120,120"
+                                    Padding="15,7,15,7" Margin="4"
+                                    ColumnSpacing="10">
+
+                                        <Label FontSize="12" Text="{Binding Name}"
+                                        Grid.Column="0" />
+                                        <Label Text="{Binding Price}"
+                                        Grid.Column="1" />
+                                        <Label Text="{Binding Cost}"
+                                        Grid.Column="2" />
+                                        <Label Text="{Binding BaseUnit}"
+                                        Grid.Column="3" />
+                                        <Label Text="{Binding IsAvailable, Converter={StaticResource BoolToTextStatus}}"
+                                        Grid.Column="4" />
+                                        <Label Text="{Binding VatType}"
+                                        Grid.Column="5" />
+                                        <Label Text="{Binding Category.CtgryName}"
+                                        Grid.Column="6" />
+                                        <Label Text="{Binding Quantity}"
+                                        Grid.Column="7" />
+                                        <Grid Grid.Column="8" RowDefinitions="Auto, Auto">
+                                            <Label Text="{Binding CreatedAt, StringFormat='{}{0:dd/MM/yyyy}'}"
+                                            Grid.Row="0" />
+                                            <Label Text="{Binding UpdatedAt, StringFormat='{}{0:dd/MM/yyyy}'}"
+                                            Grid.Row="1" />
+                                        </Grid>
+
+                                        <Button Text="Edit"
+                                                Grid.Column="9" 
+                                                Command="{Binding BindingContext.EditProductCommand, Source={x:Reference ProductsPageRoot}}"
+                                                CommandParameter="{Binding .}" >
+                                            <Button.ImageSource>
+                                                <FontImageSource FontFamily="FASolid"
+                                                     Glyph="{x:Static fa:Solid.Pencil}"
+                                                     Color="Black" Size="12" />
+                                            </Button.ImageSource>
+                                        </Button>
+                                        <!--<Grid.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                        Command="{Binding BindingContext.AddItemCommand, Source={x:Reference ProductSelectionViewRoot}}"
+                                        CommandParameter="{Binding .}" />
+                                    </Grid.GestureRecognizers>-->
+
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </Border>
+                </Grid>
+            </ScrollView>
+        </Grid>
+        <Grid Grid.Row="2" ColumnDefinitions="Auto, *,Auto">
+            <Button Text="Back" ImageSource="solid_back.png"
+                Grid.Row="3" Grid.Column="0" FontSize="Medium"
+                ContentLayout="left"  Style="{StaticResource RedButton}"
+                    Command="{Binding BackCommand}"/>
+            <Button Text="Print Products"
+                Grid.Row="3"
+                Grid.Column="2"
+                FontSize="Medium"
+                ContentLayout="Left"
+                >
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="FASolid"
+                         Glyph="{x:Static fa:Solid.Print}"
+                         Color="Black" Size="16"/>
+                </Button.ImageSource>
+            </Button>
+        </Grid>
+        <Grid Grid.Row="3">
+            <!--<footer:UserFooterView />-->
+        </Grid>
+
+        <!-- Loader Overlay -->
+        <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Grid.RowSpan="4"
+          BackgroundColor="#80000000" 
+            IsVisible="{Binding IsLoading}"
+            ZIndex="1">
+            <!-- Ensure it's on top -->
+
+            <StackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="10"
+                 WidthRequest="250">
+                <ActivityIndicator IsRunning="True" Color="White" WidthRequest="50" HeightRequest="50" />
+
+                <!-- Status message from progress -->
+                <Label Text="Loading..." TextColor="White" FontSize="16" HorizontalTextAlignment="Center" />
+
+            </StackLayout>
+        </Grid>
+    </Grid>
+</ContentPage>

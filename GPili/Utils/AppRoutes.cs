@@ -7,5 +7,6 @@
         public const string Cashiering = "//cashieringPage";
 
         public const string Manager = "managerPage";
+        public const string ProductPage = "managerPage/productPage";
     }
 }

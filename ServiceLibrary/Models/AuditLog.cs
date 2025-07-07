@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ServiceLibrary.Models
 {
@@ -6,7 +7,13 @@ namespace ServiceLibrary.Models
     {
         [Key]
         public int Id { get; set; }
+
+        [ForeignKey(nameof(Cashier))]
+        public string? CashierEmail { get; set; }
         public User? Cashier { get; set; }
+
+        [ForeignKey(nameof(Manager))]
+        public string? ManagerEmail { get; set; }
         public User? Manager { get; set; }
         public required string Action { get; set; }
         public required string Changes { get; set; }

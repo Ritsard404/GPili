@@ -2,13 +2,16 @@
 using GPili.Presentation.Popups.Manager;
 using ServiceLibrary.Models;
 using ServiceLibrary.Services.Interfaces;
+using ServiceLibrary.Utils;
 
 namespace GPili.Presentation.Features.Manager
 {
     [QueryProperty(nameof(ManagerEmail), nameof(ManagerEmail))]
+    [QueryProperty(nameof(IsDeveloper), nameof(IsDeveloper))]
     public partial class ManagerViewModel(IInventory _inventory,
         IAuditLog _auditLog,
         IAuth _auth,
+        IGPiliTerminalMachine _terminalMachine,
         IEPayment _ePayment,
         IReport _report,
         IPopupService _popupService,
@@ -32,7 +35,19 @@ namespace GPili.Presentation.Features.Manager
 
         [ObservableProperty]
         private bool _isLoading = false;
-        public bool IsLoaderOnly => ProgressValue <= 0;
+        public bool IsLoaderOnly => ProgressValue <= 0; 
+        
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(ModeText))]
+        [NotifyPropertyChangedFor(nameof(ModeButtonColor))]
+        private bool _isTrainingMode = POSInfo.Terminal.IsTrainMode;
+
+        public string ModeText => IsTrainingMode ? "Training Mode" : "Live Mode"; 
+        public Color ModeButtonColor => IsTrainingMode ? Colors.Orange : Colors.Green;
+
+        [ObservableProperty]
+        private bool _isDeveloper = false;
+
 
         [RelayCommand]
         private async Task LoadData()
@@ -330,6 +345,27 @@ namespace GPili.Presentation.Features.Manager
 
             var popup = new TerminalMachinePopup();
             var result = await Shell.Current.ShowPopupAsync(popup);
+
+            IsLoading = false;
+        }
+    
+        [RelayCommand]
+        private async Task Products()
+        {
+            await _navigationService.NavigateToAsync(AppRoutes.ProductPage);
+        }
+    
+        [RelayCommand]
+        private async Task ChangeMode()
+        {
+            IsLoading = true;
+            if (!string.IsNullOrEmpty(ManagerEmail))
+            {
+                var result = await _terminalMachine.ChangeMode(ManagerEmail);
+
+                IsTrainingMode = result;
+                POSInfo.Terminal = await _terminalMachine.GetTerminalInfo();
+            }
 
             IsLoading = false;
         }

@@ -1,64 +1,64 @@
-﻿using ServiceLibrary.Models;
-
-namespace GPili.Presentation.Contents;
+﻿namespace GPili.Presentation.Contents;
 
 public partial class UserFooterView : ContentView, IDisposable
 {
-    private readonly PeriodicTimer _timer;
-    private readonly CancellationTokenSource _cts = new();
+    IDispatcherTimer? _timer;
 
     public UserFooterView()
     {
         InitializeComponent();
 
-        _timer = new PeriodicTimer(TimeSpan.FromSeconds(1));
-        UpdateDate();
     }
 
     protected override void OnParentSet()
     {
         base.OnParentSet();
 
-        if (Parent == null)
-        {
-            Dispose();
-        }
+        if (Parent != null)
+            StartTimer();
+        else
+            StopTimer();
     }
 
-    private async void UpdateDate()
+    void StartTimer()
     {
-        try
-        {
-            while (await _timer.WaitForNextTickAsync(_cts.Token))
-            {
-                var now = DateTime.Now;
-                var isConnected = Connectivity.NetworkAccess == NetworkAccess.Internet;
-                Dispatcher.Dispatch(() =>
-                {
-                    if (Date != null)
-                        Date.Text = "Date: " + now.ToString("dd/MM/yyyy(ddd) hh:mm:ss tt");
+        if (_timer is not null)
+            return;
 
-                    User.Text = ("User: " + CashierState.Info.CashierName) ?? "Unknown User";
-                    PosName.Text = $"POS: {POSInfo.Terminal.PosName}{(POSInfo.Terminal.IsTrainMode ? " (Training)" : "")}";
-                    NetworkStatus.Text = isConnected ? "Online" : "Offline";
-                    NetworkStatus.TextColor = isConnected ? Colors.Green : Colors.Red;
-                });
-            }
-        }
-        catch (OperationCanceledException)
-        {
-            // Timer was cancelled, safe to ignore
-        }
-        catch (Exception ex)
-        {
-            // Optionally log or handle unexpected exceptions
-        }
+        _timer = Dispatcher.CreateTimer();
+        _timer.Interval = TimeSpan.FromSeconds(1);
+        _timer.Tick += OnTick;
+        _timer.Start();
+    }
+
+    void StopTimer()
+    {
+        if (_timer is null)
+            return;
+
+        _timer.Stop();
+        _timer.Tick -= OnTick;
+        _timer = null;
+    }
+
+    void OnTick(object? sender, EventArgs e)
+    {
+        var now = DateTime.Now;
+        var isConnected = Connectivity.NetworkAccess == NetworkAccess.Internet;
+
+        Date.Text = $"Date: {now:dd/MM/yyyy(ddd) hh:mm:ss tt}";
+
+        User.Text = ("User: " + CashierState.Info.CashierName) ?? "Unknown User";
+
+        PosName.Text = $"POS: {POSInfo.Terminal.PosName}" +
+                              (POSInfo.Terminal.IsTrainMode ? " (Training)" : "");
+        NetworkStatus.Text = isConnected ? "Online" : "Offline";
+        NetworkStatus.TextColor = isConnected ? Colors.Green : Colors.Red;
+
     }
 
     public void Dispose()
     {
-        _cts.Cancel();
-        _timer?.Dispose();
-        _cts.Dispose();
+        StopTimer();
     }
 }

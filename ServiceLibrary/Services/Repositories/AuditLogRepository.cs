@@ -31,7 +31,7 @@ namespace ServiceLibrary.Services.Repositories
 
             _dataContext.AuditLog.Add(new AuditLog
             {
-                Cashier = cashier,
+                CashierEmail = cashier.Email,
                 Action = action,
                 Changes = changes,
                 Amount = amount,
@@ -128,7 +128,7 @@ namespace ServiceLibrary.Services.Repositories
 
             _dataContext.AuditLog.Add(new AuditLog
             {
-                Manager = manager,
+                ManagerEmail = manager.Email,
                 Action = action,
                 Changes = changes,
                 Amount = amount,

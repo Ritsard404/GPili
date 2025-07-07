@@ -1,5 +1,4 @@
-﻿
-using GPili.Utils.State;
+﻿using GPili.Utils.State;
 using Microsoft.Maui.ApplicationModel.Communication;
 using ServiceLibrary.Services.Interfaces;
 using ServiceLibrary.Utils;
@@ -12,7 +11,7 @@ namespace GPili.Services
         Task InitializeAsync();
         Task NavigateToAsync(string route, IDictionary<string, object> routeParameters = null);
         Task GoBack();
-        Task GoToManager(string? managerEmail);
+        Task GoToManager(string? managerEmail = null, bool isDeveloper = false);
         Task Logout();
     }
     public class NavigationService(IAuth _auth, IGPiliTerminalMachine _terminalMachine) : INavigationService
@@ -21,12 +20,13 @@ namespace GPili.Services
         {
             await Shell.Current.GoToAsync("..");
         }
-        public async Task GoToManager(string? managerEmail)
+        public async Task GoToManager(string? managerEmail = null, bool isDeveloper = false)
         {
             await NavigateToAsync(AppRoutes.Manager, 
                 new Dictionary<string, object>
                 {
-                    {"ManagerEmail", managerEmail }
+                    {"ManagerEmail", managerEmail },
+                    {"IsDeveloper", isDeveloper }
                 });
         }
         public async Task InitializeAsync()
@@ -38,7 +38,6 @@ namespace GPili.Services
             {
 
                 CashierState.Info.UpdateCashierInfo(result.cashierName, result.cashierEmail, RoleType.Cashier);
-
                 await NavigateToAsync(AppRoutes.Cashiering);
             }
             else

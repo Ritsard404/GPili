@@ -34,7 +34,7 @@ namespace ServiceLibrary.Services.Repositories
                 .Where(p => p.IsAvailable)
                 .OrderBy(p => p.Category.CtgryName)
                 .ThenBy(p => p.Name)
-                .Take(100) // Limit to 100 products for performance
+                .Take(30) // Limit to 30 products for performance
                 .ToArrayAsync();
         }
 

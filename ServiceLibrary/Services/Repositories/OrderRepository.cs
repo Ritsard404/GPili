@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using ServiceLibrary.Data;
 using ServiceLibrary.Models;
 using ServiceLibrary.Services.DTO.Order;
@@ -498,6 +499,7 @@ namespace ServiceLibrary.Services.Repositories
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
+                Debug.WriteLine($"Payment failed: {ex.Message}");
                 return (false, $"Payment failed: {ex.Message}", null);
             }
         }

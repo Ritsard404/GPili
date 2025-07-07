@@ -6,3 +6,4 @@ PM:cd ServiceLibrary
 dotnet ef migrations add GPili
 
 test manager: manager@gpili.com
+test developer: ebisx@gpili.com

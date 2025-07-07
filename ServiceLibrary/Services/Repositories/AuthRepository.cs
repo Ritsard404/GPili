@@ -182,8 +182,6 @@ namespace ServiceLibrary.Services.Repositories
         {
             // Fetch both users in a single query
             var users = await _dataContext.User
-                .Where(u => (u.Email == managerEmail && u.Role != RoleType.Cashier) ||
-                            (u.Email == cashierEmail && u.Role == RoleType.Cashier))
                 .ToListAsync();
 
             var isTrainMode = await _dataContext.PosTerminalInfo.Select(t => t.IsTrainMode).FirstOrDefaultAsync();
@@ -197,7 +195,10 @@ namespace ServiceLibrary.Services.Repositories
             if (manager != null && cashier == null)
             {
                 await _auditLog.AddManagerAudit(manager, AuditActionType.Login, "Manager logged in", null);
-                return (true, RoleType.Manager, manager.Email, $"{manager.FName} {manager.LName}", "Manager logged in successfully.");
+
+                var roleToReturn = manager.Role == RoleType.Developer ? RoleType.Developer : RoleType.Manager;
+
+                return (true, roleToReturn, manager.Email, $"{manager.FName} {manager.LName}", $"{roleToReturn} logged in successfully.");
             }
 
             if (cashier != null && manager != null)

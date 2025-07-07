@@ -38,7 +38,7 @@
                 </Setter>
             </Style>
         </ResourceDictionary>
-        <Style x:Key="RedButton" TargetType="Button" BasedOn="{StaticResource KeypadButton}">
+        <Style x:Key="RedButton" TargetType="Button">
             <Setter Property="BackgroundColor" Value="Red"/>
             <Setter Property="TextColor" Value="White"/>
             <Setter Property="FontAttributes" Value="Bold"/>
@@ -96,7 +96,7 @@
                           ColumnSpacing="25" Padding="15">
 
                         <Button Text="Z-Reading" ImageSource="print_sales.png"
-                                ContentLayout="top, 0" IsEnabled="{Binding IsCashiering, Converter={StaticResource InverseBoolConverter}}"
+                                ContentLayout="top, 0" IsEnabled="{Binding IsCashiering}"
                                 Grid.Row="0" Grid.Column="0"
                                 Command="{Binding ZReadingCommand}"/>
 
@@ -109,12 +109,12 @@
                                 Grid.Row="0" Grid.Column="2"/>
 
                         <Button Text="Cash Pull-Out" ImageSource="cash_pullout.png"
-                                ContentLayout="top, 0" IsEnabled="{Binding IsCashiering}"
+                                ContentLayout="top, 0" IsEnabled="{Binding IsCashiering, Converter={StaticResource InverseBoolConverter}}"
                                 Grid.Row="1" Grid.Column="0"
                                 Command="{Binding CashWithdrawCommand}"/>
 
                         <Button Text="Cash Track" ImageSource="cashtrack.png"
-                                ContentLayout="top, 0" IsEnabled="{Binding IsCashiering}"
+                                ContentLayout="top, 0" IsEnabled="{Binding IsCashiering, Converter={StaticResource InverseBoolConverter}}"
                                 Grid.Row="1" Grid.Column="2"
                                 Command="{Binding CashTrackCommand}"/>
 
@@ -123,16 +123,19 @@
                                 Grid.Row="3" Grid.Column="0" FontSize="Large"
                                 ContentLayout="left"  Style="{StaticResource RedButton}"
                                 Command="{Binding GoBackCommand}"/>
-                        
-                        <Button Text="Change Mode"
+
+                        <Button Text="{Binding ModeText}"
                                 Grid.Row="3" Grid.Column="1"
-                                IsVisible="{Binding IsCashiering, Converter={StaticResource InverseBoolConverter}}"/>
+                                FontSize="Title" FontAttributes="Bold"
+                                IsVisible="{Binding IsCashiering}"
+                                TextColor="{Binding ModeButtonColor}"
+                                Command="{Binding ChangeModeCommand}"/>
                         
                         <Button Text="Log Out" ImageSource="logout.png"
                                 ContentLayout="top, 0" Style="{StaticResource RedButton}"
                                 Grid.Row="3" Grid.Column="2"
                                 Command="{Binding LogoutCashierCommand}"
-                                IsVisible="{Binding IsCashiering}"/>
+                                IsVisible="{Binding IsCashiering, Converter={StaticResource InverseBoolConverter}}"/>
 
                     </Grid>
                 </Grid>
@@ -209,10 +212,12 @@
                                 Grid.Row="2" Grid.Column="0"/>
                         <Button Text="Products" ImageSource="product_management.png"
                                 ContentLayout="top, 0"
-                                Grid.Row="2" Grid.Column="1"/>
+                                Grid.Row="2" Grid.Column="1"
+                                Command="{Binding ProductsCommand}"/>
                         <Button Text="Settings" ImageSource="settings.png"
                                 ContentLayout="top, 0"
-                                Grid.Row="2" Grid.Column="2"
+                                Grid.Row="2" Grid.Column="2" 
+                                IsVisible="{Binding IsDeveloper}" 
                                 Command="{Binding SettingsCommand}"/>
 
                     </Grid>
@@ -248,7 +253,7 @@
         </Grid>
 
         <!-- Footer -->
-        <footer:UserFooterView Grid.Row="1" Grid.ColumnSpan="2"/>
+        <!--<footer:UserFooterView Grid.Row="1" Grid.ColumnSpan="2"/>-->
     </Grid>
 
 </ContentPage>

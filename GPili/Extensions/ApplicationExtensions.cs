@@ -81,7 +81,7 @@ internal static class ApplicationExtensions
         services.AddPageViewModel<LogInViewModel, LogInPage>();
         services.AddPageViewModel<CashieringViewModel, CashieringPage>();
         services.AddPageViewModel<ManagerViewModel, ManagerPage>();
-
+        services.AddPageViewModel<ProductsViewModel, ProductsPage>();
         return services;
     }
 
