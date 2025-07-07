@@ -26,25 +26,25 @@ namespace GPili.Presentation.Popups.Manager
         [ObservableProperty]
         private bool _isRangeMode;
 
-        public double PopupWidth => Shell.Current.CurrentPage.Width * 4;
-        public double PopupHeight => Shell.Current.CurrentPage.Height * 4;
+        public double PopupWidth => Shell.Current.CurrentPage.Width * 0.35;
+        public double PopupHeight => Shell.Current.CurrentPage.Height * 0.3;
 
         [RelayCommand]
-        public void ReturnSelected()
+        public async Task ReturnSelected()
         {
             if (IsRangeMode)
             {
                 if (SelectedFromDate > SelectedToDate)
                 {
-                    Shell.Current.DisplayAlert("Error", "Invalid date range selected.", "OK");
+                    await Shell.Current.DisplayAlert("Error", "Invalid date range selected.", "OK");
 
                     return;
                 }
-                _popupService.ClosePopup((SelectedFromDate, SelectedToDate));
+                await _popupService.ClosePopupAsync((SelectedFromDate, SelectedToDate));
             }
             else
             {
-                _popupService.ClosePopup(SelectedDate);
+                await _popupService.ClosePopupAsync(SelectedDate);
             }
         }
     }

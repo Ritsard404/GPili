@@ -24,7 +24,6 @@ namespace GPili.Presentation.Popups
 
             if (isSuccess)
             {
-                await Shell.Current.DisplayAlert("Success", "Manager Authorized Action!", "OK");
                 await _popupService.ClosePopupAsync(ManagerEmail);
             }
             else

@@ -1,29 +1,64 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-               x:Class="GPili.Presentation.Popups.Manager.DateSelectionPopup"
+               xmlns:converter="clr-namespace:GPili.Converters"
                xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+               x:Class="GPili.Presentation.Popups.Manager.DateSelectionPopup"
                Color="Transparent">
-    <VerticalStackLayout Padding="24" Spacing="16" BackgroundColor="White" WidthRequest="400">
-        <Label Text="{Binding IsRangeMode, Converter={StaticResource BoolToTextConverter}, ConverterParameter='Select Date,Select Date Range'}"
-               FontAttributes="Bold"
-               FontSize="20"
-               HorizontalOptions="Center" />
+    <toolkit:Popup.Resources>
+        <converter:InverseBoolConverter x:Key="InverseBoolConverter"/>
+    </toolkit:Popup.Resources>
+    <Border 
+        Stroke="Black"
+        StrokeShape="RoundRectangle 15"
+        StrokeThickness="3"
+        WidthRequest="{Binding PopupWidth}"
+        HeightRequest="{Binding PopupHeight}">
+        <Grid RowDefinitions="*,Auto" Padding="10"
+              BackgroundColor="White"
+              HorizontalOptions="FillAndExpand"
+              VerticalOptions="FillAndExpand">
 
-        <!-- Single Date Picker -->
-        <StackLayout IsVisible="{Binding IsRangeMode, Converter={StaticResource InverseBoolConverter}}">
-            <Label Text="Select Date:" />
-            <DatePicker Date="{Binding SelectedDate}" />
-        </StackLayout>
+            <!-- Date Pickers -->
+            <StackLayout Grid.Row="0" Spacing="12" VerticalOptions="CenterAndExpand">
+                <!-- Single Date Picker -->
+                <Grid IsVisible="{Binding IsRangeMode, Converter={StaticResource InverseBoolConverter}}"
+                      Padding="20"
+                      RowDefinitions="Auto, *"
+                      HorizontalOptions="FillAndExpand">
+                    <Label Text="Select Date:" 
+                           Grid.Row="0" Grid.Column="0"
+                           VerticalOptions="Center" TextColor="Black"/>
+                    <DatePicker Date="{Binding SelectedDate}"
+                                Grid.Row="1"
+                                HorizontalOptions="FillAndExpand"
+                                MinimumWidthRequest="250"  BackgroundColor="Black"/>
+                </Grid>
+                <!-- Range Date Picker -->
+                <Grid RowDefinitions="Auto, *" ColumnDefinitions="*,*"
+                    IsVisible="{Binding IsRangeMode}">
+                    <Label Text="From:" TextColor="Black"
+                           Grid.Row="0" Grid.Column="0"/>
+                    <DatePicker Date="{Binding SelectedFromDate}" 
+                                HorizontalOptions="FillAndExpand" 
+                                BackgroundColor="Black"
+                                MinimumWidthRequest="200"
+                                Grid.Row="1" Grid.Column="0"/>
+                    <Label Text="To:" TextColor="Black"
+                           Grid.Row="0" Grid.Column="1"/>
+                    <DatePicker Date="{Binding SelectedToDate}" 
+                                HorizontalOptions="FillAndExpand"
+                                BackgroundColor="Black"
+                                MinimumWidthRequest="200"
+                                Grid.Row="1" Grid.Column="1"/>
+                </Grid>
+            </StackLayout>
 
-        <!-- Range Date Picker -->
-        <StackLayout IsVisible="{Binding IsRangeMode}">
-            <Label Text="From:" />
-            <DatePicker Date="{Binding SelectedFromDate}" />
-            <Label Text="To:" />
-            <DatePicker Date="{Binding SelectedToDate}" />
-        </StackLayout>
-
-        <Button Text="OK" Command="{Binding ReturnSelectedCommand}" />
-    </VerticalStackLayout>
-</toolkit:Popup> 
+            <!-- OK Button -->
+            <Button Text="OK"
+                    FontAttributes="Bold"
+                    Grid.Row="2"
+                    Command="{Binding ReturnSelectedCommand}" />
+        </Grid>
+    </Border>
+</toolkit:Popup>

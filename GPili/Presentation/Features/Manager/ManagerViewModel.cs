@@ -1,4 +1,5 @@
 ﻿using GPili.Presentation.Popups;
+using GPili.Presentation.Popups.Manager;
 using ServiceLibrary.Services.Interfaces;
 
 namespace GPili.Presentation.Features.Manager
@@ -18,9 +19,6 @@ namespace GPili.Presentation.Features.Manager
         private string? _managerEmail;
 
         public bool IsCashiering => !string.IsNullOrEmpty(ManagerEmail);
-
-        [ObservableProperty]
-        private DateTime _dateToPushJournal = DateTime.Now;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(ProgressPercent))]
@@ -86,37 +84,45 @@ namespace GPili.Presentation.Features.Manager
                 return;
             }
 
-            try
+            var vm = new SelectionOfDateViewModel(_popupService, isRangeMode: false);
+            var result = await _popupService.ShowPopupAsync(vm);
+
+            if (result is DateTime date)
             {
-                IsLoading = true;
-
-                var progress = new Progress<(int current, int total, string status)>(report =>
+                try
                 {
-                    StatusMessage = report.status;
-                    ProgressValue = report.total > 0 ? (decimal)report.current / report.total : 0;
-                });
+                    IsLoading = true;
 
-                var (success, message) = await _auditLog.PushJournals(DateToPushJournal, progress);
+                    var progress = new Progress<(int current, int total, string status)>(report =>
+                    {
+                        StatusMessage = report.status;
+                        ProgressValue = report.total > 0 ? (decimal)report.current / report.total : 0;
+                    });
 
-                StatusMessage = message;
+                    var (success, message) = await _auditLog.PushJournals(date, progress);
 
-                if (!success)
-                {
-                    // Handle error state here if needed
-                    Debug.WriteLine("Failed to Push.");
+                    StatusMessage = message;
+
+                    if (!success)
+                    {
+                        // Handle error state here if needed
+                        Debug.WriteLine("Failed to Push.");
+                    }
                 }
+                catch (Exception ex)
+                {
+                    StatusMessage = "Unexpected error occurred.";
+                    Debug.WriteLine($"Error pushing data: {ex.Message}");
+                }
+                finally
+                {
+                    IsLoading = false;
+                    ProgressValue = 0;
+                    await Shell.Current.DisplayAlert("Success", "Data pushed successfully.", "OK");
+                }
+
             }
-            catch (Exception ex)
-            {
-                StatusMessage = "Unexpected error occurred.";
-                Debug.WriteLine($"Error pushing data: {ex.Message}");
-            }
-            finally
-            {
-                IsLoading = false;
-                ProgressValue = 0;
-                await Shell.Current.DisplayAlert("Error", "Data pushed successfully.", "OK");
-            }
+
         }
 
         [RelayCommand]
@@ -272,9 +278,9 @@ namespace GPili.Presentation.Features.Manager
                     message: "Please enter the total amount of cash in the drawer:",
                     accept: "Submit Cash", "", "1000.00", -1, Keyboard.Numeric);
 
-                if (decimal.TryParse(input, out cashValue) && cashValue < 1000)
+                if (decimal.TryParse(input, out cashValue) && cashValue <= 0)
                 {
-                    await Shell.Current.DisplayAlert("Error", "Enter a valid amount of ₱1000 or more.", "OK");
+                    await Shell.Current.DisplayAlert("Error", "Enter a valid amount.", "OK");
                     return;
                 }
 
