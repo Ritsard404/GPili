@@ -30,12 +30,14 @@ namespace GPili.Presentation.Features.LogIn
                 if (!isValid)
                 {
                     // Spam display
-                    await Shell.Current.DisplayAlert("Error", message, "");
+                    await Snackbar.Make(message,
+                        duration: TimeSpan.FromSeconds(1)).Show();
                     continue;
                 }
 
                 if (message.StartsWith("Warning"))
-                    await Shell.Current.DisplayAlert("Warning", message, "Continue");
+                    await Snackbar.Make(message,
+                        duration: TimeSpan.FromSeconds(1)).Show();
 
                 break;
             }
@@ -57,7 +59,7 @@ namespace GPili.Presentation.Features.LogIn
 
                 if (!isSuccess)
                 {
-                    await Shell.Current.DisplayAlert("Log In Failed", message, "OK");
+                    await Snackbar.Make(message, duration: TimeSpan.FromSeconds(1)).Show();
                     return;
                 }
 
@@ -74,7 +76,8 @@ namespace GPili.Presentation.Features.LogIn
                         return;
 
                     default:
-                        await Shell.Current.DisplayAlert("Log In", message, "OK");
+                        await Snackbar.Make(message,
+                            duration: TimeSpan.FromSeconds(1)).Show();
                         AdminEmail = string.Empty;
                         SelectedCashier = Cashiers[0];
                         return;
@@ -83,7 +86,8 @@ namespace GPili.Presentation.Features.LogIn
             catch (Exception ex)
             {
                 // Optional: log the exception to a service or file
-                await Shell.Current.DisplayAlert("Error", $"An unexpected error occurred:\n{ex.Message}", "OK");
+                await Snackbar.Make($"An unexpected error occurred:\n{ex.Message}",
+                    duration: TimeSpan.FromSeconds(1)).Show();
             }
             finally
             {

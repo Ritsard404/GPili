@@ -12,6 +12,11 @@
             return date.ToString("yyyy-MM-dd");
         }
 
+        public static string DateTimeFormat(this DateTime date)
+        {
+            return date.ToString("yyyy-MM-dd hh:mm:ss tt");
+        }
+
         public static decimal StoreDecimalValueFormat(this decimal value)
         {
             return Math.Round(value, 2, MidpointRounding.AwayFromZero);

@@ -22,6 +22,10 @@ namespace GPili
                 {
                     handlers.AddInputKitHandlers();
                 })
+                .UseMauiCommunityToolkit(option =>
+                {
+                    option.SetShouldEnableSnackbarOnWindows(true);
+                })
                 .ConfigureApplication()
                 .ConfigureFonts(fonts =>
                 {
@@ -32,7 +36,6 @@ namespace GPili
                     fonts.AddFont("Nunito-Black.ttf", "NunitoBlack");
                     fonts.AddFontAwesomeIconFonts();
                 })
-                .UseMauiCommunityToolkit()
                 .UseUraniumUI()
                 .UseUraniumUIMaterial();
 

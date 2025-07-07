@@ -28,7 +28,8 @@ namespace GPili.Presentation.Popups
             }
             else
             {
-                await Shell.Current.DisplayAlert("Error", "Invalid manager email.", "OK");
+                await Snackbar.Make("Invalid manager email.",
+                    duration: TimeSpan.FromSeconds(1)).Show();
             }
 
         }

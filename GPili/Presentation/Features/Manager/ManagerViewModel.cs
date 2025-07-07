@@ -38,7 +38,7 @@ namespace GPili.Presentation.Features.Manager
         {
             if (Connectivity.NetworkAccess != NetworkAccess.Internet)
             {
-                await Shell.Current.DisplayAlert("Error", "No internet connection. Please check your network.", "OK");
+                await Snackbar.Make("No internet connection. Please check your network.", duration: TimeSpan.FromSeconds(1)).Show();
                 return;
             }
 
@@ -71,7 +71,7 @@ namespace GPili.Presentation.Features.Manager
             {
                 IsLoading = false;
                 ProgressValue = 0;
-                await Shell.Current.DisplayAlert("Error", "Data loaded successfully.", "OK");
+                await Snackbar.Make("Data loaded successfully.", duration: TimeSpan.FromSeconds(1)).Show();
             }
         }
 
@@ -80,7 +80,7 @@ namespace GPili.Presentation.Features.Manager
         {
             if (Connectivity.NetworkAccess != NetworkAccess.Internet)
             {
-                await Shell.Current.DisplayAlert("Error", "No internet connection. Please check your network.", "OK");
+                await Snackbar.Make("No internet connection. Please check your network.", duration: TimeSpan.FromSeconds(1)).Show();
                 return;
             }
 
@@ -184,7 +184,7 @@ namespace GPili.Presentation.Features.Manager
                     }
                     else
                     {
-                        await Shell.Current.DisplayAlert("Error", "Enter a valid amount.", "OK");
+                        await Snackbar.Make("Enter a valid amount.", duration: TimeSpan.FromSeconds(1)).Show();
                     return;
                 }
                 //} while (!validCash);
@@ -198,11 +198,11 @@ namespace GPili.Presentation.Features.Manager
 
                 if (isSuccess)
                 {
-                    await Shell.Current.DisplayAlert("Error", message, "OK");
+                    await Snackbar.Make(message, duration: TimeSpan.FromSeconds(1)).Show();
                 }
                 else
                 {
-                    await Shell.Current.DisplayAlert("Error", $"Withdraw failed: {message}", "OK");
+                    await Snackbar.Make($"Withdraw failed: {message}", duration: TimeSpan.FromSeconds(1)).Show();
                 }
 
             }
@@ -280,7 +280,7 @@ namespace GPili.Presentation.Features.Manager
 
                 if (decimal.TryParse(input, out cashValue) && cashValue <= 0)
                 {
-                    await Shell.Current.DisplayAlert("Error", "Enter a valid amount.", "OK");
+                    await Snackbar.Make("Enter a valid amount.", duration: TimeSpan.FromSeconds(1)).Show();
                     return;
                 }
 
@@ -294,13 +294,14 @@ namespace GPili.Presentation.Features.Manager
                 if (isSuccess)
                 {
                     await _printer.PrintXReading();
-                    await Shell.Current.DisplayAlert("Error", "Cashier logged out successfully.", "OK");
+                    await Snackbar.Make("Cashier logged out successfully.", duration: TimeSpan.FromSeconds(1)).Show();
                     ManagerEmail = null;
                     await _navigationService.Logout();
                 }
                 else
                 {
-                    await Shell.Current.DisplayAlert("Error", $"Logout failed: {message}", "OK");
+                    await Snackbar.Make($"Logout failed: {message}",
+                        duration: TimeSpan.FromSeconds(1)).Show();
 
                 }
             }

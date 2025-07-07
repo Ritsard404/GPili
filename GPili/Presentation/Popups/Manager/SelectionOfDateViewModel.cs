@@ -36,7 +36,8 @@ namespace GPili.Presentation.Popups.Manager
             {
                 if (SelectedFromDate > SelectedToDate)
                 {
-                    await Shell.Current.DisplayAlert("Error", "Invalid date range selected.", "OK");
+                    await Snackbar.Make("Invalid date range selected.",
+                        duration: TimeSpan.FromSeconds(1)).Show();
 
                     return;
                 }

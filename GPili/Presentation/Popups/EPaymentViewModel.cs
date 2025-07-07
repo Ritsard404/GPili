@@ -28,7 +28,9 @@ namespace GPili.Presentation.Popups
 
             if (saleTypes == null || !saleTypes.Any())
             {
-                await Shell.Current.DisplayAlert("Unavailalbe", "No E-Payments yet!", "Close");
+                await Snackbar.Make(
+                    message: "No E-Payments yet!",
+                    duration: TimeSpan.FromSeconds(1)).Show();
                 Popup.Close();
                 return;
             }
@@ -75,11 +77,9 @@ namespace GPili.Presentation.Popups
 
             if (hasError)
             {
-                await Shell.Current.DisplayAlert(
-                    "Invalid Input",
-                    "Please ensure all filled E-Payment entries have both a valid reference and an amount greater than 0.",
-                    "OK"
-                );
+                await Snackbar.Make(
+                    message: "Please ensure all filled E-Payment entries have both a valid reference and an amount greater than 0."
+                    duration: TimeSpan.FromSeconds(1)).Show();
                 return;
             }
 

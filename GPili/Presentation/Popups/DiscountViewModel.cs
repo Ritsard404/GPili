@@ -77,7 +77,7 @@ namespace GPili.Presentation.Popups
         {
             if (string.IsNullOrWhiteSpace(EligibleDiscName))
             {
-                Shell.Current.DisplayAlert("Error", "Please enter the eligible person's name for the discount.", "OK");
+                Snackbar.Make("Please enter the eligible person's name for the discount.", duration: TimeSpan.FromSeconds(1)).Show();
                 return;
             }
 
@@ -87,7 +87,7 @@ namespace GPili.Presentation.Popups
             {
                 if (DiscountAmount > 0 && DiscountPercent > 0)
                 {
-                    Shell.Current.DisplayAlert("Error", "Please provide either Discount Amount or Discount Percent, not both.", "OK");
+                    Snackbar.Make("Please provide either Discount Amount or Discount Percent, not both.", duration: TimeSpan.FromSeconds(1)).Show();
                     return;
                 }   
 
@@ -95,7 +95,7 @@ namespace GPili.Presentation.Popups
                 {
                     if (DiscountPercent < 0 || DiscountPercent > 100)
                     {
-                        Shell.Current.DisplayAlert("Error", "Discount percent must be between 0 and 100.", "OK");
+                        Snackbar.Make("Discount percent must be between 0 and 100.", duration: TimeSpan.FromSeconds(1)).Show();
                         return;
                     }
                 }
@@ -104,7 +104,7 @@ namespace GPili.Presentation.Popups
                 {
                     if (DiscountAmount < 0)
                     {
-                        Shell.Current.DisplayAlert("Error", "Discount amount must not be negative.", "OK");
+                        Snackbar.Make("Discount amount must not be negative.", duration: TimeSpan.FromSeconds(1)).Show();
                         return;
                     }
                 }
@@ -114,15 +114,15 @@ namespace GPili.Presentation.Popups
             {
                 if (!IsSeniorChecked && !IsPwdChecked)
                 {
-
-                    Shell.Current.DisplayAlert("Error", "Please select either 'PWD' or 'Senior' as the discount type.", "OK");
+                    Snackbar.Make("Please select either 'PWD' or 'Senior' as the discount type.", 
+                        duration: TimeSpan.FromSeconds(1)).Show();
                     return;
                 }
 
                 if (string.IsNullOrWhiteSpace(OscaIdNum))
                 {
-                    Shell.Current.DisplayAlert("Error", "Please provide a valid OSCA ID.", "OK");
-
+                    Snackbar.Make("Please provide a valid OSCA ID.",
+                        duration: TimeSpan.FromSeconds(1)).Show();
                     return;
                 }
 

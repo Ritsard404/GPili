@@ -63,14 +63,14 @@ namespace GPili.Presentation.Features.Cashiering
                     }
                     else
                     {
-                        await Shell.Current.DisplayAlert("Error", "Enter a valid amount of ₱1000 or more.", "OK");
+                        await Snackbar.Make("Enter a valid amount of ₱1000 or more.", duration: TimeSpan.FromSeconds(1)).Show();
                     }
                 } while (!validCash);
 
                 await _popUpService.ShowAsync("Loading Products...", true);
 
                 await _auth.SetCashInDrawer(CashierState.Info.CashierEmail!, cashValue);
-                await Shell.Current.DisplayAlert("Success", $"₱{cashValue} has been stored in the drawer.", "OK");
+                await Snackbar.Make($"₱{cashValue} has been stored in the drawer.", duration: TimeSpan.FromSeconds(1)).Show();
                 isCashedDrawer = true;
             }
 
@@ -142,7 +142,7 @@ namespace GPili.Presentation.Features.Cashiering
 
             if (!isSuccess)
             {
-                await Shell.Current.DisplayAlert("Error", message, "OK");
+                await Snackbar.Make(message, duration: TimeSpan.FromSeconds(1)).Show();
                 return;
             }
 
@@ -168,7 +168,7 @@ namespace GPili.Presentation.Features.Cashiering
             catch (Exception ex)
             {
                 Debug.WriteLine(ex);
-                await Shell.Current.DisplayAlert("Error", "An error occurred while selecting the item.", "OK");
+                await Snackbar.Make("An error occurred while selecting the item.", duration: TimeSpan.FromSeconds(1)).Show();
             }
         }
 
@@ -234,7 +234,7 @@ namespace GPili.Presentation.Features.Cashiering
 
             if (payContent == KeypadActions.ENTER && Tenders.ChangeAmount < 0)
             {
-                await Shell.Current.DisplayAlert("Error", "Please enter a valid amount to pay.", "OK");
+                await Snackbar.Make("Please enter a valid amount to pay.", duration: TimeSpan.FromSeconds(1)).Show();
                 await _popUpService.ShowAsync("Paid", false);
                 return;
             }
@@ -261,7 +261,8 @@ namespace GPili.Presentation.Features.Cashiering
             var result = await _order.PayOrder(payOrder);
             if (result.isSuccess)
             {
-                await Shell.Current.DisplayAlert("Success", "Order paid successfully!", "OK");
+                await Snackbar.Make("Order paid successfully!", 
+                    duration: TimeSpan.FromSeconds(1)).Show();
 
                 await LoadItems();
                 Products = await _inventory.GetProducts();
@@ -271,7 +272,7 @@ namespace GPili.Presentation.Features.Cashiering
             }
             else
             {
-                await Shell.Current.DisplayAlert("Error", result.message, "OK");
+                await Snackbar.Make(result.message, duration: TimeSpan.FromSeconds(1)).Show();
 
             }
 
@@ -323,13 +324,15 @@ namespace GPili.Presentation.Features.Cashiering
                     managerEmail: managerEmail);
                 if (isSuccess)
                 {
-                    await Shell.Current.DisplayAlert("Success", message, "OK");
+                    await Snackbar.Make(message,
+                        duration: TimeSpan.FromSeconds(1)).Show();
                     await LoadItems();
                     Tenders.Discount = new();
                 }
                 else
                 {
-                    await Shell.Current.DisplayAlert("Error", message, "OK");
+                    await Snackbar.Make(message,
+                        duration: TimeSpan.FromSeconds(1)).Show();
                 }
 
             }
@@ -349,11 +352,9 @@ namespace GPili.Presentation.Features.Cashiering
         {
             if (!Items.Any())
             {
-                await Shell.Current.DisplayAlert(
-                    "Nothing to Pay",
-                    "There are no pending items or payments at the moment. Select an order before proceeding.",
-                    "OK"
-                );
+                await Snackbar.Make("There are no pending items or payments at the moment. " +
+                    "Select an order before proceeding.",
+                    duration: TimeSpan.FromSeconds(1)).Show();
                 return;
             }
 
@@ -370,21 +371,15 @@ namespace GPili.Presentation.Features.Cashiering
         {
             if (!Items.Any())
             {
-                await Shell.Current.DisplayAlert(
-                    "No Eligible Items",
-                    "There are no items available for a discount. Please select an order before applying a discount.",
-                    "OK"
-                );
+                await Snackbar.Make("There are no items available for a discount. Please select an order before applying a discount.",
+                    duration: TimeSpan.FromSeconds(1)).Show();
                 return;
             }
 
             if (Tenders.DiscountAmount > 0)
             {
-                await Shell.Current.DisplayAlert(
-                    "Discount Already Applied",
-                    "A discount has already been applied to this order.",
-                    "OK"
-                );
+                await Snackbar.Make("A discount has already been applied to this order.",
+                    duration: TimeSpan.FromSeconds(1)).Show();
                 return;
             }
 
@@ -410,7 +405,9 @@ namespace GPili.Presentation.Features.Cashiering
             {
                 var cts = new CancellationTokenSource();
                 _ = Task.Delay(1000).ContinueWith(_ => cts.Cancel());
-                await Shell.Current.DisplayAlert("Error", "Cashier has pending item/s. Action denied.", "OK");
+
+                await Snackbar.Make("Cashier has pending item/s. Action denied.",
+                    duration: TimeSpan.FromSeconds(1)).Show();
                 return;
             }
 
