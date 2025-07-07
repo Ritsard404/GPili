@@ -140,8 +140,4 @@
 	  </MauiXaml>
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="Presentation\Popups\Manager\" />
-	</ItemGroup>
-
 </Project>

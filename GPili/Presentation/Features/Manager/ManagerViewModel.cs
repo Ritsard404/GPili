@@ -40,7 +40,7 @@ namespace GPili.Presentation.Features.Manager
         {
             if (Connectivity.NetworkAccess != NetworkAccess.Internet)
             {
-                await Toast.Make("No internet connection. Please check your network.", ToastDuration.Short).Show();
+                await Shell.Current.DisplayAlert("Error", "No internet connection. Please check your network.", "OK");
                 return;
             }
 
@@ -73,7 +73,7 @@ namespace GPili.Presentation.Features.Manager
             {
                 IsLoading = false;
                 ProgressValue = 0;
-                await Toast.Make("Data loaded successfully.", ToastDuration.Short).Show();
+                await Shell.Current.DisplayAlert("Error", "Data loaded successfully.", "OK");
             }
         }
 
@@ -82,7 +82,7 @@ namespace GPili.Presentation.Features.Manager
         {
             if (Connectivity.NetworkAccess != NetworkAccess.Internet)
             {
-                await Toast.Make("No internet connection. Please check your network.", ToastDuration.Short).Show();
+                await Shell.Current.DisplayAlert("Error", "No internet connection. Please check your network.", "OK");
                 return;
             }
 
@@ -115,7 +115,7 @@ namespace GPili.Presentation.Features.Manager
             {
                 IsLoading = false;
                 ProgressValue = 0;
-                await Toast.Make("Data pushed successfully.", ToastDuration.Short).Show();
+                await Shell.Current.DisplayAlert("Error", "Data pushed successfully.", "OK");
             }
         }
 
@@ -178,7 +178,7 @@ namespace GPili.Presentation.Features.Manager
                     }
                     else
                     {
-                        await Toast.Make("Enter a valid amount.", ToastDuration.Short).Show();
+                        await Shell.Current.DisplayAlert("Error", "Enter a valid amount.", "OK");
                     return;
                 }
                 //} while (!validCash);
@@ -192,11 +192,11 @@ namespace GPili.Presentation.Features.Manager
 
                 if (isSuccess)
                 {
-                    await Toast.Make(message, ToastDuration.Short).Show();
+                    await Shell.Current.DisplayAlert("Error", message, "OK");
                 }
                 else
                 {
-                    await Toast.Make($"Withdraw failed: {message}", ToastDuration.Short).Show();
+                    await Shell.Current.DisplayAlert("Error", $"Withdraw failed: {message}", "OK");
                 }
 
             }
@@ -274,7 +274,7 @@ namespace GPili.Presentation.Features.Manager
 
                 if (decimal.TryParse(input, out cashValue) && cashValue < 1000)
                 {
-                    await Toast.Make("Enter a valid amount of ₱1000 or more.", ToastDuration.Short).Show();
+                    await Shell.Current.DisplayAlert("Error", "Enter a valid amount of ₱1000 or more.", "OK");
                     return;
                 }
 
@@ -288,13 +288,14 @@ namespace GPili.Presentation.Features.Manager
                 if (isSuccess)
                 {
                     await _printer.PrintXReading();
-                    await Toast.Make("Cashier logged out successfully.", ToastDuration.Short).Show();
+                    await Shell.Current.DisplayAlert("Error", "Cashier logged out successfully.", "OK");
                     ManagerEmail = null;
                     await _navigationService.Logout();
                 }
                 else
                 {
-                    await Toast.Make($"Logout failed: {message}", ToastDuration.Short).Show();
+                    await Shell.Current.DisplayAlert("Error", $"Logout failed: {message}", "OK");
+
                 }
             }
             catch (Exception ex)

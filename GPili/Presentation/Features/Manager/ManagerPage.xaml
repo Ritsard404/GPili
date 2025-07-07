@@ -210,6 +210,9 @@
                         <Button Text="Products" ImageSource="product_management.png"
                                 ContentLayout="top, 0"
                                 Grid.Row="2" Grid.Column="1"/>
+                        <Button Text="Settings" ImageSource="settings.png"
+                                ContentLayout="top, 0"
+                                Grid.Row="2" Grid.Column="2"/>
 
                     </Grid>
                 </Grid>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+               xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               x:Class="GPili.Presentation.Popups.Manager.DateSelectionPopup"
+               xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+               Color="Transparent">
+    <VerticalStackLayout Padding="24" Spacing="16" BackgroundColor="White" WidthRequest="400">
+        <Label Text="{Binding IsRangeMode, Converter={StaticResource BoolToTextConverter}, ConverterParameter='Select Date,Select Date Range'}"
+               FontAttributes="Bold"
+               FontSize="20"
+               HorizontalOptions="Center" />
+
+        <!-- Single Date Picker -->
+        <StackLayout IsVisible="{Binding IsRangeMode, Converter={StaticResource InverseBoolConverter}}">
+            <Label Text="Select Date:" />
+            <DatePicker Date="{Binding SelectedDate}" />
+        </StackLayout>
+
+        <!-- Range Date Picker -->
+        <StackLayout IsVisible="{Binding IsRangeMode}">
+            <Label Text="From:" />
+            <DatePicker Date="{Binding SelectedFromDate}" />
+            <Label Text="To:" />
+            <DatePicker Date="{Binding SelectedToDate}" />
+        </StackLayout>
+
+        <Button Text="OK" Command="{Binding ReturnSelectedCommand}" />
+    </VerticalStackLayout>
+</toolkit:Popup> 

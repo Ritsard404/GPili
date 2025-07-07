@@ -40,7 +40,7 @@ namespace GPili.Presentation.Popups
 
             if (HasErrors)
             {
-                await Toast.Make("Please correct the errors.", ToastDuration.Short).Show();
+                await Shell.Current.DisplayAlert("Error", "Please correct the errors.", "OK");
                 return;
             }
 
@@ -58,7 +58,7 @@ namespace GPili.Presentation.Popups
             }
             else
             {
-                await Toast.Make(message ?? "Please correct the errors.", ToastDuration.Short).Show();
+                await Shell.Current.DisplayAlert("Error", message, "OK");
                 return;
             }
         }
@@ -76,12 +76,13 @@ namespace GPili.Presentation.Popups
                 mgrEmail: managerEmail, itemId: Item.Id);
             if (isSuccess)
             {
-                await Toast.Make(message, ToastDuration.Short).Show();
+                await Shell.Current.DisplayAlert("Success", message, "OK");
                 _popup.CloseWithResult(true);
             }
             else
             {
-                await Toast.Make(message, ToastDuration.Short).Show();
+                await Shell.Current.DisplayAlert("Error", message, "OK");
+
                 _popup.CloseWithResult(false);
             }
         }

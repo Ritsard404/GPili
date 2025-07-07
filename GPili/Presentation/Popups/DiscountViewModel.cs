@@ -77,7 +77,7 @@ namespace GPili.Presentation.Popups
         {
             if (string.IsNullOrWhiteSpace(EligibleDiscName))
             {
-                Toast.Make("Please enter the eligible person's name for the discount.", ToastDuration.Short).Show();
+                Shell.Current.DisplayAlert("Error", "Please enter the eligible person's name for the discount.", "OK");
                 return;
             }
 
@@ -85,15 +85,15 @@ namespace GPili.Presentation.Popups
             {
                 if (DiscountAmount > 0 && DiscountPercent > 0)
                 {
-                    Toast.Make("Please provide either Discount Amount or Discount Percent, not both.", ToastDuration.Short).Show();
+                    Shell.Current.DisplayAlert("Error", "Please provide either Discount Amount or Discount Percent, not both.", "OK");
                     return;
-                }
+                }   
 
                 if (DiscountPercent > 0 && DiscountAmount == 0)
                 {
                     if (DiscountPercent < 0 || DiscountPercent > 100)
                     {
-                        Toast.Make("Discount percent must be between 0 and 100.", ToastDuration.Short).Show();
+                        Shell.Current.DisplayAlert("Error", "Discount percent must be between 0 and 100.", "OK");
                         return;
                     }
                 }
@@ -102,7 +102,7 @@ namespace GPili.Presentation.Popups
                 {
                     if (DiscountAmount < 0)
                     {
-                        Toast.Make("Discount amount must not be negative.", ToastDuration.Short).Show();
+                        Shell.Current.DisplayAlert("Error", "Discount amount must not be negative.", "OK");
                         return;
                     }
                 }
@@ -112,13 +112,15 @@ namespace GPili.Presentation.Popups
             {
                 if (!IsSeniorChecked && !IsPwdChecked)
                 {
-                    Toast.Make("Please select either 'PWD' or 'Senior' as the discount type.", ToastDuration.Short).Show();
+
+                    Shell.Current.DisplayAlert("Error", "Please select either 'PWD' or 'Senior' as the discount type.", "OK");
                     return;
                 }
 
                 if (string.IsNullOrWhiteSpace(OscaIdNum))
                 {
-                    Toast.Make("Please provide a valid OSCA ID.", ToastDuration.Short).Show();
+                    Shell.Current.DisplayAlert("Error", "Please provide a valid OSCA ID.", "OK");
+
                     return;
                 }
 

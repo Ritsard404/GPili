@@ -6,6 +6,7 @@ using GPili.Presentation.Features.Cashiering;
 using GPili.Presentation.Features.LogIn;
 using GPili.Presentation.Features.Manager;
 using GPili.Presentation.Popups;
+using GPili.Presentation.Popups.Manager;
 using ServiceLibrary.Extension;
 using ServiceLibrary.Utils;
 
@@ -92,6 +93,7 @@ internal static class ApplicationExtensions
         services.AddTransientPopup<EditItemView, EditItemViewModel>();
         services.AddTransientPopup<EPaymentView, EPaymentViewModel>();
         services.AddTransientPopup<DiscountView, DiscountViewModel>();
+        services.AddTransientPopup<DateSelectionPopup, SelectionOfDateViewModel>();
 
         return services;
     }
