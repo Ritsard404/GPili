@@ -37,7 +37,19 @@ namespace ServiceLibrary.Services
             text.PadLeft((ReceiptWidth + text.Length) / 2).PadRight(ReceiptWidth);
         private string AlignText(string left, string right) =>
             left.PadRight(ReceiptWidth - (right ?? "0").Length) + (right ?? "0");
-
+        private string AlignLabelAmount(string label, string amount, int width)
+        {
+            // If label + amount fits, print on one line
+            if (label.Length + amount.Length + 1 <= width)
+            {
+                return label.PadRight(width - amount.Length) + amount;
+            }
+            else
+            {
+                // Print label on one line, amount right-aligned on next
+                return label + Environment.NewLine + amount.PadLeft(width);
+            }
+        }
         private string FormatItemLine(string qty, string desc, string amount) =>
              $"{qty.PadRight(QtyWidth)}{desc.PadRight(DescWidth)}{amount.PadLeft(AmountWidth)}";
 
@@ -157,7 +169,7 @@ namespace ServiceLibrary.Services
             // #TODO To Add Discount
             //.AppendLine(CenterText($"{"Sub Total:",-15}{invoiceInfo.SubTotal,17}"))
             if (!string.IsNullOrEmpty(invoiceInfo.ElligiblePersonDiscount) || invoiceInfo.OtherPayments.Count > 0)
-                content.AppendLine(CenterText($"{$"Discount({invoiceInfo.DiscountType}):",-15}{invoiceInfo.DiscountAmount,17}"));
+                content.AppendLine(AlignLabelAmount($"Discount({invoiceInfo.DiscountType}):", invoiceInfo.DiscountAmount, ReceiptWidth));
             content.AppendLine(CenterText($"{"Due Amount:",-15}{invoiceInfo.DueAmount,17}"));
 
             // Other Payments
@@ -165,7 +177,7 @@ namespace ServiceLibrary.Services
             {
                 foreach (var payment in invoiceInfo.OtherPayments)
                 {
-                    content.AppendLine(CenterText($"{$"{payment.SaleTypeName} ({payment.Reference}):",-15}{payment.Amount,17}"));
+                    content.AppendLine(CenterText($"{$"{payment.SaleTypeName}:",-15}{payment.Amount,17}"));
                 }
             }
 
