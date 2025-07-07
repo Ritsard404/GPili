@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Maui;
+using InputKit.Handlers;
 using Microsoft.Extensions.Logging;
 using UraniumUI;
 
@@ -17,6 +18,10 @@ namespace GPili
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
+                .ConfigureMauiHandlers(handlers =>
+                {
+                    handlers.AddInputKitHandlers();
+                })
                 .ConfigureApplication()
                 .ConfigureFonts(fonts =>
                 {

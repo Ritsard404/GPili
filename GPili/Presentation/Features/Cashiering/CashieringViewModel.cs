@@ -396,6 +396,7 @@ namespace GPili.Presentation.Features.Cashiering
 
             var popup = new DiscountView();
             var result = await Shell.Current.ShowPopupAsync(popup);
+
             if (result is DiscountDTO discount)
             {
                 Tenders.Discount = discount;

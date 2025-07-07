@@ -89,15 +89,16 @@ namespace GPili.Presentation.Features.Cashiering
         {
             get
             {
+
+                if (Discount?.DiscountAmount.GetValueOrDefault() > 0)
+                {
+                    return Discount.DiscountAmount.GetValueOrDefault() > DiscountMax
+                        ? DiscountMax
+                        : Discount.DiscountAmount.GetValueOrDefault();
+                }
+
                 var pct = Discount?.DiscountPercent ?? 0m;
                 if (pct <= 0) return 0m;
-
-                if (Discount?.DiscountAmount > 0)
-                {
-                    return Discount.DiscountAmount.Value > DiscountMax
-                        ? DiscountMax
-                        : Discount.DiscountAmount.Value;
-                }
 
                 var raw = GrossTotal * (pct / 100m); // Use GrossTotal here
                 return raw > DiscountMax

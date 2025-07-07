@@ -81,6 +81,8 @@ namespace GPili.Presentation.Popups
                 return;
             }
 
+            
+
             if (!IsPwdScDisc)
             {
                 if (DiscountAmount > 0 && DiscountPercent > 0)
