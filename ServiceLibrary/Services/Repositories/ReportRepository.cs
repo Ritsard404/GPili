@@ -126,7 +126,10 @@ namespace ServiceLibrary.Services.Repositories
                 VatSales = order.VatSales.PesoFormat(),
                 VatAmount = order.VatAmount.PesoFormat(),
                 VatZero = order.VatZero.PesoFormat(),
-                ElligiblePersonDiscount = order.EligibleDiscName?.ToUpper()
+                ElligiblePersonDiscount = order.EligibleDiscName?.ToUpper(),
+                DiscountType = order.DiscountType == DiscountType.SeniorCitizen
+                        ? "Senior"
+                        : order.DiscountType
             };
 
             return invoice;

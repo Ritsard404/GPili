@@ -39,6 +39,7 @@ namespace GPili
                                 IntPtr nativeWindowHandle = WinRT.Interop.WindowNative.GetWindowHandle(window);
                                 Microsoft.UI.WindowId win32WindowsId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(nativeWindowHandle);
                                 Microsoft.UI.Windowing.AppWindow winuiAppWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(win32WindowsId);
+                                winuiAppWindow.SetPresenter(Microsoft.UI.Windowing.AppWindowPresenterKind.FullScreen);
                                 if (winuiAppWindow.Presenter is Microsoft.UI.Windowing.OverlappedPresenter p)
                                 {
                                     //maximize window
@@ -48,6 +49,11 @@ namespace GPili
                                     p.IsMaximizable = false;
                                     p.IsMinimizable = false;
                                 }
+
+                                winuiAppWindow.Closing += (s, e) =>
+                                {
+                                    e.Cancel = true; // prevent closing
+                                };
                             });
                         });
                     });

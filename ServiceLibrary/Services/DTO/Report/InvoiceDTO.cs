@@ -27,6 +27,7 @@
         public required string VatZero { get; set; }
 
         public string? ElligiblePersonDiscount { get; set; }
+        public string? DiscountType { get; set; }
     }
 
     public class BusinesDetails

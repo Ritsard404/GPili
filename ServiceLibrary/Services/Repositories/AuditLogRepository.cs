@@ -3,6 +3,7 @@ using ServiceLibrary.Data;
 using ServiceLibrary.Models;
 using ServiceLibrary.Services.Interfaces;
 using ServiceLibrary.Utils;
+using System.Diagnostics;
 using static ServiceLibrary.Utils.FolderPath;
 
 namespace ServiceLibrary.Services.Repositories
@@ -423,12 +424,13 @@ namespace ServiceLibrary.Services.Repositories
                     progress?.Report((current, total, $"Pushing {current + 1}/{total}"));
                     var url = $"asspos/mobilepostransactions.php?{ToQueryString(journal)}";
                     using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+                    Debug.WriteLine(url);
                     var response = await _httpClient.GetAsync(url, cts.Token);
 
                     if (response.IsSuccessStatusCode)
                     {
                         journal.IsPushed = true;
-                        await Task.Delay(1500);
+                        await Task.Delay(2000);
                     }
                     else
                     {

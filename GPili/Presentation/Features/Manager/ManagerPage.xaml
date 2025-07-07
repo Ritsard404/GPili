@@ -96,7 +96,7 @@
                           ColumnSpacing="25" Padding="15">
 
                         <Button Text="Z-Reading" ImageSource="print_sales.png"
-                                ContentLayout="top, 0"
+                                ContentLayout="top, 0" IsEnabled="{Binding IsCashiering, Converter={StaticResource InverseBoolConverter}}"
                                 Grid.Row="0" Grid.Column="0"
                                 Command="{Binding ZReadingCommand}"/>
 
@@ -119,8 +119,13 @@
                                 Command="{Binding CashTrackCommand}"/>
 
 
+                        <Button Text="Back" ImageSource="solid_back.png"
+                                Grid.Row="3" Grid.Column="0" FontSize="Large"
+                                ContentLayout="left"  Style="{StaticResource RedButton}"
+                                Command="{Binding GoBackCommand}"/>
+                        
                         <Button Text="Change Mode"
-                                Grid.Row="3" Grid.Column="0"
+                                Grid.Row="3" Grid.Column="1"
                                 IsVisible="{Binding IsCashiering, Converter={StaticResource InverseBoolConverter}}"/>
                         
                         <Button Text="Log Out" ImageSource="logout.png"
@@ -151,7 +156,7 @@
                     <!--Second Row-->
                     <Grid Grid.Row="1"  RowDefinitions="Auto, Auto, Auto"
                           ColumnDefinitions="*, *, *" 
-                          ColumnSpacing="5" RowSpacing="5" Padding="5,0,5,5">
+                          ColumnSpacing="18" RowSpacing="18" Padding="5,0,5,5">
 
                         <Button Text="User Log" ImageSource="users_gear.png"
                                 ContentLayout="top, 0"
@@ -185,8 +190,8 @@
                     
                     <!--Second Row-->
                     <Grid Grid.Row="1"  RowDefinitions="Auto, Auto, Auto"
-                          ColumnDefinitions="*, *, *" RowSpacing="5"
-                          ColumnSpacing="5" Padding="5,0,5,5">
+                          ColumnDefinitions="*, *, *" RowSpacing="18"
+                          ColumnSpacing="18" Padding="5,0,5,5">
                         
                         <Button Text="Load Products" ImageSource="icons_load.png"
                                 ContentLayout="top, 0"

@@ -227,7 +227,7 @@
                             FontSize="14"
                             FontAttributes="Bold"
                             VerticalOptions="Center"/>
-                                    <Entry WidthRequest="100" 
+                        <Entry WidthRequest="100" 
                             IsReadOnly="True" 
                             Text="{Binding Tenders.DiscountAmount, StringFormat='₱ {0:N2}'}"
                             FontAttributes="Bold"
@@ -243,7 +243,8 @@
                             FontSize="14"
                             FontAttributes="Bold"
                             VerticalOptions="Center"/>
-                                    <Entry WidthRequest="100" 
+                        
+                        <Entry HorizontalOptions="Fill"
                             IsReadOnly="True" 
                             Text="{Binding Tenders.Discount.DiscountPercent, StringFormat='{0}%'}"
                             FontAttributes="Bold"

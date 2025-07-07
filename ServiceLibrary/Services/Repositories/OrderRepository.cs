@@ -5,6 +5,7 @@ using ServiceLibrary.Services.DTO.Order;
 using ServiceLibrary.Services.DTO.Report;
 using ServiceLibrary.Services.Interfaces;
 using ServiceLibrary.Utils;
+using System.Diagnostics;
 using System.Linq;
 
 namespace ServiceLibrary.Services.Repositories
@@ -429,6 +430,8 @@ namespace ServiceLibrary.Services.Repositories
                 pendingOrder.VatAmount = pay.VatAmount;
                 pendingOrder.VatZero = pay.VatZero;
 
+
+
                 // Map Discount
                 if (pay.Discount != null)
                 {
@@ -436,7 +439,6 @@ namespace ServiceLibrary.Services.Repositories
                     pendingOrder.OSCAIdNum = pay.Discount.OSCAIdNum;
                     pendingOrder.DiscountType = pay.Discount.DiscountType;
                     pendingOrder.DiscountPercent = pay.Discount.DiscountPercent;
-                    pendingOrder.DiscountAmount = pay.Discount.DiscountAmount;
                 }
 
                 // Map EPayments

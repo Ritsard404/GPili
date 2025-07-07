@@ -24,7 +24,7 @@ namespace ServiceLibrary.Services
         Task<(bool isSuccess, string message)> ReprintInvoice(long id);
     }
 
-    public class PrinterService(DataContext _dataContext, 
+    public class PrinterService(DataContext _dataContext,
         IGPiliTerminalMachine _terminalMachine,
         IReport _report) : IPrinterService
     {
@@ -153,10 +153,12 @@ namespace ServiceLibrary.Services
             content.AppendLine(new string('-', ReceiptWidth));
 
             // Totals
-            content.AppendLine(CenterText($"{"Total:",-15}{invoiceInfo.TotalAmount,17}"))
-                // #TODO To Add Discount
-                //.AppendLine(CenterText($"{"Sub Total:",-15}{invoiceInfo.SubTotal,17}"))
-                .AppendLine(CenterText($"{"Due Amount:",-15}{invoiceInfo.DueAmount,17}"));
+            content.AppendLine(CenterText($"{"Total:",-15}{invoiceInfo.TotalAmount,17}"));
+            // #TODO To Add Discount
+            //.AppendLine(CenterText($"{"Sub Total:",-15}{invoiceInfo.SubTotal,17}"))
+            if (!string.IsNullOrEmpty(invoiceInfo.ElligiblePersonDiscount) || invoiceInfo.OtherPayments.Count > 0)
+                content.AppendLine(CenterText($"{$"Discount({invoiceInfo.DiscountType}):",-15}{invoiceInfo.DiscountAmount,17}"));
+            content.AppendLine(CenterText($"{"Due Amount:",-15}{invoiceInfo.DueAmount,17}"));
 
             // Other Payments
             if (invoiceInfo.OtherPayments.Count > 0)
@@ -264,7 +266,7 @@ namespace ServiceLibrary.Services
 
             string fileName = $"XInvoice-{DateTime.UtcNow.ToString("MMMM-dd-yyyy-HH-mm-ss")}.txt";
             var filePath = Path.Combine(reportPath, fileName);
-            
+
             var isTrainMode = xInvoice.IsTrainMode;
 
             var content = new StringBuilder();
@@ -628,15 +630,15 @@ namespace ServiceLibrary.Services
 
         public void PrintCashTrack(string cashInDrawer, string currentCashDrawer, string cashierName)
         {
-            
+
 
             // Build the report content
             var sb = new StringBuilder();
-                sb.AppendLine(new string('=', ReceiptWidth));
-                sb.AppendLine(CenterText("Cash Track Report"));
-                sb.AppendLine(new string('=', ReceiptWidth));
-                sb.AppendLine($"Cash In Drawer: {cashInDrawer}");
-                sb.AppendLine($"Total Cash Drawer: {currentCashDrawer}");
+            sb.AppendLine(new string('=', ReceiptWidth));
+            sb.AppendLine(CenterText("Cash Track Report"));
+            sb.AppendLine(new string('=', ReceiptWidth));
+            sb.AppendLine($"Cash In Drawer: {cashInDrawer}");
+            sb.AppendLine($"Total Cash Drawer: {currentCashDrawer}");
 
             string reportContent = sb.ToString();
 
@@ -660,7 +662,7 @@ namespace ServiceLibrary.Services
             Process.Start(new ProcessStartInfo(tempPrintPath) { UseShellExecute = true });
 
             // Optionally, print to thermal printer
-             PrintToPrinter(new StringBuilder(printContent));
+            PrintToPrinter(new StringBuilder(printContent));
         }
     }
 }

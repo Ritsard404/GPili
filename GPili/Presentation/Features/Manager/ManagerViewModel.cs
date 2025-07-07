@@ -179,7 +179,8 @@ namespace GPili.Presentation.Features.Manager
                     else
                     {
                         await Toast.Make("Enter a valid amount.", ToastDuration.Short).Show();
-                    }
+                    return;
+                }
                 //} while (!validCash);
 
                 IsLoading = true;
@@ -274,6 +275,7 @@ namespace GPili.Presentation.Features.Manager
                 if (decimal.TryParse(input, out cashValue) && cashValue < 1000)
                 {
                     await Toast.Make("Enter a valid amount of ₱1000 or more.", ToastDuration.Short).Show();
+                    return;
                 }
 
                 IsLoading = true;
@@ -305,5 +307,12 @@ namespace GPili.Presentation.Features.Manager
                 IsLoading = false;
             }
         }
+    
+        [RelayCommand]
+        private async Task GoBack()
+        {
+            await _navigationService.GoBack();
+        }
+    
     }
 }
