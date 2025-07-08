@@ -29,4 +29,6 @@ public partial class SaveProduct : Popup
         BindingContext = vm;
         Closed += (_, _) => PopupState.PopupInfo.ClosePopup();
     }
+    public void CloseResult(bool isSuccess) => Close(isSuccess);
+
 }

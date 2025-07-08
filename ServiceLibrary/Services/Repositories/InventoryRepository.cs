@@ -229,7 +229,8 @@ namespace ServiceLibrary.Services.Repositories
 
         public async Task<(bool isSuccess, string message)> DeleteProduct(long id, string managerEmail)
         {
-            var existing = await _dataContext.Product.FirstOrDefaultAsync(p => p.Id == id && p.IsAvailable);
+            var existing = await _dataContext.Product
+                .FirstOrDefaultAsync(p => p.Id == id && p.IsAvailable);
             if (existing == null)
                 return (false, "Product not found.");
 
@@ -237,16 +238,36 @@ namespace ServiceLibrary.Services.Repositories
             if (!managerResult.isSuccess || managerResult.manager == null)
                 return (false, "Invalid Manager");
 
-            existing.IsAvailable = false;
-            existing.UpdatedAt = DateTime.Now;
-            _dataContext.Product.Update(existing);
+            bool isReferenced = await _dataContext.Item
+                .Include(p => p.Product)
+                .AnyAsync(i => i.Product.Id == id);
+
+            if (isReferenced)
+            {
+                existing.IsAvailable = false;
+                existing.UpdatedAt = DateTime.Now;
+                _dataContext.Product.Update(existing);
+            }
+            else
+            {
+                _dataContext.Product.Remove(existing);
+            }
+
             await _dataContext.SaveChangesAsync();
 
-            await _auditLog.AddManagerAudit(managerResult.manager,
-                AuditActionType.Delete, $"Deleted product: {existing.Name} (Barcode: {existing.Barcode})", null);
+            await _auditLog.AddManagerAudit(
+                managerResult.manager,
+                AuditActionType.Delete,
+                isReferenced
+                    ? $"Soft‑deleted product: {existing.Name} (Barcode: {existing.Barcode})"
+                    : $"Hard‑deleted product: {existing.Name} (Barcode: {existing.Barcode})",
+                null);
 
-            return (true, "Product deleted successfully");
+            return (true, isReferenced
+                ? "Product is in use, so it has been marked unavailable."
+                : "Product wasn’t in use, so it was permanently deleted.");
         }
+
 
         public async Task<Category[]> GetCategories()
         {
@@ -421,7 +442,7 @@ namespace ServiceLibrary.Services.Repositories
                             Category = category,
                             IsAvailable = true,
                         };
-                        await _dataContext.Product.AddAsync(product); 
+                        await _dataContext.Product.AddAsync(product);
                     }
                     else
                     {

@@ -48,8 +48,12 @@ namespace GPili.Presentation.Features.Manager
             IsLoading = true;
             var popup = new SaveProduct(isEdit: false, category: Categories,
                 managerEmail: ManagerEmail, product: product);
-            var result = await Shell.Current.ShowPopupAsync(popup);
-            Products = await _inventory.GetProducts();
+            var result = await Shell.Current.ShowPopupAsync(popup); 
+            
+            if (result is bool boolResult && boolResult)
+            {
+                Products = await _inventory.GetProducts();
+            }
             IsLoading = false;
         }
 
@@ -61,6 +65,25 @@ namespace GPili.Presentation.Features.Manager
                 managerEmail: ManagerEmail);
             var result = await Shell.Current.ShowPopupAsync(popup);
             Products = await _inventory.GetProducts();
+            IsLoading = false;
+        }
+
+        [RelayCommand]
+        public async Task RemoveProduct(Product product)
+        {
+            IsLoading = true;
+
+            var (isSuccess, message) = await _inventory.DeleteProduct(product.Id, ManagerEmail);
+            if (isSuccess)
+            {
+                await Snackbar.Make("Product deleted successfully.", duration: TimeSpan.FromSeconds(1)).Show();
+                Products = await _inventory.GetProducts();
+            }
+            else
+            {
+                await Shell.Current.DisplayAlert("Error", $"Error deleting product: {message}", "OK");
+            }
+
             IsLoading = false;
         }
 

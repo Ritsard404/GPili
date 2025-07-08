@@ -34,6 +34,7 @@ namespace GPili.Presentation.Popups.Manager
                 if(isSuccess)
                 {
                     await Shell.Current.DisplayAlert("Success", "Product updated successfully.", "OK");
+                    Popup.CloseResult(isSuccess);
                 }
                 else
                 {
@@ -55,8 +56,6 @@ namespace GPili.Presentation.Popups.Manager
                     return;
                 }
             }
-
-            Popup.Close();
         }
     
     }

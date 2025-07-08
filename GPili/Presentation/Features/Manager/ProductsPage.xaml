@@ -115,7 +115,7 @@
                         StrokeShape="RoundRectangle 12,12,0,0"
                         StrokeThickness="0" 
                         Background="#383949">
-                        <Grid ColumnDefinitions="180,100,100,100,80,100,180,80,120,120" Padding="12"
+                        <Grid ColumnDefinitions="180,100,100,100,80,100,180,80,120,240" Padding="12"
                               ColumnSpacing="10">
                             <Label Text="Name" Grid.Column="0" FontAttributes="Bold" />
                             <Label Text="Price" Grid.Column="1" FontAttributes="Bold" />
@@ -144,7 +144,7 @@
 
                             <CollectionView.ItemTemplate>
                                 <DataTemplate x:DataType="model:Product">
-                                    <Grid ColumnDefinitions="180,100,100,100,80,100,180,80,120,120"
+                                    <Grid ColumnDefinitions="180,100,100,100,80,100,180,80,120,240"
                                     Padding="15,7,15,7" Margin="4"
                                     ColumnSpacing="10">
 
@@ -171,16 +171,28 @@
                                             Grid.Row="1" />
                                         </Grid>
 
-                                        <Button Text="Edit"
-                                                Grid.Column="9" 
+                                        <Grid Grid.Column="9" ColumnDefinitions="0.5*, 0.5*" ColumnSpacing="10" Padding="10">
+                                            <Button Text="Edit"
+                                                    Grid.Column="0"
                                                 Command="{Binding BindingContext.EditProductCommand, Source={x:Reference ProductsPageRoot}}"
                                                 CommandParameter="{Binding .}" >
-                                            <Button.ImageSource>
-                                                <FontImageSource FontFamily="FASolid"
+                                                <Button.ImageSource>
+                                                    <FontImageSource FontFamily="FASolid"
                                                      Glyph="{x:Static fa:Solid.Pencil}"
                                                      Color="Black" Size="12" />
-                                            </Button.ImageSource>
-                                        </Button>
+                                                </Button.ImageSource>
+                                            </Button>
+
+                                            <Button Text="Remove" Grid.Column="1"
+                                                Command="{Binding BindingContext.RemoveProductCommand, Source={x:Reference ProductsPageRoot}}"
+                                                CommandParameter="{Binding .}" Style="{StaticResource RedButton}">
+                                                <Button.ImageSource>
+                                                    <FontImageSource FontFamily="FASolid"
+                                                     Glyph="{x:Static fa:Solid.Trash}"
+                                                     Color="Black" Size="12" />
+                                                </Button.ImageSource>
+                                            </Button>
+                                        </Grid>
                                         <!--<Grid.GestureRecognizers>
                                         <TapGestureRecognizer
                                         Command="{Binding BindingContext.AddItemCommand, Source={x:Reference ProductSelectionViewRoot}}"
