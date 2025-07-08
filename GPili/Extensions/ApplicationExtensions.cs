@@ -98,6 +98,7 @@ internal static class ApplicationExtensions
         services.AddTransientPopup<DateSelectionPopup, SelectionOfDateViewModel>();
         services.AddTransientPopup<TerminalMachinePopup, TerminalMachineViewModel>();
         services.AddTransientPopup<SaveProduct, SaveProductViewModel>();
+        services.AddTransientPopup<CategoriesView, ProductsViewModel>();
 
         return services;
     }

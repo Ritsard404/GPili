@@ -11,8 +11,8 @@ namespace GPili.Presentation.Features.Manager
         INavigationService _navigation) : ObservableObject
     {
 
-        public double PopupWidth => Shell.Current.CurrentPage.Width;
-        public double PopupHeight => Shell.Current.CurrentPage.Height;
+        public double PopupWidth => Shell.Current.CurrentPage.Width * 0.5;
+        public double PopupHeight => Shell.Current.CurrentPage.Height * 0.7;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(ProductCount))]
@@ -48,7 +48,7 @@ namespace GPili.Presentation.Features.Manager
             var popup = new SaveProduct(isEdit: false, category: Categories,
                 managerEmail: ManagerEmail, product: product);
             var result = await Shell.Current.ShowPopupAsync(popup);
-            //Products = await _inventory.GetProducts();
+            Products = await _inventory.GetProducts();
             IsLoading = false;
         }
 
@@ -59,7 +59,7 @@ namespace GPili.Presentation.Features.Manager
             var popup = new SaveProduct(isEdit:false, category: Categories, 
                 managerEmail: ManagerEmail);
             var result = await Shell.Current.ShowPopupAsync(popup);
-            //Products = await _inventory.GetProducts();
+            Products = await _inventory.GetProducts();
             IsLoading = false;
         }
         [RelayCommand]

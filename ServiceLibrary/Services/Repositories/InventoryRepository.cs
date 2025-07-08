@@ -136,10 +136,11 @@ namespace ServiceLibrary.Services.Repositories
                 product.Category == null)
                 return (false, "All product fields are required.");
             product.ProdId = product.Name;
-            product.Barcode = product.Name;
 
             if (product.Cost < 0 || product.Price < 0)
                 return (false, "Cost and Price must be non-negative.");
+
+            if (product.Quantity <= 0) product.Quantity = null;
 
             // Check for unique barcode
             var isExisting = await _dataContext.Product

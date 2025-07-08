@@ -214,7 +214,7 @@
             </Button>
         </Grid>
         <Grid Grid.Row="3">
-            <!--<footer:UserFooterView />-->
+            <footer:UserFooterView />
         </Grid>
 
         <!-- Loader Overlay -->

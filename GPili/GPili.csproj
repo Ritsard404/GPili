@@ -154,6 +154,9 @@
 	  <MauiXaml Update="Presentation\Features\Manager\ProductsPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Presentation\Popups\Manager\CategoriesView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Presentation\Popups\Manager\SaveProduct.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

@@ -76,9 +76,17 @@
                                 </material:TextField>
 
                                 <!-- Vat Type -->
-                                <material:TextField Grid.Column="1" TextColor="White" Title="Vat Type" Text="{Binding Product.VatType}">
+                                <material:PickerField Grid.Column="1" TextColor="White"
+                                                      Title="Vat Type" SelectedItem="{Binding Product.VatType}">
                                     <validation:RequiredValidation />
-                                </material:TextField>
+                                    <material:PickerField.ItemsSource>
+                                        <x:Array Type="{x:Type x:String}">
+                                            <x:String>Vatable</x:String>
+                                            <x:String>Excempt</x:String>
+                                            <x:String>Zero</x:String>
+                                        </x:Array>
+                                    </material:PickerField.ItemsSource>
+                                </material:PickerField>
                             </Grid>
 
                             <!-- Category (as a dropdown, ideally) -->

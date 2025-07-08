@@ -357,9 +357,9 @@ namespace GPili.Presentation.Features.Manager
             var products = await _inventory.GetProducts();
             var categories = await _inventory.GetCategories();
 
-            if(products.Length == 0 || categories.Length == 0)
+            if(categories.Length == 0)
             {
-                await Snackbar.Make("No products or categories found.", duration: TimeSpan.FromSeconds(1)).Show();
+                await Shell.Current.DisplayAlert("Error", "No categories found.", "OK");
                 IsLoading = false;
                 return;
             }

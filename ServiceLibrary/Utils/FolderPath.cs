@@ -29,6 +29,7 @@
         public static class PDF
         {
             public const string Barcodes = "C:\\Reports\\Barcodes";
+            public const string AuditTrail = "C:\\Reports\\AuditTrail";
         }
     }
 }
