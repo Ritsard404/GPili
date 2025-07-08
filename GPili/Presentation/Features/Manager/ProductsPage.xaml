@@ -4,8 +4,6 @@
             x:Class="GPili.Presentation.Features.Manager.ProductsPage"
             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
-            xmlns:validation="clr-namespace:InputKit.Shared.Validations;assembly=InputKit.Maui"
-            xmlns:v="clr-namespace:UraniumUI.Validations;assembly=UraniumUI.Validations.DataAnnotations"
             xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
             xmlns:model="clr-namespace:ServiceLibrary.Models;assembly=ServiceLibrary"
             xmlns:footer="clr-namespace:GPili.Presentation.Contents"
@@ -98,7 +96,8 @@
                     Command="{Binding SearchCommand}">
             </Button>
             <Button Grid.Column="3" StyleClass="FilledButton" 
-                    Text="New Product" FontSize="Small">
+                    Text="New Product" FontSize="Small"
+                    Command="{Binding AddProductCommand}">
                 <Button.ImageSource>
                     <FontImageSource FontFamily="FASolid"
                                      Glyph="{x:Static fa:Solid.Plus}"
@@ -205,7 +204,7 @@
                 Grid.Row="3"
                 Grid.Column="2"
                 FontSize="Medium"
-                ContentLayout="Left"
+                ContentLayout="Left" Command="{Binding PrintBarcodesCommand}"
                 >
                 <Button.ImageSource>
                     <FontImageSource FontFamily="FASolid"

@@ -6,8 +6,8 @@ namespace ServiceLibrary.Services.Interfaces
     {
         Task<Product[]> GetProducts();
         Task<Product[]> SearchProducts(string keyword);
-        Task<Product?> GetProductByBarcode(string barcode); 
-        Task<(bool isSuccess, string message)> RecordInventoryTransaction(string transactionType, 
+        Task<Product?> GetProductByBarcode(string barcode);
+        Task<(bool isSuccess, string message)> RecordInventoryTransaction(string transactionType,
             Product product, decimal qty, string reference, User user);
 
         // Products CRUD
@@ -26,5 +26,10 @@ namespace ServiceLibrary.Services.Interfaces
 
         // Load Products
         Task<(bool isSuccess, string message)> LoadOnlineProducts(IProgress<(int current, int total, string status)>? progress = null);
+
+        // Print PDF
+
+        Task<(bool isSuccess, string message)> GetProductBarcodes();
+
     }
 }

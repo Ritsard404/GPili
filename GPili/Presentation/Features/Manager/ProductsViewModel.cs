@@ -1,8 +1,12 @@
-﻿using ServiceLibrary.Models;
+﻿using GPili.Presentation.Popups.Manager;
+using ServiceLibrary.Models;
 using ServiceLibrary.Services.Interfaces;
 
 namespace GPili.Presentation.Features.Manager
 {
+    [QueryProperty(nameof(Products), nameof(Products))]
+    [QueryProperty(nameof(Categories), nameof(Categories))]
+    [QueryProperty(nameof(ManagerEmail), nameof(ManagerEmail))]
     public partial class ProductsViewModel(IInventory _inventory,
         INavigationService _navigation) : ObservableObject
     {
@@ -25,22 +29,38 @@ namespace GPili.Presentation.Features.Manager
         private bool _isLoading = false;
 
         [ObservableProperty]
+        private string _managerEmail;
+
+        [ObservableProperty]
         private string? _searchProduct;
 
         public async Task LoadProducts()
         {
-
-            Products = await _inventory.GetProducts();
-            Categories = await _inventory.GetCategories();
+            //Products = await _inventory.GetProducts();
+            //Categories = await _inventory.GetCategories();
 
         }
 
         [RelayCommand]
         private async Task EditProduct(Product product)
         {
-            await Snackbar.Make(product.ProdId).Show();
-            Debug.WriteLine(product.ProdId);
-            Debug.WriteLine(product.ProdId);
+            IsLoading = true;
+            var popup = new SaveProduct(isEdit: false, category: Categories,
+                managerEmail: ManagerEmail, product: product);
+            var result = await Shell.Current.ShowPopupAsync(popup);
+            //Products = await _inventory.GetProducts();
+            IsLoading = false;
+        }
+
+        [RelayCommand]
+        public async Task AddProduct()
+        {
+            IsLoading = true;
+            var popup = new SaveProduct(isEdit:false, category: Categories, 
+                managerEmail: ManagerEmail);
+            var result = await Shell.Current.ShowPopupAsync(popup);
+            //Products = await _inventory.GetProducts();
+            IsLoading = false;
         }
         [RelayCommand]
         public async Task Search()
@@ -69,6 +89,15 @@ namespace GPili.Presentation.Features.Manager
             await _navigation.GoBack();
         }
 
+
+        [RelayCommand]
+        private async Task PrintBarcodes()
+        {
+            IsLoading = true;
+            await _inventory.GetProductBarcodes();
+            await Shell.Current.DisplayAlert("Success", "Product added successfully.", "OK");
+            IsLoading = false;
+        }
 
     }
 }

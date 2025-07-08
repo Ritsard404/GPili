@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using ServiceLibrary.Services;
 using ServiceLibrary.Services.Interfaces;
+using ServiceLibrary.Services.PDF;
 using ServiceLibrary.Services.Repositories;
 
 namespace ServiceLibrary.Extension
@@ -9,6 +10,10 @@ namespace ServiceLibrary.Extension
     {
         public static IServiceCollection AddService(this IServiceCollection services)
         {
+            // PDF
+            services.AddScoped<ProductBarcodePDFService>();
+
+
             services.AddScoped<IDatabaseInitializerService, DatabaseInitializerService>();
             services.AddScoped<DataSeedingService>();
             services.AddScoped<IPrinterService, PrinterService>();

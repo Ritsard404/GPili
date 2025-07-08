@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="GPili.Presentation.Popups.Manager.SaveProduct"
+            xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+            xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+            xmlns:validation="clr-namespace:InputKit.Shared.Validations;assembly=InputKit.Maui"
+             xmlns:input="clr-namespace:InputKit.Shared.Controls;assembly=InputKit.Maui"
+            xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
+            xmlns:model="clr-namespace:ServiceLibrary.Models;assembly=ServiceLibrary"
+             Color="Transparent">
+
+    <Border 
+        Stroke="Black"
+        StrokeShape="RoundRectangle 15"
+        StrokeThickness="3"
+        WidthRequest="{Binding PopupWidth}"
+        HeightRequest="{Binding PopupHeight}">
+        <Grid RowDefinitions="Auto, *" Background="#121125"
+              HorizontalOptions="Fill" VerticalOptions="Fill"
+              Padding="5">
+        <Label Grid.Row="0" HorizontalOptions="Center"
+               VerticalOptions="Center" TextColor="White"
+               FontSize="Medium" FontAttributes="Bold"
+               Text="{Binding Title}" />
+
+        <input:FormView Grid.Row="1" SubmitCommand="{Binding SaveCommand}" Spacing="20">
+            <Grid RowDefinitions="*,Auto" ColumnDefinitions="*, *" RowSpacing="10" ColumnSpacing="10">
+                    <ScrollView Orientation="Vertical" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+                        <VerticalStackLayout Spacing="10" Padding="10" HorizontalOptions="Fill">
+
+                            <!-- Barcode -->
+                            <material:TextField Title="Barcode" TextColor="White" Text="{Binding Product.Barcode}">
+                                <validation:RequiredValidation />
+                            </material:TextField>
+
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10" HorizontalOptions="Fill">
+                                <!-- Name -->
+                                <material:TextField Grid.Column="0" TextColor="White" Title="Name" Text="{Binding Product.Name}">
+                                    <validation:RequiredValidation />
+                                </material:TextField>
+
+                                <!-- Base Unit -->
+                                <material:TextField Grid.Column="1" TextColor="White" Title="Base Unit" Text="{Binding Product.BaseUnit}">
+                                    <validation:RequiredValidation />
+                                </material:TextField>
+                            </Grid>
+
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                <!-- Quantity -->
+                                <material:TextField Grid.Column="0" TextColor="White" Title="Quantity" Text="{Binding Product.Quantity}" Keyboard="Numeric" />
+
+                                <!-- Cost -->
+                                <material:TextField Grid.Column="1" TextColor="White" Title="Cost" Text="{Binding Product.Cost}" Keyboard="Numeric" />
+
+                            </Grid>
+
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                <!-- Price -->
+                                <material:TextField Grid.Column="0" TextColor="White" Title="Price" Text="{Binding Product.Price}" Keyboard="Numeric" />
+
+
+                                <!-- Is Available + Status -->
+                                <HorizontalStackLayout Grid.Column="1" Spacing="5" HorizontalOptions="Fill" VerticalOptions="Center">
+                                    <CheckBox IsChecked="{Binding Product.IsAvailable}" />
+                                    <Label Text="{Binding StatusText}"
+                                       TextColor="White"
+                                       VerticalOptions="Center" />
+                                </HorizontalStackLayout>
+                            </Grid>
+
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                <!-- Item Type -->
+                                <material:TextField Grid.Column="0" TextColor="White" Title="Item Type" Text="{Binding Product.ItemType}">
+                                    <validation:RequiredValidation />
+                                </material:TextField>
+
+                                <!-- Vat Type -->
+                                <material:TextField Grid.Column="1" TextColor="White" Title="Vat Type" Text="{Binding Product.VatType}">
+                                    <validation:RequiredValidation />
+                                </material:TextField>
+                            </Grid>
+
+                            <!-- Category (as a dropdown, ideally) -->
+                            <!-- You may want to bind this to a list of categories -->
+                            <material:PickerField Title="Category"  TextColor="White"
+                                          ItemsSource="{Binding Categories}"
+                                          ItemDisplayBinding="{Binding CtgryName}"
+                                          SelectedItem="{Binding Product.Category}" >
+                                <validation:RequiredValidation/>
+                            </material:PickerField>
+                        </VerticalStackLayout>
+                    </ScrollView>
+                    <Button Text="Save" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                        input:FormView.IsSubmitButton="True" Margin="10,0,10,0"
+                            VerticalOptions="Center"
+                        StyleClass="FilledButton"/>
+            </Grid>
+        </input:FormView>
+        </Grid>
+    </Border>
+</toolkit:Popup>

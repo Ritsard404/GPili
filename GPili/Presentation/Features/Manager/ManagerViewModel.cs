@@ -352,7 +352,27 @@ namespace GPili.Presentation.Features.Manager
         [RelayCommand]
         private async Task Products()
         {
-            await _navigationService.NavigateToAsync(AppRoutes.ProductPage);
+            IsLoading = true;
+
+            var products = await _inventory.GetProducts();
+            var categories = await _inventory.GetCategories();
+
+            if(products.Length == 0 || categories.Length == 0)
+            {
+                await Snackbar.Make("No products or categories found.", duration: TimeSpan.FromSeconds(1)).Show();
+                IsLoading = false;
+                return;
+            }
+
+            await _navigationService.NavigateToAsync(AppRoutes.ProductPage, 
+                new Dictionary<string, object>
+                {
+                    {"Products", products },
+                    {"Categories", categories },
+                    {"ManagerEmail", ManagerEmail },
+                });
+
+            IsLoading = false;
         }
     
         [RelayCommand]
@@ -369,6 +389,5 @@ namespace GPili.Presentation.Features.Manager
 
             IsLoading = false;
         }
-    
-    }
+        }
 }

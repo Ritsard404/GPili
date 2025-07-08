@@ -26,5 +26,9 @@
         {
             public const string Ebisx = "https://ebisx.com/";
         }
+        public static class PDF
+        {
+            public const string Barcodes = "C:\\Reports\\Barcodes";
+        }
     }
 }

@@ -93,10 +93,12 @@
 		</PackageReference>
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.5" />
 		<PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />
+		<PackageReference Include="PdfSharp" Version="6.2.0" />
 		<PackageReference Include="UraniumUI" Version="2.12.1" />
 		<PackageReference Include="UraniumUI.Icons.FontAwesome" Version="2.12.1" />
 		<PackageReference Include="UraniumUI.Material" Version="2.12.1" />
 		<PackageReference Include="UraniumUI.Validations.DataAnnotations" Version="2.12.1" />
+		<PackageReference Include="ZXing.Net" Version="0.16.10" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -150,6 +152,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Presentation\Features\Manager\ProductsPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Presentation\Popups\Manager\SaveProduct.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Presentation\Popups\Manager\TerminalMachinePopup.xaml">

@@ -8,18 +8,18 @@ public partial class ProductsPage : ContentPage
         InitializeComponent();
     }
 
-    protected override async void OnAppearing()
-    {
-        base.OnAppearing();
+    //protected override async void OnAppearing()
+    //{
+    //    base.OnAppearing();
 
 
-        if (BindingContext is ProductsViewModel vm)
-        {
-            vm.IsLoading = true;
-            await vm.LoadProducts();
-            vm.IsLoading = false;
-        }
-    }
+    //    if (BindingContext is ProductsViewModel vm)
+    //    {
+    //        vm.IsLoading = true;
+    //        await vm.LoadProducts();
+    //        vm.IsLoading = false;
+    //    }
+    //}
 
 
 }

@@ -3,6 +3,7 @@ using ServiceLibrary.Data;
 using ServiceLibrary.Models;
 using ServiceLibrary.Services.DTO.Inventory;
 using ServiceLibrary.Services.Interfaces;
+using ServiceLibrary.Services.PDF;
 using ServiceLibrary.Utils;
 using System.Diagnostics;
 using System.Net.Http.Json;
@@ -13,7 +14,8 @@ namespace ServiceLibrary.Services.Repositories
     public class InventoryRepository(DataContext _dataContext,
         IAuditLog _auditLog,
         IAuth _auth,
-        IGPiliTerminalMachine _terminalMachine) : IInventory
+        IGPiliTerminalMachine _terminalMachine,
+        ProductBarcodePDFService _pDFService) : IInventory
     {
         private static readonly HttpClient _httpClient = new()
         {
@@ -127,6 +129,7 @@ namespace ServiceLibrary.Services.Repositories
 
             // Validate required fields
             if (string.IsNullOrWhiteSpace(product.Name) ||
+                string.IsNullOrWhiteSpace(product.Barcode) ||
                 string.IsNullOrWhiteSpace(product.BaseUnit) ||
                 string.IsNullOrWhiteSpace(product.ItemType) ||
                 string.IsNullOrWhiteSpace(product.VatType) ||
@@ -468,6 +471,29 @@ namespace ServiceLibrary.Services.Repositories
             if (vat.Contains("ZERO"))
                 return VatType.Zero;
             return VatType.Vatable;
+        }
+
+        public async Task<(bool isSuccess, string message)> GetProductBarcodes()
+        {
+            var products = await _dataContext.Product
+                .Where(m => m.IsAvailable)
+                .ToListAsync();
+
+            var folderPath = FolderPath.PDF.Barcodes;
+
+            var barcodePdf = _pDFService.GenerateProductBarcodeLabels(products);
+
+            var fileName = $"Barcodes_{DateTime.UtcNow:yyyyMMdd_HHmmss}.pdf";
+
+            // Ensure directory exists
+            if (!Directory.Exists(folderPath))
+                Directory.CreateDirectory(folderPath);
+
+            var filePath = Path.Combine(folderPath, fileName);
+            // Save PDF file
+            await File.WriteAllBytesAsync(filePath, barcodePdf);
+
+            return (true, $"Barcodes generated successfully: {filePath}");
         }
     }
 }

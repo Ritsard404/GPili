@@ -40,6 +40,7 @@ namespace GPili
                 .UseUraniumUIMaterial();
 
 
+
 #if WINDOWS
                     //maximized window on startup in Windows platform
                     builder.ConfigureLifecycleEvents(events =>
