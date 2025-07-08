@@ -35,14 +35,14 @@ namespace GPili.Presentation.Features.Manager
 
         [ObservableProperty]
         private bool _isLoading = false;
-        public bool IsLoaderOnly => ProgressValue <= 0; 
-        
+        public bool IsLoaderOnly => ProgressValue <= 0;
+
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(ModeText))]
         [NotifyPropertyChangedFor(nameof(ModeButtonColor))]
         private bool _isTrainingMode = POSInfo.Terminal.IsTrainMode;
 
-        public string ModeText => IsTrainingMode ? "Training Mode" : "Live Mode"; 
+        public string ModeText => IsTrainingMode ? "Training Mode" : "Live Mode";
         public Color ModeButtonColor => IsTrainingMode ? Colors.Orange : Colors.Green;
 
         [ObservableProperty]
@@ -186,21 +186,21 @@ namespace GPili.Presentation.Features.Manager
 
                 //do
                 //{
-                    var input = await Shell.Current.DisplayPromptAsync(
-                        title: "Cash Withdraw",
-                        message: "Please enter the total amount of cash in the drawer:",
-                        accept: "Submit Cash", "", "0.00", -1, Keyboard.Numeric);
+                var input = await Shell.Current.DisplayPromptAsync(
+                    title: "Cash Withdraw",
+                    message: "Please enter the total amount of cash in the drawer:",
+                    accept: "Submit Cash", "", "0.00", -1, Keyboard.Numeric);
 
-                    //if (input == null)
-                    //    continue; // user clicked cancel — keep looping
+                //if (input == null)
+                //    continue; // user clicked cancel — keep looping
 
-                    if (decimal.TryParse(input, out cashValue))
-                    {
-                        //validCash = true;
-                    }
-                    else
-                    {
-                        await Snackbar.Make("Enter a valid amount.", duration: TimeSpan.FromSeconds(1)).Show();
+                if (decimal.TryParse(input, out cashValue))
+                {
+                    //validCash = true;
+                }
+                else
+                {
+                    await Snackbar.Make("Enter a valid amount.", duration: TimeSpan.FromSeconds(1)).Show();
                     return;
                 }
                 //} while (!validCash);
@@ -296,7 +296,7 @@ namespace GPili.Presentation.Features.Manager
 
                 if (decimal.TryParse(input, out cashValue) && cashValue <= 0)
                 {
-                    await Snackbar.Make("Enter a valid amount.", duration: TimeSpan.FromSeconds(1)).Show();
+                    await Shell.Current.DisplayAlert("Error", "Cash value must be greater than zero.", "OK");
                     return;
                 }
 
@@ -316,8 +316,7 @@ namespace GPili.Presentation.Features.Manager
                 }
                 else
                 {
-                    await Snackbar.Make($"Logout failed: {message}",
-                        duration: TimeSpan.FromSeconds(1)).Show();
+                    await Shell.Current.DisplayAlert("Logout failed", $"{message}", "OK");
 
                 }
             }
@@ -331,13 +330,13 @@ namespace GPili.Presentation.Features.Manager
                 IsLoading = false;
             }
         }
-    
+
         [RelayCommand]
         private async Task GoBack()
         {
             await _navigationService.GoBack();
         }
-    
+
         [RelayCommand]
         private async Task Settings()
         {
@@ -348,7 +347,7 @@ namespace GPili.Presentation.Features.Manager
 
             IsLoading = false;
         }
-    
+
         [RelayCommand]
         private async Task Products()
         {
@@ -357,18 +356,35 @@ namespace GPili.Presentation.Features.Manager
             var products = await _inventory.GetProducts();
             var categories = await _inventory.GetCategories();
 
-            if(categories.Length == 0)
+            if (categories.Length == 0)
             {
                 await Shell.Current.DisplayAlert("Error", "No categories found.", "OK");
                 IsLoading = false;
                 return;
             }
 
-            await _navigationService.NavigateToAsync(AppRoutes.ProductPage, 
+            await _navigationService.NavigateToAsync(AppRoutes.ProductPage,
                 new Dictionary<string, object>
                 {
                     {"Products", products },
                     {"Categories", categories },
+                    {"ManagerEmail", ManagerEmail },
+                });
+
+            IsLoading = false;
+        }
+
+        [RelayCommand]
+        private async Task Users()
+        {
+            IsLoading = true;
+
+            var users = await _auth.Users();
+
+            await _navigationService.NavigateToAsync(AppRoutes.UsersPage,
+                new Dictionary<string, object>
+                {
+                    {"Users", users },
                     {"ManagerEmail", ManagerEmail },
                 });
 
@@ -387,7 +403,7 @@ namespace GPili.Presentation.Features.Manager
 
             IsLoading = false;
         }
-    
+
         [RelayCommand]
         private async Task ChangeMode()
         {
@@ -402,5 +418,5 @@ namespace GPili.Presentation.Features.Manager
 
             IsLoading = false;
         }
-        }
+    }
 }

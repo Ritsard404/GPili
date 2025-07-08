@@ -24,8 +24,10 @@ namespace GPili
         {
             Routing.RegisterRoute(AppRoutes.Login, typeof(LogInPage));
             Routing.RegisterRoute(AppRoutes.Cashiering, typeof(CashieringPage));
+
             Routing.RegisterRoute(AppRoutes.Manager, typeof(ManagerPage));
             Routing.RegisterRoute(AppRoutes.ProductPage, typeof(ProductsPage));
+            Routing.RegisterRoute(AppRoutes.UsersPage, typeof(UsersPage));
         }
     }
 }

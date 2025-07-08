@@ -40,5 +40,14 @@
         {
             return $"₱{(value ?? 0):N2}";
         }
+
+        public static string Capitalize(this string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return value!;
+
+            var lower = value.ToLowerInvariant();
+            return char.ToUpperInvariant(lower[0]) + lower.Substring(1);
+        }
     }
 }

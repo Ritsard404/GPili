@@ -14,15 +14,12 @@ namespace ServiceLibrary.Services.Interfaces
         Task<(bool isSuccess, string message)> CashWithdrawDrawer(string cashierEmail, string managerEmail, decimal cash);
         Task<bool> IsCashedDrawer(string cashierEmail);
 
-        Task<User[]> GetCashiers();
+        Task<User[]> GetCashiers(); 
+        Task<User[]> Users();
 
         // User Crud
-        Task<User[]> Users();
-        Task<(bool isSuccess, string message)> NewCashier(User cashier, string managerEmail);
-        Task<(bool isSuccess, string message)> UpdateCashier(User cashier, string managerEmail);
-        Task<(bool isSuccess, string message)> DeleteCashier(long id, string managerEmail);
-        Task<(bool isSuccess, string message)> NewManager(User manager);
-        Task<(bool isSuccess, string message)> UpdateManager(User manager);
-        Task<(bool isSuccess, string message)> DeleteManager(string email);
+        Task<(bool isSuccess, string message)> AddUser(User user, string? managerEmail = null);
+        Task<(bool isSuccess, string message)> UpdateUser(User user, string? managerEmail = null);
+        Task<(bool isSuccess, string message)> DeleteUser(string emailOrId, string? managerEmail = null, string? role = null);
     }
 }

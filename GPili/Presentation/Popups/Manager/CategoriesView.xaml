@@ -54,7 +54,7 @@
         HeightRequest="{Binding PopupHeight}">
         <Grid RowDefinitions="Auto, Auto, *">
 
-            <Button Grid.Column="3" StyleClass="FilledButton" 
+            <Button Grid.Column="3" StyleClass="FilledButton"  Grid.Row="0"
                     Text="New Category" FontSize="Small"
                     Command="{Binding AddCategoryCommand}"
                     WidthRequest="200" HorizontalOptions="End" Margin="0,0,0,10">

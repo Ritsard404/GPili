@@ -8,5 +8,6 @@
 
         public const string Manager = "managerPage";
         public const string ProductPage = "managerPage/productPage";
+        public const string UsersPage = "managerPage/usersPage";
     }
 }

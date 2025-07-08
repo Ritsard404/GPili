@@ -52,70 +52,151 @@ namespace ServiceLibrary.Services.Repositories
                 return (false, "Cash amount exceeds available cash in drawer and pending orders total.");
 
             timestamp.WithdrawnDrawerAmount += cash;
-            timestamp.WithdrawnDrawerCount ++;
+            timestamp.WithdrawnDrawerCount++;
 
             await _auditLog.AddManagerAudit(manager.manager, AuditActionType.Approve, "Manager approved cash withdrawal from drawer", cash);
             await _auditLog.AddCashierAudit(timestamp.Cashier, AuditActionType.CashWithdrawDrawer, "Cash withdrawn from drawer", cash);
             return (true, "Cash withdrawal recorded.");
         }
 
-        public async Task<(bool isSuccess, string message)> DeleteCashier(long id, string managerEmail)
+        public async Task<(bool isSuccess, string message)> AddUser(User user, string? managerEmail = null)
         {
-            var existing = await _dataContext.User.FirstOrDefaultAsync(u => u.Role == RoleType.Cashier 
-                && u.IsActive && u.Email != null 
-                && u.Email != "" && u.GetHashCode() == id);
-            if (existing == null)
-                return (false, "Cashier not found.");
+            if (user == null || string.IsNullOrWhiteSpace(user.Email) ||
+                string.IsNullOrWhiteSpace(user.FName) || string.IsNullOrWhiteSpace(user.LName) ||
+                string.IsNullOrWhiteSpace(user.Role))
+                return (false, "All user fields are required.");
 
-            var managerResult = await IsManagerValid(managerEmail);
-            if (!managerResult.isSuccess || managerResult.manager == null)
-                return (false, "Invalid manager credential.");
+            if (!new EmailAddressAttribute().IsValid(user.Email))
+                return (false, "Invalid email format.");
 
-            existing.IsActive = false;
-            existing.UpdatedAt = DateTime.Now;
+            var isExisting = await _dataContext.User.AnyAsync(u => u.Email.ToLower() == user.Email.ToLower());
+            if (isExisting)
+                return (false, "A user with this email already exists.");
 
-            _dataContext.User.Update(existing);
-
-            await _dataContext.SaveChangesAsync();
-            await _auditLog.AddManagerAudit(managerResult.manager, 
-                AuditActionType.RemoveCashier, $"Deleted cashier: {existing.FullName} ({existing.Email})", null);
-
-            return (true, "Cashier deleted successfully");
-        }
-
-        public async Task<(bool isSuccess, string message)> DeleteManager(string email)
-        {
-            var existing = await _dataContext.User.FirstOrDefaultAsync(u => u.Role == RoleType.Manager && u.IsActive && u.Email.ToLower() == email.ToLower());
-            if (existing == null)
-                return (false, "Manager not found.");
-
-            existing.IsActive = false;
-            existing.UpdatedAt = DateTime.Now;
-
-            _dataContext.User.Update(existing);
-            await _dataContext.SaveChangesAsync();
-            await _auditLog.AddManagerAudit(existing, AuditActionType.RemoveManager, $"Deleted manager: {existing.FullName} ({existing.Email})", null);
-            return (true, "Manager deleted successfully");
-        }
-
-        public async Task<User[]> GetCashiers()
-        {
-            var cashiers = await _dataContext.User
-                .Where(u => u.Role == RoleType.Cashier)
-                .OrderBy(u => u.FName)
-                .ThenBy(u => u.LName)
-                .ToListAsync();
-
-            cashiers.Insert(0, new User
+            if (user.Role == RoleType.Cashier)
             {
-                Email = "",
-                FName = "",
-                LName = "",
-                Role = RoleType.Cashier,
-                IsActive = true
-            });
+                if (string.IsNullOrWhiteSpace(managerEmail))
+                    return (false, "Manager email is required for adding a cashier.");
 
-            return cashiers.ToArray();
+                var managerResult = await IsManagerValid(managerEmail);
+                if (!managerResult.isSuccess || managerResult.manager == null)
+                    return (false, "Invalid manager credential.");
+
+                await _auditLog.AddManagerAudit(managerResult.manager, AuditActionType.AddCashier, $"Added new cashier: {user.FullName} ({user.Email})", null);
+            }
+            else if (user.Role == RoleType.Manager)
+            {
+                await _auditLog.AddManagerAudit(user, AuditActionType.AddManager, $"Added new manager: {user.FullName} ({user.Email})", null);
+            }
+            // ... handle other roles if needed
+
+            user.IsActive = true;
+            user.CreatedAt = DateTime.Now;
+            user.UpdatedAt = DateTime.Now;
+            _dataContext.User.Add(user);
+
+            await _dataContext.SaveChangesAsync();
+            return (true, $"{user.Role} added successfully");
+        }
+
+        public async Task<(bool isSuccess, string message)> UpdateUser(User user, string? managerEmail = null)
+        {
+            if (user == null || string.IsNullOrWhiteSpace(user.Email) ||
+                string.IsNullOrWhiteSpace(user.FName) || string.IsNullOrWhiteSpace(user.LName) ||
+                string.IsNullOrWhiteSpace(user.Role))
+                return (false, "All user fields are required.");
+
+            if (!new EmailAddressAttribute().IsValid(user.Email))
+                return (false, "Invalid email format.");
+
+            var existing = await _dataContext.User.FirstOrDefaultAsync(u => u.Email.ToLower() == user.Email.ToLower() && u.Role == user.Role);
+            if (existing == null)
+                return (false, $"{user.Role} not found.");
+
+            if (user.Role == RoleType.Cashier)
+            {
+                if (string.IsNullOrWhiteSpace(managerEmail))
+                    return (false, "Manager email is required for updating a cashier.");
+
+                var managerResult = await IsManagerValid(managerEmail);
+                if (!managerResult.isSuccess || managerResult.manager == null)
+                    return (false, "Invalid manager credential.");
+
+                await _auditLog.AddManagerAudit(managerResult.manager, AuditActionType.Update, $"Updated cashier: {existing.FullName} ({existing.Email})", null);
+            }
+            else if (user.Role == RoleType.Manager)
+            {
+                await _auditLog.AddManagerAudit(existing, AuditActionType.Update, $"Updated manager: {existing.FullName} ({existing.Email})", null);
+            }
+            // ... handle other roles if needed
+
+            existing.FName = user.FName;
+            existing.LName = user.LName;
+            existing.IsActive = user.IsActive;
+            existing.UpdatedAt = DateTime.Now;
+
+            _dataContext.User.Update(existing);
+            await _dataContext.SaveChangesAsync();
+
+            return (true, $"{user.Role} updated successfully");
+        }
+
+        public async Task<(bool isSuccess, string message)> DeleteUser(string emailOrId, string? managerEmail = null, string? role = null)
+        {
+            User? existing = null;
+            if (!string.IsNullOrWhiteSpace(role))
+            {
+                if (role == RoleType.Cashier && long.TryParse(emailOrId, out var id))
+                {
+                    existing = await _dataContext.User.FirstOrDefaultAsync(u => u.Role == RoleType.Cashier && u.IsActive && u.Email != null && u.Email != "" && u.GetHashCode() == id);
+                }
+                else
+                {
+                    existing = await _dataContext.User.FirstOrDefaultAsync(u => u.Role == role && u.IsActive && u.Email.ToLower() == emailOrId.ToLower());
+                }
+            }
+            else
+            {
+                existing = await _dataContext.User.FirstOrDefaultAsync(u => u.IsActive && (u.Email.ToLower() == emailOrId.ToLower() || u.GetHashCode().ToString() == emailOrId));
+            }
+
+            if (existing == null)
+                return (false, $"{role ?? "User"} not found.");
+
+            if (existing.Role == RoleType.Cashier)
+            {
+                if (string.IsNullOrWhiteSpace(managerEmail))
+                    return (false, "Manager email is required for deleting a cashier.");
+
+                var managerResult = await IsManagerValid(managerEmail);
+                if (!managerResult.isSuccess || managerResult.manager == null)
+                    return (false, "Invalid manager credential.");
+
+                await _auditLog.AddManagerAudit(managerResult.manager, AuditActionType.RemoveCashier, $"Deleted cashier: {existing.FullName} ({existing.Email})", null);
+            }
+            else if (existing.Role == RoleType.Manager)
+            {
+                await _auditLog.AddManagerAudit(existing, AuditActionType.RemoveManager, $"Deleted manager: {existing.FullName} ({existing.Email})", null);
+            }
+            // ... handle other roles if needed
+
+            // Check for references in Timestamp, Invoice, AuditLog, InvoiceDocument
+            bool hasTimestamp = await _dataContext.Timestamp.AnyAsync(t => t.Cashier.Email == existing.Email || t.ManagerIn.Email == existing.Email || (t.ManagerOut != null && t.ManagerOut.Email == existing.Email));
+            bool hasInvoice = await _dataContext.Invoice.AnyAsync(i => i.Cashier.Email == existing.Email);
+            bool hasAuditLog = await _dataContext.AuditLog.AnyAsync(a => (a.Cashier != null && a.Cashier.Email == existing.Email) || (a.Manager != null && a.Manager.Email == existing.Email));
+            bool hasInvoiceDoc = await _dataContext.InvoiceDocument.AnyAsync(d => d.Manager != null && d.Manager.Email == existing.Email);
+
+            if (hasTimestamp || hasInvoice || hasAuditLog || hasInvoiceDoc) {
+                existing.IsActive = false;
+                existing.UpdatedAt = DateTime.Now;
+                _dataContext.User.Update(existing);
+                await _dataContext.SaveChangesAsync();
+                return (true, $"{existing.Role} disabled (still referenced in system)");
+            } else {
+                _dataContext.User.Remove(existing);
+                await _dataContext.SaveChangesAsync();
+                return (true, $"{existing.Role} deleted permanently");
+            }
         }
 
         public async Task<(bool isSuccess, string cashierName, string cashierEmail, List<Item> pendingItems)> HasPendingOrder()
@@ -270,6 +351,9 @@ namespace ServiceLibrary.Services.Repositories
             if (timestamp == null)
                 return (false, "Cashier is not clocked in!");
 
+            if (cash <= 0)
+                return (false, "Cash value must be greater than zero.");
+
             timestamp.TsOut = DateTime.UtcNow; // Set the time-out to now
             timestamp.ManagerOut = manager; // Manager who authorized the logout
             timestamp.CashOutDrawerAmount = cash;
@@ -283,65 +367,6 @@ namespace ServiceLibrary.Services.Repositories
             await _dataContext.SaveChangesAsync();
 
             return (true, "Cashier Logged Out!");
-        }
-
-        public async Task<(bool isSuccess, string message)> NewCashier(User cashier, string managerEmail)
-        {
-            if (cashier == null || string.IsNullOrWhiteSpace(cashier.Email) 
-                || string.IsNullOrWhiteSpace(cashier.FName) || string.IsNullOrWhiteSpace(cashier.LName) 
-                || string.IsNullOrWhiteSpace(cashier.Role))
-                return (false, "All cashier fields are required.");
-
-            if (cashier.Role != RoleType.Cashier)
-                return (false, "Role must be 'Cashier'.");
-
-            if (!new EmailAddressAttribute().IsValid(cashier.Email))
-                return (false, "Invalid email format.");
-
-            var isExisting = await _dataContext.User.AnyAsync(u => u.Email.ToLower() == cashier.Email.ToLower());
-            if (isExisting)
-                return (false, "A user with this email already exists.");
-
-            var managerResult = await IsManagerValid(managerEmail);
-            if (!managerResult.isSuccess || managerResult.manager == null)
-                return (false, "Invalid manager credential.");
-
-            cashier.IsActive = true;
-            cashier.CreatedAt = DateTime.Now;
-            cashier.UpdatedAt = DateTime.Now;
-            _dataContext.User.Add(cashier);
-
-            await _dataContext.SaveChangesAsync();
-            await _auditLog.AddManagerAudit(managerResult.manager, 
-                AuditActionType.AddCashier, $"Added new cashier: {cashier.FullName} ({cashier.Email})", null);
-            return (true, "Cashier added successfully");
-        }
-
-        public async Task<(bool isSuccess, string message)> NewManager(User manager)
-        {
-            if (manager == null || string.IsNullOrWhiteSpace(manager.Email) || string.IsNullOrWhiteSpace(manager.FName) || string.IsNullOrWhiteSpace(manager.LName) || string.IsNullOrWhiteSpace(manager.Role))
-                return (false, "All manager fields are required.");
-
-            if (manager.Role != RoleType.Manager)
-                return (false, "Role must be 'Manager'.");
-
-            if (!new EmailAddressAttribute().IsValid(manager.Email))
-                return (false, "Invalid email format.");
-
-            var isExisting = await _dataContext.User.AnyAsync(u => u.Email.ToLower() == manager.Email.ToLower());
-            if (isExisting)
-                return (false, "A user with this email already exists.");
-
-            manager.IsActive = true;
-            manager.CreatedAt = DateTime.Now;
-            manager.UpdatedAt = DateTime.Now;
-            _dataContext.User.Add(manager);
-
-            await _dataContext.SaveChangesAsync();
-            await _auditLog.AddManagerAudit(manager, 
-                AuditActionType.AddManager, $"Added new manager: {manager.FullName} ({manager.Email})", null);
-
-            return (true, "Manager added successfully");
         }
 
         public async Task<(bool isSuccess, string message)> SetCashInDrawer(string cashierEmail, decimal cash)
@@ -373,45 +398,45 @@ namespace ServiceLibrary.Services.Repositories
             return (true, "Cash in drawer set successfully!");
         }
 
-        public async Task<(bool isSuccess, string message)> UpdateCashier(User cashier, string managerEmail)
-        {
-            if (cashier == null || string.IsNullOrWhiteSpace(cashier.Email) 
-                || string.IsNullOrWhiteSpace(cashier.FName) || string.IsNullOrWhiteSpace(cashier.LName) 
-                || string.IsNullOrWhiteSpace(cashier.Role))
-                return (false, "All cashier fields are required.");
+        //public async Task<(bool isSuccess, string message)> UpdateUser(User user, string? managerEmail = null)
+        //{
+        //    if (user == null || string.IsNullOrWhiteSpace(user.Email)
+        //        || string.IsNullOrWhiteSpace(user.FName) || string.IsNullOrWhiteSpace(user.LName)
+        //        || string.IsNullOrWhiteSpace(user.Role))
+        //        return (false, "All cashier fields are required.");
 
-            if (cashier.Role != RoleType.Cashier)
-                return (false, "Role must be 'Cashier'.");
+        //    if (user.Role != RoleType.Cashier)
+        //        return (false, "Role must be 'Cashier'.");
 
-            if (!new EmailAddressAttribute().IsValid(cashier.Email))
-                return (false, "Invalid email format.");
+        //    if (!new EmailAddressAttribute().IsValid(user.Email))
+        //        return (false, "Invalid email format.");
 
-            var existing = await _dataContext.User.FirstOrDefaultAsync(u => u.Email.ToLower() == cashier.Email.ToLower() && u.Role == RoleType.Cashier);
-            if (existing == null)
-                return (false, "Cashier not found.");
+        //    var existing = await _dataContext.User.FirstOrDefaultAsync(u => u.Email.ToLower() == cashier.Email.ToLower() && u.Role == RoleType.Cashier);
+        //    if (existing == null)
+        //        return (false, "Cashier not found.");
 
-            var managerResult = await IsManagerValid(managerEmail);
-            if (!managerResult.isSuccess || managerResult.manager == null)
-                return (false, "Invalid manager credential.");
+        //    var managerResult = await IsManagerValid(managerEmail);
+        //    if (!managerResult.isSuccess || managerResult.manager == null)
+        //        return (false, "Invalid manager credential.");
 
-            existing.FName = cashier.FName;
-            existing.LName = cashier.LName;
-            existing.IsActive = cashier.IsActive;
-            existing.UpdatedAt = DateTime.Now;
+        //    existing.FName = cashier.FName;
+        //    existing.LName = cashier.LName;
+        //    existing.IsActive = cashier.IsActive;
+        //    existing.UpdatedAt = DateTime.Now;
 
-            _dataContext.User.Update(existing);
-            await _dataContext.SaveChangesAsync();
+        //    _dataContext.User.Update(existing);
+        //    await _dataContext.SaveChangesAsync();
 
-            await _auditLog.AddManagerAudit(managerResult.manager, 
-                AuditActionType.Update, $"Updated cashier: {existing.FullName} ({existing.Email})", null);
+        //    await _auditLog.AddManagerAudit(managerResult.manager,
+        //        AuditActionType.Update, $"Updated cashier: {existing.FullName} ({existing.Email})", null);
 
-            return (true, "Cashier updated successfully");
-        }
+        //    return (true, "Cashier updated successfully");
+        //}
 
         public async Task<(bool isSuccess, string message)> UpdateManager(User manager)
         {
-            if (manager == null || string.IsNullOrWhiteSpace(manager.Email) 
-                || string.IsNullOrWhiteSpace(manager.FName) || string.IsNullOrWhiteSpace(manager.LName) 
+            if (manager == null || string.IsNullOrWhiteSpace(manager.Email)
+                || string.IsNullOrWhiteSpace(manager.FName) || string.IsNullOrWhiteSpace(manager.LName)
                 || string.IsNullOrWhiteSpace(manager.Role))
                 return (false, "All manager fields are required.");
 
@@ -433,7 +458,7 @@ namespace ServiceLibrary.Services.Repositories
             _dataContext.User.Update(existing);
             await _dataContext.SaveChangesAsync();
 
-            await _auditLog.AddManagerAudit(existing, AuditActionType.Update, 
+            await _auditLog.AddManagerAudit(existing, AuditActionType.Update,
                 $"Updated manager: {existing.FullName} ({existing.Email})", null);
 
             return (true, "Manager updated successfully");
@@ -441,7 +466,52 @@ namespace ServiceLibrary.Services.Repositories
 
         public async Task<User[]> Users()
         {
-            return await _dataContext.User.OrderBy(u => u.FName).ThenBy(u => u.LName).ToArrayAsync();
+            // Find the most recent manager login (ignore any cashier logins)
+            var loggedInManager = await _dataContext.AuditLog
+                .Include(a => a.Manager)
+                .Where(a =>
+                    a.Action == AuditActionType.Login &&
+                    a.Manager != null &&
+                    a.Cashier == null)
+                .OrderByDescending(a => a.CreatedAt)
+                .Select(a => a.Manager!.Email)
+                .FirstOrDefaultAsync();  // will be null if no match
+
+            var loggedInCashier = await _dataContext.Timestamp
+                .Include(c => c.Cashier)
+                .Where(c => c.TsOut == null)
+                .Select(c => c.Cashier.Email)
+                .FirstOrDefaultAsync();
+
+            // Return everyone except developers and (if set) the logged‑in manager
+            return await _dataContext.User
+                .Where(u =>
+                    u.Role != RoleType.Developer &&
+                    u.Email != loggedInManager &&
+                    u.Email != loggedInCashier)
+                .OrderBy(u => u.Role)
+                .ThenByDescending(u => u.FName)
+                .ToArrayAsync();
+        }
+
+        public async Task<User[]> GetCashiers()
+        {
+            var cashiers = await _dataContext.User
+                .Where(u => u.Role == RoleType.Cashier && u.IsActive)
+                .OrderBy(u => u.FName)
+                .ThenBy(u => u.LName)
+                .ToListAsync();
+
+            cashiers.Insert(0, new User
+            {
+                Email = "",
+                FName = "",
+                LName = "",
+                Role = RoleType.Cashier,
+                IsActive = true
+            });
+
+            return cashiers.ToArray();
         }
     }
 }

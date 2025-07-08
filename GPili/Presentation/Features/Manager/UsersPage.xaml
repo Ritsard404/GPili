@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+             xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
+             xmlns:validation="clr-namespace:InputKit.Shared.Validations;assembly=InputKit.Maui"
+             xmlns:input="clr-namespace:InputKit.Shared.Controls;assembly=InputKit.Maui"
+             xmlns:model="clr-namespace:ServiceLibrary.Models;assembly=ServiceLibrary"
+             xmlns:footer="clr-namespace:GPili.Presentation.Contents"
+             x:Class="GPili.Presentation.Features.Manager.UsersPage"
+             x:Name="UsersRoot">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Style x:Key="ButtonStyle" TargetType="Button">
+                <Setter Property="BorderColor" Value="black" />
+                <Setter Property="BorderWidth" Value="1" />
+                <Setter Property="BackgroundColor" Value="Aqua" />
+                <Setter Property="TextColor" Value="{StaticResource Gray900}" />
+                <Setter Property="CornerRadius" Value="15" />
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup Name="CommonStates">
+                            <VisualState Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="Aquamarine" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState Name="PointerOver">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="White" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="Aqua" />
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
+        <Style x:Key="RedButton" TargetType="Button">
+            <Setter Property="BackgroundColor" Value="Red"/>
+            <Setter Property="TextColor" Value="White"/>
+            <Setter Property="FontAttributes" Value="Bold"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="VisualStateManager.VisualStateGroups">
+                <VisualStateGroupList>
+                    <VisualStateGroup x:Name="CommonStates">
+                        <VisualState x:Name="Normal">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor" Value="Red"/>
+                                <Setter Property="TextColor" Value="White"/>
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState x:Name="Pressed">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor" Value="DarkGrey"/>
+                                <!-- Darker red -->
+                                <Setter Property="TextColor" Value="White"/>
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState x:Name="Disabled">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor" Value="#FFB3B3"/>
+                                <!-- Lighter red -->
+                                <Setter Property="TextColor" Value="#B20000"/>
+                                <Setter Property="Opacity" Value="0.5"/>
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateGroupList>
+            </Setter>
+        </Style>
+    </ContentPage.Resources>
+    <Grid  RowDefinitions="Auto,*, Auto, Auto" RowSpacing="10"
+               HorizontalOptions="Fill" VerticalOptions="Fill"
+               Padding="10">
+
+        <Button Grid.Row="0" StyleClass="FilledButton" 
+                Text="New User" FontSize="Small" VerticalOptions="Center"
+                WidthRequest="200" HorizontalOptions="End"
+                Command="{Binding ToggleAddUserCommand}">
+            <Button.ImageSource>
+                <FontImageSource FontFamily="FASolid"
+                                     Glyph="{x:Static fa:Solid.Plus}"
+                                     Color="Black" Size="16"/>
+            </Button.ImageSource>
+        </Button>
+
+        <!--Table Users-->
+        <Grid Grid.Row="1" RowDefinitions="Auto, *">
+            <Border Grid.Row="0"
+                Stroke="Transparent"
+                StrokeShape="RoundRectangle 12,12,0,0"
+                StrokeThickness="0" HeightRequest="50"
+                Background="#383949">
+                <Grid ColumnDefinitions="0.15*,0.1*,0.1*,0.15*,0.1*,0.1*,0.2*" ColumnSpacing="15">
+                    <Label Text="Email" Grid.Column="0" 
+                           FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"
+                           />
+                    <Label Text="First Name" Grid.Column="1" FontAttributes="Bold" 
+                           HorizontalOptions="Center" VerticalOptions="Center"/>
+                    <Label Text="Last Name" Grid.Column="2" FontAttributes="Bold" 
+                           HorizontalOptions="Center" VerticalOptions="Center"/>
+                    <Label Text="Role" Grid.Column="3" FontAttributes="Bold" 
+                           HorizontalOptions="Center" VerticalOptions="Center"/>
+                    <Label Text="Status" Grid.Column="4" FontAttributes="Bold" 
+                           HorizontalOptions="Center" VerticalOptions="Center"/>
+                    <Label Text="Timestamp" Grid.Column="5" FontAttributes="Bold" 
+                           HorizontalOptions="Center" VerticalOptions="Center"/>
+                    <Label Text="Actions" Grid.Column="6" FontAttributes="Bold" 
+                           HorizontalOptions="Center" VerticalOptions="Center"/>
+                </Grid>
+            </Border>
+            <Border Grid.Row="2"
+                Stroke="Transparent"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 0,0,12,12"
+                Background="#121125" Margin="0,0,0,5">
+                <CollectionView
+                    ItemsSource="{Binding Users}"
+                    SelectionMode="Single"
+                    Margin="0,0,0,5"
+                    ItemSizingStrategy="MeasureAllItems">
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="model:User">
+                            <Grid ColumnDefinitions="0.15*,0.1*,0.1*,0.12*,0.1*,0.1*,0.23*"
+                                    ColumnSpacing="15" Padding="10">
+
+                                <Label Text="{Binding Email}" Grid.Column="0" 
+                                       VerticalOptions="Center" HorizontalOptions="Start"/>
+                                <material:TextField Title="{Binding FName}" Text="{Binding FName}"
+                                                    Grid.Column="1">
+                                    <validation:RequiredValidation />
+                                </material:TextField>
+                                <material:TextField Title="{Binding LName}" Text="{Binding LName}"
+                                                    Grid.Column="2">
+                                    <validation:RequiredValidation />
+                                </material:TextField>
+                                <material:PickerField Grid.Column="3"
+                                                      Title="Role" SelectedItem="{Binding Role}">
+                                    <validation:RequiredValidation />
+                                    <material:PickerField.ItemsSource>
+                                        <x:Array Type="{x:Type x:String}">
+                                            <x:String>Manager</x:String>
+                                            <x:String>Cashier</x:String>
+                                        </x:Array>
+                                    </material:PickerField.ItemsSource>
+                                </material:PickerField>
+                                <HorizontalStackLayout Grid.Column="4" Spacing="5" HorizontalOptions="Center" VerticalOptions="Center">
+                                    <CheckBox IsChecked="{Binding IsActive}" />
+                                    <Label Text="{Binding Status}"
+                                       VerticalOptions="Center" />
+                                </HorizontalStackLayout>
+                                <Grid Grid.Column="5" RowDefinitions="Auto, Auto" HorizontalOptions="Center" VerticalOptions="Center">
+                                    <Label Text="{Binding CreatedAt, StringFormat='{}{0:dd/MM/yyyy}'}"
+                                            Grid.Row="0" />
+                                    <Label Text="{Binding UpdatedAt, StringFormat='{}{0:dd/MM/yyyy}'}"
+                                            Grid.Row="1" />
+                                </Grid>
+
+                                <Grid ColumnDefinitions="0.5*, 0.5*" Grid.Column="6" Padding="10" ColumnSpacing="10">
+                                    <Button Text="Save" FontSize="Small"
+                                            Grid.Column="0"
+                                            Command="{Binding BindingContext.UpdateUserCommand, Source={x:Reference UsersRoot}}"
+                                            CommandParameter="{Binding .}">
+                                        <Button.ImageSource>
+                                            <FontImageSource FontFamily="FASolid"
+                                             Glyph="{x:Static fa:Solid.FloppyDisk}"
+                                             Color="Black" Size="16"/>
+                                        </Button.ImageSource>
+                                    </Button>
+                                    <Button Text="Remove" FontSize="Small"
+                                            Grid.Column="1" Style="{StaticResource RedButton}"
+                                            Command="{Binding BindingContext.RemoveUserCommand, Source={x:Reference UsersRoot}}"
+                                            CommandParameter="{Binding .}">
+                                        <Button.ImageSource>
+                                            <FontImageSource FontFamily="FASolid"
+                                             Glyph="{x:Static fa:Solid.Trash}"
+                                             Color="Black" Size="16"/>
+                                        </Button.ImageSource>
+                                    </Button>
+                                </Grid>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Border>
+        </Grid>
+
+        <!--Back Button-->
+        <Grid Grid.Row="2" ColumnDefinitions="Auto, *,Auto">
+            <Button Text="Back"
+                Grid.Row="3" Grid.Column="0" FontSize="Medium"
+                ContentLayout="left"  Style="{StaticResource RedButton}"
+                    Command="{Binding BackCommand}">
+
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="FASolid"
+                         Glyph="{x:Static fa:Solid.ArrowLeftLong}"
+                         Color="Black" Size="16"/>
+                </Button.ImageSource>
+            </Button>
+        </Grid>
+
+        <!--Footer-->
+        <Grid Grid.Row="3">
+            <footer:UserFooterView />
+        </Grid>
+
+        <!-- Fake Popup -->
+        <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Grid.RowSpan="4"
+              BackgroundColor="#80000000" 
+              ZIndex="1"
+              IsVisible="{Binding IsAddUser}">
+            <BoxView BackgroundColor="Transparent">
+                <BoxView.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding ToggleAddUserCommand}"/>
+                </BoxView.GestureRecognizers>
+            </BoxView>
+            <Border 
+                Stroke="Black"
+                StrokeShape="RoundRectangle 15"
+                StrokeThickness="3"
+                WidthRequest="{Binding PopupWidth}"
+                MaximumHeightRequest="{Binding PopupHeight}">
+                <Grid RowDefinitions="Auto, *" Background="#121125"
+                      HorizontalOptions="Fill" VerticalOptions="Fill"
+                      Padding="5">
+                    <Label Grid.Row="0" HorizontalOptions="Center"
+                       VerticalOptions="Center" TextColor="White"
+                       FontSize="Medium" FontAttributes="Bold"
+                       Text="New User" />
+
+                    <input:FormView Grid.Row="1" SubmitCommand="{Binding AddUserCommand}" Spacing="20">
+                        <Grid RowDefinitions="*,Auto" ColumnDefinitions="*" RowSpacing="10" ColumnSpacing="10">
+                            <VerticalStackLayout Spacing="10" Padding="10" HorizontalOptions="Fill">
+
+                                <!-- Barcode -->
+                                <material:TextField Title="Email" TextColor="White" Text="{Binding User.Email}">
+                                    <validation:RequiredValidation />
+                                    <validation:RegexValidation Message="Please type a valid e-mail address." 
+                                                                    Pattern="{x:Static input:AdvancedEntry.REGEX_EMAIL}"/>
+                                </material:TextField>
+
+                                <!-- Name -->
+                                <material:TextField Grid.Column="0" TextColor="White" Title="First  Name" Text="{Binding User.FName}">
+                                    <validation:RequiredValidation />
+                                </material:TextField>
+
+                                <!-- Base Unit -->
+                                <material:TextField Grid.Column="1" TextColor="White" Title="Last Name" Text="{Binding User.LName}">
+                                    <validation:RequiredValidation />
+                                </material:TextField>
+
+                                <material:PickerField Grid.Column="3"
+                                                      Title="Role" SelectedItem="{Binding User.Role}">
+                                    <validation:RequiredValidation />
+                                    <material:PickerField.ItemsSource>
+                                        <x:Array Type="{x:Type x:String}">
+                                            <x:String>Manager</x:String>
+                                            <x:String>Cashier</x:String>
+                                        </x:Array>
+                                    </material:PickerField.ItemsSource>
+                                </material:PickerField>
+
+                            </VerticalStackLayout>
+                            <Button Text="Add" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                    input:FormView.IsSubmitButton="True" Margin="10,0,10,0"
+                                    VerticalOptions="Center" FontAttributes="Bold" FontSize="18"
+                                    StyleClass="FilledButton"/>
+                        </Grid>
+                    </input:FormView>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Loader Overlay -->
+        <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Grid.RowSpan="4"
+              BackgroundColor="#80000000" 
+                IsVisible="{Binding IsLoading}"
+                ZIndex="1">
+            <!-- Ensure it's on top -->
+
+            <StackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="10"
+                 WidthRequest="250">
+                <ActivityIndicator IsRunning="True" Color="White" WidthRequest="50" HeightRequest="50" />
+
+                <!-- Status message from progress -->
+                <Label Text="Loading..." TextColor="White" FontSize="16" HorizontalTextAlignment="Center" />
+
+            </StackLayout>
+        </Grid>
+    </Grid>
+</ContentPage>

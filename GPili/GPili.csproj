@@ -109,6 +109,9 @@
 	  <Compile Update="Presentation\Features\Manager\ProductsPage.xaml.cs">
 	    <DependentUpon>ProductsPage.xaml</DependentUpon>
 	  </Compile>
+	  <Compile Update="Presentation\Features\Manager\UsersPage.xaml.cs">
+	    <DependentUpon>UsersPage.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="Presentation\Popups\EPaymentView.xaml.cs">
 	    <DependentUpon>EPaymentView.xaml</DependentUpon>
 	  </Compile>
@@ -161,6 +164,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Presentation\Popups\Manager\TerminalMachinePopup.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Presentation\Features\Manager\UsersPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>

@@ -204,7 +204,8 @@
                                 ContentLayout="top, 0" ImageSource="symbols_upload.png"
                                 Command="{Binding PushJournalCommand}"/>
                         <Button Text="Users" Grid.Row="1" Grid.Column="3" 
-                                ContentLayout="top, 0" ImageSource="users.png"/>
+                                ContentLayout="top, 0" ImageSource="users.png"
+                                Command="{Binding UsersCommand}"/>
 
 
                         <Button Text="Categories" ImageSource="category.png"
