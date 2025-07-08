@@ -2,14 +2,127 @@
 <toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+             xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
+             xmlns:validation="clr-namespace:InputKit.Shared.Validations;assembly=InputKit.Maui"
+             xmlns:input="clr-namespace:InputKit.Shared.Controls;assembly=InputKit.Maui"
+             xmlns:model="clr-namespace:ServiceLibrary.Models;assembly=ServiceLibrary"
              x:Class="GPili.Presentation.Popups.Manager.CategoriesView"
+             x:Name="CategoriesRoot"
              Color="Transparent">
+    <toolkit:Popup.Resources>
+        <Style x:Key="RedButton" TargetType="Button">
+            <Setter Property="BackgroundColor" Value="Red"/>
+            <Setter Property="TextColor" Value="White"/>
+            <Setter Property="FontAttributes" Value="Bold"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="VisualStateManager.VisualStateGroups">
+                <VisualStateGroupList>
+                    <VisualStateGroup x:Name="CommonStates">
+                        <VisualState x:Name="Normal">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor" Value="Red"/>
+                                <Setter Property="TextColor" Value="White"/>
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState x:Name="Pressed">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor" Value="DarkGrey"/>
+                                <!-- Darker red -->
+                                <Setter Property="TextColor" Value="White"/>
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState x:Name="Disabled">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor" Value="#FFB3B3"/>
+                                <!-- Lighter red -->
+                                <Setter Property="TextColor" Value="#B20000"/>
+                                <Setter Property="Opacity" Value="0.5"/>
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateGroupList>
+            </Setter>
+        </Style>
+    </toolkit:Popup.Resources>
     <Border 
         Stroke="Black"
         StrokeShape="RoundRectangle 15"
         StrokeThickness="3"
+        Padding="10" BackgroundColor="White"
         WidthRequest="{Binding PopupWidth}"
         HeightRequest="{Binding PopupHeight}">
-        
+        <Grid RowDefinitions="Auto, Auto, *">
+
+            <Button Grid.Column="3" StyleClass="FilledButton" 
+                    Text="New Category" FontSize="Small"
+                    Command="{Binding AddCategoryCommand}"
+                    WidthRequest="200" HorizontalOptions="End" Margin="0,0,0,10">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="FASolid"
+                                     Glyph="{x:Static fa:Solid.Plus}"
+                                     Color="Black" Size="16"/>
+                </Button.ImageSource>
+            </Button>
+            <Border Grid.Row="1"
+                Stroke="Transparent"
+                StrokeShape="RoundRectangle 12,12,0,0"
+                StrokeThickness="0" HeightRequest="50"
+                Background="#383949">
+                <Grid ColumnDefinitions="0.5*, 0.5*" ColumnSpacing="10">
+                    <Label Text="Name" Grid.Column="0" 
+                           FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"
+                           />
+                    <Label Text="Action" Grid.Column="1" FontAttributes="Bold" 
+                           HorizontalOptions="Center" VerticalOptions="Center"/>
+                </Grid>
+            </Border>
+            <Border Grid.Row="2"
+                Stroke="Transparent"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 0,0,12,12"
+                Background="#121125" Margin="0,0,0,5">
+                <CollectionView
+                    ItemsSource="{Binding Categories}"
+                    SelectionMode="Single"
+                    Margin="0,0,0,5"
+                    ItemSizingStrategy="MeasureAllItems">
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="model:Category">
+                            <Grid ColumnDefinitions="0.5*, 0.5*"
+                                    ColumnSpacing="10" Padding="10">
+                                <material:TextField Title="{Binding CtgryName}" Text="{Binding CtgryName}"
+                                                    Grid.Column="0">
+                                    <validation:RequiredValidation />
+                                </material:TextField>
+                                <Grid ColumnDefinitions="0.5*, 0.5*" Grid.Column="1" Padding="10" ColumnSpacing="10">
+                                    <Button Text="Save" FontSize="Small"
+                                            Grid.Column="0"
+                                            Command="{Binding BindingContext.EditCategoryCommand, Source={x:Reference CategoriesRoot}}"
+                                            CommandParameter="{Binding .}">
+                                        <Button.ImageSource>
+                                            <FontImageSource FontFamily="FASolid"
+                                             Glyph="{x:Static fa:Solid.Folder}"
+                                             Color="Black" Size="16"/>
+                                        </Button.ImageSource>
+                                    </Button>
+                                    <Button Text="Remove" FontSize="Small"
+                                            Grid.Column="1" Style="{StaticResource RedButton}"
+                                            Command="{Binding BindingContext.RemoveCategoryCommand, Source={x:Reference CategoriesRoot}}"
+                                            CommandParameter="{Binding .}">
+                                        <Button.ImageSource>
+                                            <FontImageSource FontFamily="FASolid"
+                                             Glyph="{x:Static fa:Solid.Trash}"
+                                             Color="Black" Size="16"/>
+                                        </Button.ImageSource>
+                                    </Button>
+                                </Grid>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Border>
+        </Grid>
     </Border>
 </toolkit:Popup>

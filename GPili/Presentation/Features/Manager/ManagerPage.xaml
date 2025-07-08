@@ -209,7 +209,8 @@
 
                         <Button Text="Categories" ImageSource="category.png"
                                 ContentLayout="top, 0"
-                                Grid.Row="2" Grid.Column="0"/>
+                                Grid.Row="2" Grid.Column="0"
+                                Command="{Binding CategoriesCommand}"/>
                         <Button Text="Products" ImageSource="product_management.png"
                                 ContentLayout="top, 0"
                                 Grid.Row="2" Grid.Column="1"

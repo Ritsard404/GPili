@@ -374,6 +374,19 @@ namespace GPili.Presentation.Features.Manager
 
             IsLoading = false;
         }
+
+        [RelayCommand]
+        private async Task Categories()
+        {
+            IsLoading = true;
+
+            var categories = await _inventory.GetCategories();
+
+            var popup = new CategoriesView(categories: categories, managerEmail: ManagerEmail);
+            var result = await Shell.Current.ShowPopupAsync(popup);
+
+            IsLoading = false;
+        }
     
         [RelayCommand]
         private async Task ChangeMode()
