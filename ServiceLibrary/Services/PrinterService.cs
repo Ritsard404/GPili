@@ -123,13 +123,13 @@ namespace ServiceLibrary.Services
             if (await isAcknowledgementInvoice())
             {
                 content.AppendLine(new string('=', ReceiptWidth))
-                    .AppendLine(CenterText("Acknowledgment Receipt"))
+                    .AppendLine(CenterText(invoiceInfo.IsReturned ? "RETURN Acknowledgment Receipt" : "Acknowledgment Receipt"))
                     .AppendLine(new string('=', ReceiptWidth));
             }
             else
             {
                 content.AppendLine(new string('=', ReceiptWidth))
-                    .AppendLine(CenterText("INVOICE"))
+                    .AppendLine(CenterText(invoiceInfo.IsReturned ? "RETURNED INVOICE" : "INVOICE"))
                     .AppendLine(new string('=', ReceiptWidth))
                     .AppendLine(CenterText(invoiceInfo.BusinesDetails.RegisteredName))
                     .AppendLine(CenterText(invoiceInfo.BusinesDetails.Address))
@@ -525,13 +525,10 @@ namespace ServiceLibrary.Services
         {
             // Find the latest InvoiceDocument for this invoice (type "Invoice")
             var invoiceDocument = await _dataContext.InvoiceDocument
-                .Where(d => d.Invoice != null &&
-                        d.Id == d.Id &&
-                        d.Type == InvoiceDocumentType.Invoice)
-                .OrderByDescending(d => d.Id)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(d => d.Id == id
+                && d.Type == InvoiceDocumentType.Invoice);
 
-            if (invoiceDocument?.InvoiceBlob == null)
+            if (invoiceDocument?.InvoiceBlob == null || invoiceDocument == null)
                 return (false, "No stored invoice found for this ID.");
 
             // Convert blob to string
@@ -554,10 +551,11 @@ namespace ServiceLibrary.Services
             await _dataContext.SaveChangesAsync();
 
             // Print to thermal printer
-            //PrintToPrinter(content);
+            //PrintToPrinter(finalContent);
 
-            File.WriteAllText(tempPath, content);
+            File.WriteAllText(tempPath, finalContent);
             Process.Start(new ProcessStartInfo(tempPath) { UseShellExecute = true });
+
 
             return (true, "Invoice reprinted successfully.");
         }
@@ -593,9 +591,9 @@ namespace ServiceLibrary.Services
             await _dataContext.SaveChangesAsync();
 
             // Print to thermal printer
-            //PrintToPrinter(content);
+            //PrintToPrinter(finalContent);
 
-            File.WriteAllText(tempPath, content);
+            File.WriteAllText(tempPath, finalContent);
             Process.Start(new ProcessStartInfo(tempPath) { UseShellExecute = true });
 
             return (true, "X-Reading report reprinted successfully.");
@@ -632,9 +630,9 @@ namespace ServiceLibrary.Services
             await _dataContext.SaveChangesAsync();
 
             // Print to thermal printer
-            //PrintToPrinter(content);
+            //PrintToPrinter(finalContent);
 
-            File.WriteAllText(tempPath, content);
+            File.WriteAllText(tempPath, finalContent);
             Process.Start(new ProcessStartInfo(tempPath) { UseShellExecute = true });
 
             return (true, "Z-Reading report reprinted successfully.");

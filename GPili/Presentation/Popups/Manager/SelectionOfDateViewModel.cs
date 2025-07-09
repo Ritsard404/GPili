@@ -9,7 +9,7 @@ namespace GPili.Presentation.Popups.Manager
     {
         private readonly IPopupService _popupService;
 
-        public SelectionOfDateViewModel(IPopupService popupService, bool isRangeMode = false)
+        public SelectionOfDateViewModel(IPopupService popupService, bool isRangeMode = true)
         {
             _popupService = popupService;
             IsRangeMode = isRangeMode;

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+             xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
+             xmlns:validation="clr-namespace:InputKit.Shared.Validations;assembly=InputKit.Maui"
+             xmlns:input="clr-namespace:InputKit.Shared.Controls;assembly=InputKit.Maui"
+             x:Class="GPili.Presentation.Contents.Manager.TransactionLists"
+             x:Name="TransactListRoot">
+    <!-- Fake Popup -->
+    <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Grid.RowSpan="4"
+       BackgroundColor="#80000000" 
+       ZIndex="1">
+        <BoxView BackgroundColor="Transparent">
+            <BoxView.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding ToggleTransaclistsCommand}"/>
+            </BoxView.GestureRecognizers>
+        </BoxView>
+        <Border 
+         Stroke="Black"
+         StrokeShape="RoundRectangle 15"
+         StrokeThickness="3"
+         WidthRequest="{Binding PopupWidth}"
+         MaximumHeightRequest="{Binding PopupHeight}">
+            <Grid RowDefinitions="Auto,Auto, *, Auto" Background="Black"
+                   HorizontalOptions="Fill" VerticalOptions="Fill"
+                   Padding="5">
+                <Label Grid.Row="0" HorizontalOptions="Center"
+                    VerticalOptions="Center" TextColor="White"
+                    FontSize="Medium" FontAttributes="Bold"
+                    Text="Transactions" />
+                <Grid Grid.Row="1" ColumnDefinitions="*,*,*" ColumnSpacing="20">
+                    <material:DatePickerField Title="From:" Date="{Binding From}"
+                            HorizontalOptions="FillAndExpand" 
+                            BackgroundColor="Black"
+                            MinimumWidthRequest="200"
+                            Grid.Column="0"/>
+
+                    <material:DatePickerField Title="To:" Date="{Binding To}" 
+                                 HorizontalOptions="FillAndExpand"
+                                 BackgroundColor="Black"
+                                 MinimumWidthRequest="200"
+                                 Grid.Column="1"/>
+
+                    <Button Text="Search" Grid.Column="2" Command="{Binding SearchInvoicesCommand}">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="FASolid"
+                                     Glyph="{x:Static fa:Solid.MagnifyingGlass}"
+                                     Color="Black" Size="16"/>
+                        </Button.ImageSource>
+                    </Button>
+                </Grid>
+
+                <Grid Grid.Row="2" RowDefinitions="Auto, *" Margin="0,20,0,0">
+                    <Border Grid.Row="0"
+                        Stroke="Transparent"
+                        StrokeShape="RoundRectangle 12,12,0,0"
+                        StrokeThickness="0" HeightRequest="50"
+                        Background="#383949" Padding="15">
+                        <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="15">
+                            <Label Text="Type" Grid.Column="0" FontAttributes="Bold" 
+                                HorizontalOptions="Start" VerticalOptions="Center"/>
+                            <Label Text="Status" Grid.Column="1" FontAttributes="Bold" 
+                                HorizontalOptions="Start" VerticalOptions="Center"/>
+                            <Label Text="Date" Grid.Column="2" FontAttributes="Bold" 
+                                HorizontalOptions="Start" VerticalOptions="Center"/>
+                            <Label Text="Action" Grid.Column="3" FontAttributes="Bold" 
+                                HorizontalOptions="Center" VerticalOptions="Center"/>
+                        </Grid>
+                    </Border>
+                    <Border Grid.Row="1"
+                        Stroke="Transparent"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 0,0,12,12"
+                        Background="#121125" Margin="0,0,0,5">
+                        <CollectionView
+                            ItemsSource="{Binding TransactLists}"
+                            SelectionMode="Single"
+                            Margin="0,0,0,5"
+                            ItemSizingStrategy="MeasureAllItems">
+
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="*,*,*,*"
+                                    ColumnSpacing="15" Padding="15,5,15,5">
+
+                                        <Label Text="{Binding TypeDisplay}" Grid.Column="0" 
+                                       VerticalOptions="Center" HorizontalOptions="Start"/>
+
+                                        <Label Text="{Binding Status}" Grid.Column="1" 
+                                       VerticalOptions="Center" HorizontalOptions="Start"/>
+
+                                        <Label Text="{Binding CreatedAt}" Grid.Column="2" 
+                                       VerticalOptions="Center" HorizontalOptions="Start"/>
+
+                                        <Button Text="Print" Grid.Column="3"
+                                                WidthRequest="100"
+                                                Command="{Binding BindingContext.RePrintInvoiceCommand, Source={x:Reference TransactListRoot}}"
+                                                CommandParameter="{Binding .}">
+                                            <Button.ImageSource>
+                                                <FontImageSource FontFamily="FASolid"
+                                                 Glyph="{x:Static fa:Solid.Print}"
+                                                 Color="Black" Size="16"/>
+                                            </Button.ImageSource>
+                                        </Button>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    
+                    </Border>
+                </Grid>
+
+                <!--<Button Text="Print Transactions"
+                    Grid.Row="3" WidthRequest="250"
+                    FontSize="Medium"
+                    HorizontalOptions="End"
+                    ContentLayout="Left" Command="{Binding PrintTransactionListsCommand}"
+                    >
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="FASolid"
+                         Glyph="{x:Static fa:Solid.Print}"
+                         Color="Black" Size="16"/>
+                    </Button.ImageSource>
+                </Button>-->
+
+            </Grid>
+        </Border>
+    </Grid>
+
+</ContentView>

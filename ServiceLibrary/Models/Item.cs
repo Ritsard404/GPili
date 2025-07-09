@@ -23,12 +23,21 @@ namespace ServiceLibrary.Models
         public required virtual Invoice Invoice { get; set; }
 
         [NotMapped]
-        public string QtyDisplay => Qty % 1 == 0
-            ? ((int)Qty).ToString()
-            : Qty.ToString("F2");
+        public string QtyDisplay
+        {
+            get
+            {
+                var baseQty = Qty % 1 == 0 ? ((int)Qty).ToString() : Qty.ToString("F2");
+                return Status == "Returned" ? $"R{baseQty}" : baseQty;
+            }
+        }
 
         [NotMapped]
         public string DisplayNameWithPrice => $"{Product?.Name} @{Price.PesoFormat():N2}";
+        
+
+        [NotMapped]
+        public string DisplayPrice => $"{Price.PesoFormat():N2}";
         
         [NotMapped]
         public string DisplaySubtotalVat => Product?.VatType == VatType.Vatable ? $"{SubTotal.PesoFormat()}V" :

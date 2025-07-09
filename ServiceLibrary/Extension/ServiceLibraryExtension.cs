@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using EBISX_POS.API.Services.PDF;
+using Microsoft.Extensions.DependencyInjection;
 using ServiceLibrary.Services;
 using ServiceLibrary.Services.Interfaces;
 using ServiceLibrary.Services.PDF;
@@ -12,6 +13,7 @@ namespace ServiceLibrary.Extension
         {
             // PDF
             services.AddScoped<ProductBarcodePDFService>();
+            services.AddScoped<TransactionListPDFService>();
 
 
             services.AddScoped<IDatabaseInitializerService, DatabaseInitializerService>();

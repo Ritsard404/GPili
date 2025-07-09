@@ -91,8 +91,8 @@ namespace GPili.Presentation.Features.LogIn
             catch (Exception ex)
             {
                 // Optional: log the exception to a service or file
-                await Snackbar.Make($"An unexpected error occurred:\n{ex.Message}",
-                    duration: TimeSpan.FromSeconds(1)).Show();
+                await Shell.Current.DisplayAlert("An unexpected error occurred", $"{ex.Message}","Ok"
+                    );
             }
             finally
             {

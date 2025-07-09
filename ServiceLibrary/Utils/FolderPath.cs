@@ -30,6 +30,7 @@
         {
             public const string Barcodes = "C:\\Reports\\Barcodes";
             public const string AuditTrail = "C:\\Reports\\AuditTrail";
+            public const string TransactionLists = "C:\\Reports\\TransactionLists";
         }
     }
 }

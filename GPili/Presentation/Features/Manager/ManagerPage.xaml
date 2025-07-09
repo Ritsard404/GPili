@@ -5,7 +5,9 @@
              xmlns:footer="clr-namespace:GPili.Presentation.Contents"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:converter="clr-namespace:GPili.Converters"
-             Title="ManagerPage">
+             xmlns:content="clr-namespace:GPili.Presentation.Contents.Manager"
+             Title="ManagerPage"
+             x:Name="ManagerPageRoot">
     <ContentPage.Resources>
         <converter:InverseBoolConverter x:Key="InverseBoolConverter" />
         <ResourceDictionary>
@@ -102,11 +104,13 @@
 
                         <Button Text="Transaction List" ImageSource="tranx_list.png"
                                 ContentLayout="top, 0"
-                                Grid.Row="0" Grid.Column="1"/>
+                                Grid.Row="0" Grid.Column="1"
+                                Command="{Binding ToggleTransaclistsCommand}"/>
 
                         <Button Text="Refund Invoice" ImageSource="refund.png"
                                 ContentLayout="top, 0"
-                                Grid.Row="0" Grid.Column="2"/>
+                                Grid.Row="0" Grid.Column="2"
+                                Command="{Binding ToggleRefundInvoiceCommand}"/>
 
                         <Button Text="Cash Pull-Out" ImageSource="cash_pullout.png"
                                 ContentLayout="top, 0" IsEnabled="{Binding IsCashiering, Converter={StaticResource InverseBoolConverter}}"
@@ -167,7 +171,8 @@
                         <Button Text="Audit Trail" Grid.Row="1" Grid.Column="1" 
                                 ContentLayout="top, 0" ImageSource="audit_trail.png"/>
                         <Button Text="Daily Tranx" Grid.Row="1" Grid.Column="3" 
-                                ContentLayout="top, 0" ImageSource="subway_calendar.png"/>
+                                ContentLayout="top, 0" ImageSource="subway_calendar.png"
+                                Command="{Binding PrintTransactionListsCommand}"/>
 
                         <Button Text="Voided List" ImageSource="trash_icon.png"
                                 ContentLayout="top, 0"
@@ -226,6 +231,14 @@
                 </Grid>
             </Border>
         </Grid>
+
+        <!--Fake Popup TransactLists-->
+        <content:TransactionLists Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+                    IsVisible="{Binding IsDisplayTransactLists}"/>
+        
+        <!--Fake Popup Refund Invoice-->
+        <content:RefundInvoice Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+                    IsVisible="{Binding IsRefundDisplay}"/>
 
         <!-- Loader Overlay -->
         <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"

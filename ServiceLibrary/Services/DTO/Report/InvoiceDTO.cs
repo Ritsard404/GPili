@@ -28,6 +28,8 @@
 
         public string? ElligiblePersonDiscount { get; set; }
         public string? DiscountType { get; set; }
+
+        public bool IsReturned { get; set; } = false;
     }
 
     public class BusinesDetails

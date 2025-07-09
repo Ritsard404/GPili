@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+             xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
+             xmlns:validation="clr-namespace:InputKit.Shared.Validations;assembly=InputKit.Maui"
+             xmlns:input="clr-namespace:InputKit.Shared.Controls;assembly=InputKit.Maui"
+             x:Class="GPili.Presentation.Contents.Manager.RefundInvoice">
+    <!-- Fake Popup -->
+    <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Grid.RowSpan="4"
+       BackgroundColor="#80000000" 
+       ZIndex="1">
+        <BoxView BackgroundColor="Transparent">
+            <BoxView.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding ToggleRefundInvoiceCommand}"/>
+            </BoxView.GestureRecognizers>
+        </BoxView>
+        <Border 
+             Stroke="Black"
+             StrokeShape="RoundRectangle 15"
+             StrokeThickness="3"
+             WidthRequest="{Binding PopupRefundWidth}"
+             MaximumHeightRequest="{Binding PopupRefundHeight}">
+            <Grid RowDefinitions="Auto,Auto, *, Auto" Background="Black"
+                   HorizontalOptions="Fill" VerticalOptions="Fill"
+                   Padding="5" RowSpacing="10">
+                <Label Grid.Row="0" HorizontalOptions="Center"
+                    VerticalOptions="Center" TextColor="White"
+                    FontSize="Medium" FontAttributes="Bold"
+                    Text="Refund Invoice Items" />
+                <input:FormView  Grid.Row="1" SubmitCommand="{Binding SearchRefundItemsCommand}">
+                    <Grid ColumnDefinitions="0.7*, 0.3*" ColumnSpacing="20">
+                        <material:TextField Title="Invoice Number" Text="{Binding InvId}" >
+                            <validation:DigitsOnlyValidation/>
+                            <validation:RequiredValidation/>
+
+                            <material:TextField.Behaviors>
+                                <toolkit:EventToCommandBehavior
+                                    EventName="Completed"
+                                    Command="{Binding SearchRefundItemsCommand}"/>
+                            </material:TextField.Behaviors>
+                        </material:TextField>
+
+                        <Button Text="Search" input:FormView.IsSubmitButton="True"
+                                Grid.Column="2" Command="{Binding SearchRefundItemsCommand}">
+                        </Button>
+                    </Grid>
+                </input:FormView>
+                <material:DataGrid Background="#121125" HorizontalOptions="CenterAndExpand" 
+                                   Grid.Row="2" ItemsSource="{Binding ToRefundItems}" 
+                                   SelectedItems="{Binding ToSelectedRefundItems}"
+                                   StrokeShape="RoundRectangle 12">
+                    <material:DataGrid.Columns>
+                        <material:DataGridSelectionColumn Title="Select"/>
+                        <material:DataGridColumn ValueBinding="{Binding Product.Name}" Title="Name" />
+                        <material:DataGridColumn ValueBinding="{Binding QtyDisplay}" Title="Quantity" />
+                        <material:DataGridColumn ValueBinding="{Binding DisplayPrice}" Title="Price" />
+                        <material:DataGridColumn ValueBinding="{Binding DisplaySubtotalVat}" Title="SubTotal" />
+                    </material:DataGrid.Columns>
+                </material:DataGrid>
+
+                <Button Grid.Row="3" Text="Refund Items"
+                        FontSize="Medium" FontAttributes="Bold"
+                        Command="{Binding RefundItemsCommand}">
+                    
+                </Button>
+            </Grid>
+
+        </Border>
+    </Grid>
+</ContentView>

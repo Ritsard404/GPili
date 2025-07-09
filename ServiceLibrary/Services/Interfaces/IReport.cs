@@ -11,5 +11,8 @@ namespace ServiceLibrary.Services.Interfaces
         Task<ZInvoiceDTO> GetZInvoice();
         Task<List<GetInvoiceDocumentDTO>> InvoiceDocuments(DateTime fromDate, DateTime toDate);
 
+        Task<(List<TransactionListDTO> Data, TotalTransactionListDTO Totals, string FilePath)> 
+            GetTransactList(DateTime fromDate, DateTime toDate);
+
     }
 }

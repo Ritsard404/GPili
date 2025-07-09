@@ -238,6 +238,7 @@ namespace ServiceLibrary.Services.Repositories
             if (DateTime.Now - invoiceToRefund.CreatedAt > TimeSpan.FromDays(5))
                 return (false, "Refund period has expired (more than 5 days since purchase).");
 
+            decimal returnAmount = 0m;
             foreach (var item in items)
             {
                 var itemToReturn = invoiceToRefund.Items.FirstOrDefault(i => i.Id == item.Id && i.Status == InvoiceStatusType.Paid);
@@ -246,6 +247,7 @@ namespace ServiceLibrary.Services.Repositories
 
                 itemToReturn.Status = InvoiceStatusType.Returned;
                 itemToReturn.UpdatedAt = DateTime.UtcNow;
+                returnAmount += itemToReturn.SubTotal;
                 _dataContext.Item.Update(itemToReturn);
 
                 // Record inventory IN transaction for each returned item
@@ -261,16 +263,23 @@ namespace ServiceLibrary.Services.Repositories
             // Check if the invoice is already returned
             invoiceToRefund.Status = InvoiceStatusType.Returned;
             invoiceToRefund.StatusChangeDate = DateTime.UtcNow;
+            invoiceToRefund.ReturnedAmount = returnAmount;
 
             // Log the return action
             await _auditLog.AddManagerAudit(managerResult.manager, AuditActionType.ReturnItem, $"Items returned from invoice {invoiceNumber:D12} by {managerResult.manager.Email}", null);
             await _dataContext.SaveChangesAsync();
+
+
 
             // add to journal
             await _auditLog.AddPwdScJournal(invoiceToRefund.Id);
             await _auditLog.AddItemsJournal(invoiceToRefund.Id);
             await _auditLog.AddTendersJournal(invoiceToRefund.Id);
             await _auditLog.AddTotalsJournal(invoiceToRefund.Id);
+
+            var returnedInvoice = await _report.GetInvoiceById(invoiceToRefund.Id);
+            await _printer.PrintInvoice(returnedInvoice!);
+
             return (true, "Items successfully returned!");
         }
 
@@ -502,6 +511,19 @@ namespace ServiceLibrary.Services.Repositories
                 Debug.WriteLine($"Payment failed: {ex.Message}");
                 return (false, $"Payment failed: {ex.Message}", null);
             }
+        }
+
+        public async Task<List<Item>> GetToRefundItems(long invNum)
+        {
+            var isTrainMode = await _terminalMachine.IsTrainMode();
+
+            return await _dataContext.Item
+                .Include(i => i.Product)
+                .Include(i => i.Invoice)
+                .Where(i => i.Invoice.InvoiceNumber == invNum &&
+                    i.Invoice.Status == InvoiceStatusType.Paid 
+                    && i.IsTrainingMode == isTrainMode)
+                .ToListAsync();
         }
     }
 }

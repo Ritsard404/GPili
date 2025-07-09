@@ -1,8 +1,10 @@
 ﻿using GPili.Presentation.Popups;
 using GPili.Presentation.Popups.Manager;
 using ServiceLibrary.Models;
+using ServiceLibrary.Services.DTO.Report;
 using ServiceLibrary.Services.Interfaces;
 using ServiceLibrary.Utils;
+using WinRT.Interop;
 
 namespace GPili.Presentation.Features.Manager
 {
@@ -13,7 +15,7 @@ namespace GPili.Presentation.Features.Manager
         IAuth _auth,
         IGPiliTerminalMachine _terminalMachine,
         IEPayment _ePayment,
-        IReport _report,
+        IReport _report, IOrder _order,
         IPopupService _popupService,
         INavigationService _navigationService,
         IPrinterService _printer) : ObservableObject
@@ -45,8 +47,36 @@ namespace GPili.Presentation.Features.Manager
         public string ModeText => IsTrainingMode ? "Training Mode" : "Live Mode";
         public Color ModeButtonColor => IsTrainingMode ? Colors.Orange : Colors.Green;
 
+        public double PopupWidth => Shell.Current.CurrentPage.Width * 0.8;
+        public double PopupHeight => Shell.Current.CurrentPage.Height * 0.8;
+
+        // Refund
+        public double PopupRefundWidth => Shell.Current.CurrentPage.Width * 0.5;
+        public double PopupRefundHeight => Shell.Current.CurrentPage.Height * 0.8;
+
         [ObservableProperty]
         private bool _isDeveloper = false;
+
+        [ObservableProperty]
+        private bool _isDisplayTransactLists = false;
+
+        // Refund
+        [ObservableProperty]
+        private bool _isRefundDisplay = false;
+        [ObservableProperty]
+        private long _invId;
+        [ObservableProperty]
+        private List<Item> _toRefundItems = new();
+        [ObservableProperty]
+        private List<Item> _toSelectedRefundItems = new();
+
+        // Reports
+        [ObservableProperty]
+        private DateTime _from = DateTime.Now;
+        [ObservableProperty]
+        private DateTime _to = DateTime.Now.AddDays(1);
+        [ObservableProperty]
+        private List<GetInvoiceDocumentDTO> _transactLists = new();
 
 
         [RelayCommand]
@@ -57,10 +87,22 @@ namespace GPili.Presentation.Features.Manager
                 await Snackbar.Make("No internet connection. Please check your network.", duration: TimeSpan.FromSeconds(1)).Show();
                 return;
             }
+            // Ask “Are you sure?” with two buttons
+            bool loadConfirmed = await Shell.Current.DisplayAlert(
+                title: "Load Data",
+                message: "Do you want to load the data now?",
+                accept: "Yes",   // returns true
+                cancel: "No"     // returns false
+            );
+
+            // If they tapped “No” (or pressed back), we bail out
+            if (!loadConfirmed)
+                return;
 
             try
             {
                 IsLoading = true;
+
 
                 var progress = new Progress<(int current, int total, string status)>(report =>
                 {
@@ -101,7 +143,8 @@ namespace GPili.Presentation.Features.Manager
             }
 
             var vm = new SelectionOfDateViewModel(_popupService, isRangeMode: false);
-            var result = await _popupService.ShowPopupAsync(vm);
+            var popup = new DateSelectionPopup(vm);
+            var result = await Shell.Current.ShowPopupAsync(popup);
 
             if (result is DateTime date)
             {
@@ -414,6 +457,147 @@ namespace GPili.Presentation.Features.Manager
 
                 IsTrainingMode = result;
                 POSInfo.Terminal = await _terminalMachine.GetTerminalInfo();
+            }
+
+            IsLoading = false;
+        }
+
+        // Refund
+        [RelayCommand]
+        private void ToggleRefundInvoice()
+        {
+            IsLoading = true;
+
+            ToRefundItems.Clear();
+            ToSelectedRefundItems.Clear();
+            InvId = 0;
+
+            IsRefundDisplay = !IsRefundDisplay;
+            IsLoading = false;
+        }
+        [RelayCommand]
+        private async Task SearchRefundItems()
+        {
+            IsLoading = true;
+            ToRefundItems.Clear();
+            ToSelectedRefundItems.Clear();
+            var items = await _order.GetToRefundItems(invNum: InvId);
+
+
+            if (items == null || !items.Any())
+            {
+                await Shell.Current.DisplayAlert(
+                    "Not found!",
+                    "Invalid Invoice.",
+                    "OK");
+                return;
+            }
+
+            ToRefundItems = items;
+            IsLoading = false;
+        }
+        [RelayCommand]
+        private async Task RefundItems()
+        {
+            IsLoading = true;
+            if (!ToSelectedRefundItems.Any())
+                return;
+
+            var (isSuccess, message) = await _order.ReturnItems(ManagerEmail!, InvId, ToSelectedRefundItems);
+            if (isSuccess)
+            {
+                await Shell.Current.DisplayAlert("Refunded", message, "Ok");
+
+                InvId = 0;
+                ToRefundItems.Clear();
+                ToSelectedRefundItems.Clear();
+
+                IsRefundDisplay = false;
+            }
+            else
+            {
+                await Shell.Current.DisplayAlert("Error", message, "Ok");
+            }
+            IsLoading = false;
+        }
+
+        // Reports
+        [RelayCommand]
+        private async Task ToggleTransaclists()
+        {
+            IsLoading = true;
+            if (!IsDisplayTransactLists)
+            {
+                TransactLists = await _report.InvoiceDocuments(From, To);
+            }
+            else
+            {
+                From = DateTime.Now;
+                To = DateTime.Now.AddDays(1);
+            }
+
+
+            IsDisplayTransactLists = !IsDisplayTransactLists;
+            IsLoading = false;
+        }
+
+        [RelayCommand]
+        private async Task SearchInvoices()
+        {
+            IsLoading = true;
+            TransactLists = await _report.InvoiceDocuments(From, To);
+
+            IsLoading = false;
+        }
+
+        [RelayCommand]
+        private async Task PrintInvoices()
+        {
+            IsLoading = true;
+            TransactLists = await _report.InvoiceDocuments(From, To);
+            IsLoading = false;
+        }
+
+        [RelayCommand]
+        private async Task RePrintInvoice(GetInvoiceDocumentDTO documentDTO)
+        {
+            IsLoading = true;
+            switch (documentDTO.Type)
+            {
+                case InvoiceDocumentType.Invoice:
+                    await _printer.ReprintInvoice(documentDTO.Id);
+                    break;
+
+                case InvoiceDocumentType.XReport:
+                    await _printer.ReprintPrintXReading(documentDTO.Id);
+                    break;
+
+                case InvoiceDocumentType.ZReport:
+                    await _printer.ReprintPrintZReading(documentDTO.Id);
+                    break;
+            }
+            IsLoading = false;
+        }
+
+        [RelayCommand]
+        private async Task PrintTransactionLists()
+        {
+            IsLoading = true;
+
+            var vm = new SelectionOfDateViewModel(_popupService, isRangeMode: true);
+            var popup = new DateSelectionPopup(vm);
+            var result = await Shell.Current.ShowPopupAsync(popup);
+
+            if (result is ValueTuple<DateTime, DateTime> range)
+            {
+                var fromDate = range.Item1;
+                var toDate = range.Item2;
+
+                var print = await _report.GetTransactList(fromDate, toDate);
+
+                await Shell.Current.DisplayAlert("Transaction List Printed",
+                    $"File Path: {print.FilePath}",
+                    "OK");
             }
 
             IsLoading = false;
