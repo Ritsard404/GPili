@@ -28,6 +28,8 @@ namespace ServiceLibrary.Models
 
         // Return Amount
         public decimal? ReturnedAmount { get; set; }
+        public string? Reason { get; set; }
+        public User? VoidedBy { get; set; }
 
         public required User Cashier { get; set; }
         public ICollection<Item> Items { get; set; } = new List<Item>();

@@ -9,6 +9,13 @@ public partial class DateSelectionPopup : Popup
         PopupState.PopupInfo.OpenPopup("Loading", "Loading");
         InitializeComponent();
         BindingContext = vm;
+
+        // whenever the VM fires CloseRequested, close THIS popup with that result
+        vm.CloseRequested += (_, result) =>
+        {
+            // this will cause ShowPopupAsync(...) to return ‘result’
+            Close(result);
+        };
         Closed += (_, _) => PopupState.PopupInfo.ClosePopup();
     }
 } 

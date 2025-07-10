@@ -47,7 +47,7 @@ namespace ServiceLibrary.Services.Repositories
                     TotalAmount = 0, // Will be updated below
                     GrossAmount = 0,
                     IsTrainMode = isTrainMode,
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.Now
                 };
                 _dataContext.Invoice.Add(pendingOrder);
             }
@@ -67,7 +67,7 @@ namespace ServiceLibrary.Services.Repositories
                     SubTotal = product.Price * qty,
                     Status = InvoiceStatusType.Pending,
                     IsTrainingMode = isTrainMode,
-                    CreatedAt = DateTime.UtcNow,
+                    CreatedAt = DateTime.Now,
                     Product = product,
                     Invoice = pendingOrder
                 };
@@ -133,7 +133,7 @@ namespace ServiceLibrary.Services.Repositories
             existingItem.Qty = qty;
             existingItem.SubTotal = subtotal;
             existingItem.Price = subtotal / qty; // Update price based on new subtotal and quantity
-            existingItem.UpdatedAt = DateTime.UtcNow;
+            existingItem.UpdatedAt = DateTime.Now;
             _dataContext.Item.Update(existingItem);
 
             // Log the edit action
@@ -186,7 +186,7 @@ namespace ServiceLibrary.Services.Repositories
                 if (item.Status == InvoiceStatusType.Paid)
                 {
                     item.Status = InvoiceStatusType.Returned;
-                    item.UpdatedAt = DateTime.UtcNow;
+                    item.UpdatedAt = DateTime.Now;
                     // Record inventory IN transaction for each returned item
                     await _inventory.RecordInventoryTransaction(
                         InventoryAction.Actions.In,
@@ -201,7 +201,7 @@ namespace ServiceLibrary.Services.Repositories
 
             // Check if the invoice is already returned
             invoiceToRefund.Status = InvoiceStatusType.Returned;
-            invoiceToRefund.StatusChangeDate = DateTime.UtcNow;
+            invoiceToRefund.StatusChangeDate = DateTime.Now;
 
             // Log the return action
             await _auditLog.AddManagerAudit(managerResult.Result.manager,
@@ -246,7 +246,7 @@ namespace ServiceLibrary.Services.Repositories
                     return (false, $"Item with ID {item.Id} not found or not in a valid state for return.");
 
                 itemToReturn.Status = InvoiceStatusType.Returned;
-                itemToReturn.UpdatedAt = DateTime.UtcNow;
+                itemToReturn.UpdatedAt = DateTime.Now;
                 returnAmount += itemToReturn.SubTotal;
                 _dataContext.Item.Update(itemToReturn);
 
@@ -262,7 +262,7 @@ namespace ServiceLibrary.Services.Repositories
 
             // Check if the invoice is already returned
             invoiceToRefund.Status = InvoiceStatusType.Returned;
-            invoiceToRefund.StatusChangeDate = DateTime.UtcNow;
+            invoiceToRefund.StatusChangeDate = DateTime.Now;
             invoiceToRefund.ReturnedAmount = returnAmount;
 
             // Log the return action
@@ -304,7 +304,7 @@ namespace ServiceLibrary.Services.Repositories
             var wasPaid = itemToVoid.Status == InvoiceStatusType.Paid;
 
             itemToVoid.Status = InvoiceStatusType.Void;
-            itemToVoid.UpdatedAt = DateTime.UtcNow;
+            itemToVoid.UpdatedAt = DateTime.Now;
             _dataContext.Item.Update(itemToVoid);
 
             // If the item was paid, return stock
@@ -362,14 +362,14 @@ namespace ServiceLibrary.Services.Repositories
                         );
                     }
                     item.Status = InvoiceStatusType.Void;
-                    item.UpdatedAt = DateTime.UtcNow;
+                    item.UpdatedAt = DateTime.Now;
                     _dataContext.Item.Update(item);
                 }
             }
 
             // Set the order status to Void
             pendingOrder.Status = InvoiceStatusType.Void;
-            pendingOrder.StatusChangeDate = DateTime.UtcNow;
+            pendingOrder.StatusChangeDate = DateTime.Now;
             _dataContext.Invoice.Update(pendingOrder);
 
             // Log the void action
@@ -425,7 +425,7 @@ namespace ServiceLibrary.Services.Repositories
                     return (false, "Invoice not found.", null);
 
                 pendingOrder.Status = InvoiceStatusType.Paid;
-                pendingOrder.StatusChangeDate = DateTime.UtcNow;
+                pendingOrder.StatusChangeDate = DateTime.Now;
                 pendingOrder.TotalAmount = pay.TotalAmount;
                 pendingOrder.GrossAmount = pay.GrossAmount;
                 pendingOrder.SubTotal = pay.SubTotal;

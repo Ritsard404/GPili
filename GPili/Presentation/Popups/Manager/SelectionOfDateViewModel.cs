@@ -29,23 +29,26 @@ namespace GPili.Presentation.Popups.Manager
         public double PopupWidth => Shell.Current.CurrentPage.Width * 0.35;
         public double PopupHeight => Shell.Current.CurrentPage.Height * 0.3;
 
+        public event EventHandler<object?>? CloseRequested;
+
         [RelayCommand]
-        public async Task ReturnSelected()
+        public void ReturnSelected()
         {
             if (IsRangeMode)
             {
                 if (SelectedFromDate > SelectedToDate)
                 {
-                    await Snackbar.Make("Invalid date range selected.",
-                        duration: TimeSpan.FromSeconds(1)).Show();
-
+                    _ = Snackbar.Make("Invalid date range selected.", duration: TimeSpan.FromSeconds(1))
+                                  .Show();
                     return;
                 }
-                await _popupService.ClosePopupAsync((SelectedFromDate, SelectedToDate));
+
+                // trigger the event with the tuple
+                CloseRequested?.Invoke(this, (SelectedFromDate, SelectedToDate));
             }
             else
             {
-                await _popupService.ClosePopupAsync(SelectedDate);
+                CloseRequested?.Invoke(this, SelectedDate);
             }
         }
     }

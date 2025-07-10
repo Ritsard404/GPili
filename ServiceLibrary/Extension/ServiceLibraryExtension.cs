@@ -14,6 +14,9 @@ namespace ServiceLibrary.Extension
             // PDF
             services.AddScoped<ProductBarcodePDFService>();
             services.AddScoped<TransactionListPDFService>();
+            services.AddScoped<AuditTrailPDFService>();
+            services.AddScoped<SalesReportPDFService>();
+            services.AddScoped<VoidedListPDFService>();
 
 
             services.AddScoped<IDatabaseInitializerService, DatabaseInitializerService>();

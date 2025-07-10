@@ -13,6 +13,8 @@ namespace ServiceLibrary.Services.Interfaces
 
         Task<(List<TransactionListDTO> Data, TotalTransactionListDTO Totals, string FilePath)> 
             GetTransactList(DateTime fromDate, DateTime toDate);
-
+        Task<string> GetAuditTrail(DateTime fromDate, DateTime toDate);
+        Task<string> GetSalesReport(DateTime fromDate, DateTime toDate);
+        Task<string> GetVoidedListsReport(DateTime fromDate, DateTime toDate);
     }
 }

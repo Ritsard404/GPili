@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="GPili.Presentation.Features.Manager.ManagerPage"
              xmlns:footer="clr-namespace:GPili.Presentation.Contents"
+             xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:converter="clr-namespace:GPili.Converters"
              xmlns:content="clr-namespace:GPili.Presentation.Contents.Manager"
@@ -75,7 +76,7 @@
         </Style>
     </ContentPage.Resources>
     
-    <Grid ColumnDefinitions="0.7*, 0.3*"
+    <Grid ColumnDefinitions="0.65*, 0.35*"
       RowDefinitions="*, Auto"
       ColumnSpacing="10" Padding="10,10,10,5">
 
@@ -165,18 +166,27 @@
                           ColumnDefinitions="*, *, *" 
                           ColumnSpacing="18" RowSpacing="18" Padding="5,0,5,5">
 
-                        <Button Text="User Log" ImageSource="users_gear.png"
+                        <Button Text="Sales History"
                                 ContentLayout="top, 0"
-                                Grid.Row="1" Grid.Column="0"/>
+                                Grid.Row="1" Grid.Column="0"
+                                Command="{Binding PrintSalesHistoryCommand}">
+                            <Button.ImageSource>
+                                <FontImageSource FontFamily="FASolid"
+                                     Glyph="{x:Static fa:Solid.MoneyBillTrendUp}"
+                                     Color="Black" Size="40"/>
+                            </Button.ImageSource>
+                        </Button>
                         <Button Text="Audit Trail" Grid.Row="1" Grid.Column="1" 
-                                ContentLayout="top, 0" ImageSource="audit_trail.png"/>
+                                ContentLayout="top, 0" ImageSource="audit_trail.png"
+                                Command="{Binding PrintAuditTrailCommand}"/>
                         <Button Text="Daily Tranx" Grid.Row="1" Grid.Column="3" 
                                 ContentLayout="top, 0" ImageSource="subway_calendar.png"
                                 Command="{Binding PrintTransactionListsCommand}"/>
 
                         <Button Text="Voided List" ImageSource="trash_icon.png"
                                 ContentLayout="top, 0"
-                                Grid.Row="2" Grid.Column="0"/>
+                                Grid.Row="2" Grid.Column="0"
+                                Command="{Binding PrintVoidedListsCommand}"/>
                         <Button Text="Sales Book" Grid.Row="2" Grid.Column="1" 
                                 ContentLayout="top, 0" ImageSource="sales_book.png"/>
                         <Button Text="PWD/SC List" Grid.Row="2" Grid.Column="3" 

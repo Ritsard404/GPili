@@ -602,5 +602,77 @@ namespace GPili.Presentation.Features.Manager
 
             IsLoading = false;
         }
+    
+        [RelayCommand]
+        private async Task PrintAuditTrail()
+        {
+            IsLoading = true;
+
+            var vm = new SelectionOfDateViewModel(_popupService, isRangeMode: true);
+            var popup = new DateSelectionPopup(vm);
+            var result = await Shell.Current.ShowPopupAsync(popup);
+
+            if (result is ValueTuple<DateTime, DateTime> range)
+            {
+                var fromDate = range.Item1;
+                var toDate = range.Item2;
+
+                var filePath = await _report.GetAuditTrail(fromDate, toDate);
+
+                await Shell.Current.DisplayAlert("Audit Trail Printed",
+                    $"File Path: {filePath}",
+                    "OK");
+            }
+
+            IsLoading = false;
+        }
+    
+        [RelayCommand]
+        private async Task PrintSalesHistory()
+        {
+            IsLoading = true;
+
+            var vm = new SelectionOfDateViewModel(_popupService, isRangeMode: true);
+            var popup = new DateSelectionPopup(vm);
+            var result = await Shell.Current.ShowPopupAsync(popup);
+
+            if (result is ValueTuple<DateTime, DateTime> range)
+            {
+                var fromDate = range.Item1;
+                var toDate = range.Item2;
+
+                var filePath = await _report.GetSalesReport(fromDate, toDate);
+
+                await Shell.Current.DisplayAlert("Sales Report Printed",
+                    $"File Path: {filePath}",
+                    "OK");
+            }
+
+            IsLoading = false;
+        }
+    
+        [RelayCommand]
+        private async Task PrintVoidedLists()
+        {
+            IsLoading = true;
+
+            var vm = new SelectionOfDateViewModel(_popupService, isRangeMode: true);
+            var popup = new DateSelectionPopup(vm);
+            var result = await Shell.Current.ShowPopupAsync(popup);
+
+            if (result is ValueTuple<DateTime, DateTime> range)
+            {
+                var fromDate = range.Item1;
+                var toDate = range.Item2;
+
+                var filePath = await _report.GetVoidedListsReport(fromDate, toDate);
+
+                await Shell.Current.DisplayAlert("Voided Lists Printed",
+                    $"File Path: {filePath}",
+                    "OK");
+            }
+
+            IsLoading = false;
+        }
     }
 }

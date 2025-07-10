@@ -31,6 +31,8 @@
             public const string Barcodes = "C:\\Reports\\Barcodes";
             public const string AuditTrail = "C:\\Reports\\AuditTrail";
             public const string TransactionLists = "C:\\Reports\\TransactionLists";
+            public const string SalesHistory = "C:\\Reports\\SalesHistory";
+            public const string VoidedLists = "C:\\Reports\\VoidedLists";
         }
     }
 }

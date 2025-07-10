@@ -4,11 +4,15 @@ using ServiceLibrary.Data;
 using ServiceLibrary.Models;
 using ServiceLibrary.Services.DTO.Report;
 using ServiceLibrary.Services.Interfaces;
+using ServiceLibrary.Services.PDF;
 using ServiceLibrary.Utils;
+using System.Globalization;
 
 namespace ServiceLibrary.Services.Repositories
 {
-    public class ReportRepository(DataContext _dataContext, IGPiliTerminalMachine _terminalMachine, TransactionListPDFService _pDFService) : IReport
+    public class ReportRepository(DataContext _dataContext, IGPiliTerminalMachine _terminalMachine,
+        TransactionListPDFService _pDFService, AuditTrailPDFService _auditTrailPDFService,
+        SalesReportPDFService _salesReportPDFService, VoidedListPDFService _voidedListPDFService) : IReport
     {
         public async Task<(string CashInDrawer, string CurrentCashDrawer, string CashierName)> CashTrack(string cashierEmail)
         {
@@ -549,9 +553,9 @@ namespace ServiceLibrary.Services.Repositories
             foreach (var order in orders)
             {
                 // Calculate base amounts and round to 2 decimal places
-                var subTotal = Math.Round(order.TotalAmount, 2);
+                var subTotal = Math.Round(order.SubTotal ?? 0m, 2);
                 var amountDue = Math.Round(order.DueAmount ?? 0m, 2);
-                var grossSales = Math.Round(subTotal, 2);
+                var grossSales = Math.Round(order.GrossAmount, 2);
                 var returns = Math.Round(order.ReturnedAmount ?? 0m, 2);
                 var lessDiscount = Math.Round(order.DiscountAmount ?? 0m, 2);
                 var netOfSales = Math.Round(subTotal - lessDiscount - returns, 2);
@@ -716,6 +720,382 @@ namespace ServiceLibrary.Services.Repositories
                 throw new Exception($"Error generating transaction list report: {ex.Message}", ex);
             }
         }
+        private async Task<List<AuditTrailDTO>> GetAuditTrailData(DateTime fromDate, DateTime toDate)
+        {
+            var auditTrail = new List<AuditTrailDTO>();
+            var startDate = fromDate.Date;
+            var endDate = toDate.Date.AddDays(1);
+            var phCulture = new CultureInfo("en-PH");
+            const string DATE_FORMAT = "MM/dd/yyyy";
+            const string TIME_FORMAT = "hh:mm tt";
+            const string CURRENCY_FORMAT = "₱{0:N2}";
 
+            // Get user logs
+            var userLogs = await _dataContext.AuditLog
+                .Include(m => m.Cashier)
+                .Include(m => m.Manager)
+                .Where(c => c.CreatedAt >= startDate && c.CreatedAt < endDate)
+                .Select(m => new AuditTrailDTO
+                {
+                    Date = m.CreatedAt.ToLocalTime().ToString(DATE_FORMAT, phCulture),
+                    Time = m.CreatedAt.ToLocalTime().ToString(TIME_FORMAT, phCulture),
+                    UserName = m.Manager != null
+                        ? $"{m.Manager.FName} {m.Manager.LName}"
+                        : $"{m.Cashier.FName} {m.Cashier.LName}",
+                    Action = m.Action,
+                    Amount = m.Amount > 0
+                        ? string.Format(CURRENCY_FORMAT, m.Amount)
+                        : null,
+                    SortDateTime = m.CreatedAt.ToLocalTime()
+                })
+                .ToListAsync();
+
+            auditTrail.AddRange(userLogs);
+
+            // Get timestamps
+            var timestamps = await _dataContext.Timestamp
+                .Include(t => t.Cashier)
+                .Include(t => t.ManagerIn)
+                .Include(t => t.ManagerOut)
+                .ToListAsync();
+
+            // Filter timestamps in memory
+            var filteredTimestamps = timestamps.Where(t =>
+                (t.TsIn.HasValue && t.TsIn.Value.Date >= startDate && t.TsIn.Value.Date < endDate) ||
+                (t.TsOut.HasValue && t.TsOut.Value.Date >= startDate && t.TsOut.Value.Date < endDate))
+                .ToList();
+
+            foreach (var t in filteredTimestamps)
+            {
+                // Process TsIn events
+                if (t.TsIn.HasValue)
+                {
+                    var tsInDateTime = t.TsIn.Value;
+                    var action = t.CashInDrawerAmount.HasValue ? "Set Cash in Drawer" : "Log In";
+                    var amount = t.CashInDrawerAmount.HasValue
+                        ? string.Format(CURRENCY_FORMAT, t.CashInDrawerAmount.Value)
+                        : null;
+
+                    auditTrail.Add(new AuditTrailDTO
+                    {
+                        Date = tsInDateTime.ToLocalTime().ToString(DATE_FORMAT, phCulture),
+                        Time = tsInDateTime.ToLocalTime().ToString(TIME_FORMAT, phCulture),
+                        UserName = t.ManagerIn != null
+                            ? $"{t.ManagerIn.FName} {t.ManagerIn.LName}"
+                            : "Super Admin",
+                        Action = action,
+                        Amount = amount,
+                        SortDateTime = tsInDateTime
+                    });
+                }
+
+                // Process TsOut events
+                if (t.TsOut.HasValue)
+                {
+                    var tsOutDateTime = t.TsOut.Value;
+                    var manager = t.ManagerOut ?? t.ManagerIn;
+                    var action = t.CashOutDrawerAmount.HasValue ? "Set Cash out Drawer" : "Log Out";
+                    var amount = t.CashOutDrawerAmount.HasValue
+                        ? string.Format(CURRENCY_FORMAT, t.CashOutDrawerAmount.Value)
+                        : null;
+
+                    auditTrail.Add(new AuditTrailDTO
+                    {
+                        Date = tsOutDateTime.ToLocalTime().ToString(DATE_FORMAT, phCulture),
+                        Time = tsOutDateTime.ToLocalTime().ToString(TIME_FORMAT, phCulture),
+                        UserName = manager != null
+                            ? $"{manager.FName} {manager.LName}"
+                            : "Super Admin",
+                        Action = action,
+                        Amount = amount,
+                        SortDateTime = tsOutDateTime
+                    });
+                }
+            }
+
+            return auditTrail.OrderBy(a => a.SortDateTime).ToList();
+        }
+
+        public async Task<string> GetAuditTrail(DateTime fromDate, DateTime toDate)
+        {
+            try
+            {
+
+                var posInfo = await _terminalMachine.GetTerminalInfo();
+
+                // Update PDF services with business info
+                _auditTrailPDFService.UpdateBusinessInfo(
+                    posInfo.RegisteredName ?? "N/A",
+                    posInfo.Address ?? "N/A",
+                    posInfo.VatTinNumber ?? "N/A",
+                    posInfo.MinNumber ?? "N/A",
+                    posInfo.PosSerialNumber ?? "N/A"
+                );
+                // Get the audit trail data
+                var auditTrail = await GetAuditTrailData(fromDate, toDate);
+
+                // Generate PDF
+                var pdfBytes = _auditTrailPDFService.GenerateAuditTrailPDF(auditTrail, fromDate, toDate);
+
+                // BASE name (no suffix):
+                var baseName = $"AuditTrail_{fromDate:yyyyMMdd}_to_{toDate:yyyyMMdd}";
+
+                // Append a timestamp so it's always unique
+                var uniqueSuffix = DateTime.Now.ToString("yyyyMMddHHmmssfff");
+                var fileName = $"{baseName}_{uniqueSuffix}.pdf";
+                var folderPath = FolderPath.PDF.AuditTrail;
+
+                // Ensure directory exists
+                if (!Directory.Exists(folderPath))
+                    Directory.CreateDirectory(folderPath);
+
+                var filePath = Path.Combine(folderPath, fileName);
+                // Save PDF file
+                await File.WriteAllBytesAsync(filePath, pdfBytes);
+
+                return (filePath);
+            }
+            catch (Exception ex)
+            {
+                // Log the error appropriately
+                throw new Exception($"Error generating audit trail report: {ex.Message}", ex);
+            }
+        }
+
+        private async Task<List<SalesReportDTO>> GetSalesReportData(DateTime fromDate, DateTime toDate)
+        {
+            // Convert DateTime to DateTimeOffset for proper comparison
+            var startDate = new DateTimeOffset(fromDate.Date);
+            var endDate = new DateTimeOffset(toDate.Date.AddDays(1).AddTicks(-1));
+
+            var isTrainMode = await _terminalMachine.IsTrainMode();
+
+            // Get all orders with necessary includes and switch to client evaluation
+            var invoices = await _dataContext.Invoice
+                .Where(o => o.Status != InvoiceStatusType.Pending)
+                .Include(o => o.Items)
+                .ThenInclude(m => m.Product)
+                .ThenInclude(m => m.Category)
+                .ToListAsync(); // First get all data from database
+
+            // Then filter and sort in memory
+            var filteredOrders = invoices
+                .Where(o => o.IsTrainMode == isTrainMode &&
+                           o.CreatedAt.Date >= startDate.Date &&
+                           o.CreatedAt.Date <= endDate.Date)
+                .OrderBy(o => o.InvoiceNumber)
+                .ToList();
+
+            var salesReport = new List<SalesReportDTO>();
+
+            foreach (var order in filteredOrders)
+            {
+                // Skip cancelled orders entirely
+                if (order.Status == InvoiceStatusType.Void) continue;
+
+                foreach (var item in order.Items.Where(i => i.Status != InvoiceStatusType.Void)) // Exclude voided items
+                {
+
+                    // Calculate the return amount for this specific item if it was refunded
+                    decimal itemTotal = item.SubTotal;
+                    decimal returnAmount = 0m;
+                    if (item.Status == InvoiceStatusType.Returned && order.ReturnedAmount.HasValue && order.TotalAmount > 0)
+                    {
+                        // Proportional calculation based on the item's contribution to the total order
+                        decimal returnRatio = itemTotal / order.TotalAmount;
+                        returnAmount = order.ReturnedAmount.Value * returnRatio;
+                    }
+
+                    // Create a single report entry for the item
+                    salesReport.Add(new SalesReportDTO
+                    {
+                        InvoiceDate = item.Status == InvoiceStatusType.Returned && order.StatusChangeDate.HasValue ?
+                            order.StatusChangeDate.Value :
+                            order.CreatedAt, // Use return date if refunded
+                        InvoiceNumber = order.InvoiceNumber,
+                        MenuName = item.Product.Name,
+                        BaseUnit = item.Product.BaseUnit ?? "",
+                        Quantity = item.Qty,
+                        Cost = item.Product.Cost, // Cost remains the same whether sold or returned
+                        Price = item.Price,
+                        ItemGroup = item.Product.Category?.CtgryName ?? "",
+                        Barcode = item.Product.Barcode,
+                        IsReturned = item.Status == InvoiceStatusType.Returned, // Use item's IsRefund flag
+                        ReturnDate = item.Status == InvoiceStatusType.Returned ? order.StatusChangeDate : null, // Include return date only if refunded
+                        ReturnAmount = returnAmount // Include calculated return amount
+                    });
+                }
+            }
+
+            return salesReport;
+        }
+        public async Task<string> GetSalesReport(DateTime fromDate, DateTime toDate)
+        {
+            try
+            {
+                var posInfo = await _terminalMachine.GetTerminalInfo();
+
+                _salesReportPDFService.UpdateBusinessInfo(
+                    posInfo.RegisteredName ?? "N/A",
+                    posInfo.Address ?? "N/A",
+                    posInfo.VatTinNumber ?? "N/A"
+                );
+                // Get the sales report data
+                var salesData = await GetSalesReportData(fromDate, toDate);
+
+                // Generate PDF
+                var pdfBytes = _salesReportPDFService.GenerateSalesReportPDF(salesData, fromDate, toDate);
+
+                // BASE name (no suffix):
+                var baseName = $"SalesReport_{fromDate:yyyyMMdd}_to_{toDate:yyyyMMdd}";
+
+                // Append a timestamp so it's always unique
+                var uniqueSuffix = DateTime.Now.ToString("yyyyMMddHHmmssfff");
+                var fileName = $"{baseName}_{uniqueSuffix}.pdf";
+                var folderPath = FolderPath.PDF.SalesHistory;
+
+                // Ensure directory exists
+                if (!Directory.Exists(folderPath))
+                    Directory.CreateDirectory(folderPath);
+
+                var filePath = Path.Combine(folderPath, fileName);
+                // Save PDF file
+                await File.WriteAllBytesAsync(filePath, pdfBytes);
+
+                return (filePath);
+            }
+            catch (Exception ex)
+            {
+                // Log the error appropriately
+                throw new Exception($"Error generating sales report: {ex.Message}", ex);
+            }
+        }
+
+        private async Task<(List<VoidedListDTO> voidedOrdersLists, TotalVoidedListDTO totalVoidedList)> GetVoidedListsData(DateTime fromDate, DateTime toDate)
+        {
+            // Set start date to beginning of day and end date to end of day
+            var startDate = fromDate.Date;
+            var endDate = toDate.Date.AddDays(1).AddTicks(-1);
+            var isTrainMode = await _terminalMachine.IsTrainMode();
+
+            // Get all voided orders with necessary includes
+            var voidedOrders = await _dataContext.Invoice
+                .Include(o => o.Items)
+                    .ThenInclude(p => p.Product)
+                .Include(o => o.Cashier)
+                .Include(o => o.VoidedBy)
+                .Where(o => o.Status == InvoiceStatusType.Void && o.IsTrainMode == isTrainMode)
+                .Where(o => o.CreatedAt.Date >= startDate.Date && o.CreatedAt.Date <= endDate.Date)
+                .OrderBy(o => o.InvoiceNumber)
+                .ToListAsync();
+
+            var voidedList = new List<VoidedListDTO>();
+            foreach (var order in voidedOrders)
+            {
+                var totalAmount = order.TotalAmount;
+
+                var voidedItemsList = new List<VoidedItemListDTO>();
+                var voidedItems = order.Items.Where(i => i.Status == InvoiceStatusType.Void).ToList();
+
+                var index = 0;
+                foreach (var item in voidedItems)
+                {
+                    index++;
+                    voidedItemsList.Add(new VoidedItemListDTO
+                    {
+                        No = index,
+                        Barcode = item.Product?.Barcode ?? string.Empty,
+                        ItemName = item.Product?.Name ?? string.Empty,
+                        Quantity = item.Qty,
+                        Price = item.Price,
+                        Amount = item.SubTotal,
+                        Return = 0,
+                        Reason = order.Reason ?? "No Reason provided.",
+                        ReturnQuantity = 0,
+                    });
+                }
+
+
+                // Create a new VoidedListDTO entry
+                var voidedEntry = new VoidedListDTO
+                {
+                    Date = order.StatusChangeDate != null ?
+                        order.StatusChangeDate.Value.DateFormat() :
+                        order.CreatedAt.DateFormat(),
+                    InvoiceNum = order.InvoiceNumber.InvoiceFormat(),
+                    DiscType = order.DiscountType ?? "N/A",
+                    Percent = order.DiscountPercent?.ToString() ?? "0",
+                    GrossSales = order.GrossAmount,
+                    Discount = order.DiscountAmount ?? 0m,
+                    AmountDue = order.DueAmount ?? 0m,
+                    Vatable = order.VatSales ?? 0m,
+                    ZeroRated = order.VatZero ?? 0m,
+                    Exempt = order.VatExempt ?? 0m,
+                    Vat = order.VatAmount ?? 0m,
+                    Reason = order.Reason ?? "No Reason provided.",
+                    User = order.Cashier.FullName,
+                    CancelledBy = order.VoidedBy?.FullName ?? "N/A",
+                    CancelledDate = order.StatusChangeDate != null ?
+                        order.StatusChangeDate.Value.DateFormat() :
+                        order.CreatedAt.DateFormat(),
+                    CancelledTime = order.StatusChangeDate != null ?
+                        order.StatusChangeDate.Value.ToString("hh:mm tt") :
+                        order.CreatedAt.ToString("hh:mm tt"),
+                    VoidedItemList = voidedItemsList,
+
+                };
+                voidedList.Add(voidedEntry);
+
+
+
+            }
+            var totalVoided = new TotalVoidedListDTO
+            {
+                TotalGross = voidedOrders.Sum(g => g.GrossAmount),
+                TotalDiscount = voidedOrders.Sum(d => d.DiscountAmount ?? 0m),
+                TotalAmountDue = voidedOrders.Sum(a => a.DueAmount ?? 0m),
+                TotalVatable = voidedOrders.Sum(v => v.VatSales ?? 0m),
+                TotalVatZero = voidedOrders.Sum(z => z.VatZero ?? 0m),
+                TotalExempt = voidedOrders.Sum(e => e.VatExempt ?? 0m),
+                TotalVat = voidedOrders.Sum(v => v.VatAmount ?? 0m),
+
+            };
+            return (voidedList, totalVoided);
+        }
+
+        public async Task<string> GetVoidedListsReport(DateTime fromDate, DateTime toDate)
+        {
+            try
+            {
+                // Get the sales report data
+                var voidData = await GetVoidedListsData(fromDate, toDate);
+
+                // Generate PDF
+                var pdfBytes = _voidedListPDFService.GenerateVoidedListPDF(voidData.voidedOrdersLists, voidData.totalVoidedList, fromDate, toDate);
+
+                // BASE name (no suffix):
+                var baseName = $"VoidedLists_{fromDate:yyyyMMdd}_to_{toDate:yyyyMMdd}";
+
+                // Append a timestamp so it's always unique
+                var uniqueSuffix = DateTime.Now.ToString("yyyyMMddHHmmssfff");
+                var fileName = $"{baseName}_{uniqueSuffix}.pdf";
+                var folderPath = FolderPath.PDF.VoidedLists;
+
+                // Ensure directory exists
+                if (!Directory.Exists(folderPath))
+                    Directory.CreateDirectory(folderPath);
+
+                var filePath = Path.Combine(folderPath, fileName);
+                // Save PDF file
+                await File.WriteAllBytesAsync(filePath, await pdfBytes);
+
+                return (filePath);
+            }
+            catch (Exception ex)
+            {
+                // Log the error appropriately
+                throw new Exception($"Error generating sales report: {ex.Message}", ex);
+            }
+        }
     }
 }
