@@ -33,6 +33,10 @@
             public const string TransactionLists = "C:\\Reports\\TransactionLists";
             public const string SalesHistory = "C:\\Reports\\SalesHistory";
             public const string VoidedLists = "C:\\Reports\\VoidedLists";
+            public static string GetPath(string folderName)
+            {
+                return $"C:\\Reports\\{folderName}";
+            }
         }
     }
 }

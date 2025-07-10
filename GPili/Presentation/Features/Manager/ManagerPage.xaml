@@ -190,7 +190,8 @@
                         <Button Text="Sales Book" Grid.Row="2" Grid.Column="1" 
                                 ContentLayout="top, 0" ImageSource="sales_book.png"/>
                         <Button Text="PWD/SC List" Grid.Row="2" Grid.Column="3" 
-                                ContentLayout="top, 0" ImageSource="pwd_list.png"/>
+                                ContentLayout="top, 0" ImageSource="pwd_list.png"
+                                Command="{Binding PrintPwdOrSeniorListsCommand}"/>
 
                     </Grid>
                 </Grid>

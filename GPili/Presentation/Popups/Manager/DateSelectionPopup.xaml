@@ -3,6 +3,8 @@
                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                xmlns:converter="clr-namespace:GPili.Converters"
                xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+               xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+               xmlns:validation="clr-namespace:InputKit.Shared.Validations;assembly=InputKit.Maui"
                x:Class="GPili.Presentation.Popups.Manager.DateSelectionPopup"
                Color="Transparent">
     <toolkit:Popup.Resources>
@@ -35,22 +37,37 @@
                                 MinimumWidthRequest="250"  BackgroundColor="Black"/>
                 </Grid>
                 <!-- Range Date Picker -->
-                <Grid RowDefinitions="Auto, *" ColumnDefinitions="*,*"
+                <Grid RowDefinitions="*, Auto, *" ColumnDefinitions="*,*"
                     IsVisible="{Binding IsRangeMode}">
+
+                    <material:PickerField Grid.Column="0" Grid.Row="0"
+                                          Title="Type" SelectedItem="{Binding DiscType}"
+                                          IsVisible="{Binding IsPwdOrSenior}"
+                                          Margin="0,0,0,5">
+                        <validation:RequiredValidation />
+                        <material:PickerField.ItemsSource>
+                            <x:Array Type="{x:Type x:String}">
+                                <x:String></x:String>
+                                <x:String>PWD</x:String>
+                                <x:String>Senior Citizen</x:String>
+                            </x:Array>
+                        </material:PickerField.ItemsSource>
+                    </material:PickerField>
+                    
                     <Label Text="From:" TextColor="Black"
-                           Grid.Row="0" Grid.Column="0"/>
+                           Grid.Row="1" Grid.Column="0"/>
                     <DatePicker Date="{Binding SelectedFromDate}" 
                                 HorizontalOptions="FillAndExpand" 
                                 BackgroundColor="Black"
                                 MinimumWidthRequest="200"
-                                Grid.Row="1" Grid.Column="0"/>
+                                Grid.Row="2" Grid.Column="0"/>
                     <Label Text="To:" TextColor="Black"
-                           Grid.Row="0" Grid.Column="1"/>
+                           Grid.Row="1" Grid.Column="1"/>
                     <DatePicker Date="{Binding SelectedToDate}" 
                                 HorizontalOptions="FillAndExpand"
                                 BackgroundColor="Black"
                                 MinimumWidthRequest="200"
-                                Grid.Row="1" Grid.Column="1"/>
+                                Grid.Row="2" Grid.Column="1"/>
                 </Grid>
             </StackLayout>
 

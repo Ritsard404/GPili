@@ -1097,5 +1097,187 @@ namespace ServiceLibrary.Services.Repositories
                 throw new Exception($"Error generating sales report: {ex.Message}", ex);
             }
         }
+
+        private async Task<(List<TransactionListDTO>, TotalTransactionListDTO)> GetPwdOrSeniorData(DateTime fromDate, DateTime toDate, string type)
+        {
+            // Set start date to beginning of day and end date to end of day
+            var startDate = fromDate.Date;
+            var endDate = toDate.Date.AddDays(1).AddTicks(-1);
+
+            var isTrainMode = await _terminalMachine.IsTrainMode();
+
+            // Get all orders with necessary includes
+            var orders = _dataContext.Invoice
+                .Include(o => o.Items)
+                .Include(o => o.Cashier)
+                .Where(o => o.IsTrainMode == isTrainMode)
+                .AsEnumerable()
+                .Where(o => o.CreatedAt.Date >= startDate.Date 
+                    && o.CreatedAt.Date <= endDate.Date 
+                    && o.DiscountType == type)
+                .OrderBy(o => o.InvoiceNumber)
+                .ToList();
+
+            var transactionList = new List<TransactionListDTO>();
+            var totalTransactionList = new TotalTransactionListDTO();
+
+            foreach (var order in orders)
+            {
+                // Calculate base amounts and round to 2 decimal places
+                var subTotal = Math.Round(order.SubTotal ?? 0m, 2);
+                var amountDue = Math.Round(order.DueAmount ?? 0m, 2);
+                var grossSales = Math.Round(order.GrossAmount, 2);
+                var returns = Math.Round(order.ReturnedAmount ?? 0m, 2);
+                var lessDiscount = Math.Round(order.DiscountAmount ?? 0m, 2);
+                var netOfSales = Math.Round(subTotal - lessDiscount - returns, 2);
+
+                // Calculate VAT amounts proportionally based on refunded amount
+                var refundRatio = order.TotalAmount > 0 ? (order.ReturnedAmount ?? 0m) / order.TotalAmount : 0m;
+                var vatable = Math.Round((order.VatSales ?? 0m) * (1 - refundRatio), 2);
+                var zeroRated = Math.Round(order.VatZero ?? 0m, 2);
+                var exempt = Math.Round((order.VatExempt ?? 0m) * (1 - refundRatio), 2);
+                var vat = Math.Round((order.VatAmount ?? 0m) * (1 - refundRatio), 2);
+
+                var discType = !string.IsNullOrWhiteSpace(order.DiscountType)
+                    ? (order.DiscountType.StartsWith("s-") ? order.DiscountType.Substring(2) : order.DiscountType)
+                    : "";
+
+                // Create initial transaction entry
+                var baseTransaction = new TransactionListDTO
+                {
+                    Date = order.CreatedAt.ToString("MM/dd/yyyy"),
+                    InvoiceNum = order.InvoiceNumber.ToString("D12"),
+                    Src = "",
+                    DiscType = discType,
+                    Percent = order.DiscountPercent?.ToString() ?? "",
+                    SubTotal = subTotal,
+                    AmountDue = amountDue,
+                    GrossSales = grossSales,
+                    Returns = 0m,
+                    NetOfReturns = Math.Round(grossSales - returns, 2),
+                    LessDiscount = lessDiscount,
+                    NetOfSales = netOfSales,
+                    Vatable = vatable,
+                    ZeroRated = zeroRated,
+                    Exempt = exempt,
+                    Vat = vat
+                };
+
+                // Add the initial transaction
+                transactionList.Add(baseTransaction);
+
+                // Update totals for base transaction
+                UpdateTotals(totalTransactionList, grossSales, returns, lessDiscount, netOfSales, vatable, exempt, vat);
+
+                // If order was cancelled, add a cancellation entry
+                if (order.Status == InvoiceStatusType.Void)
+                {
+                    var cancelledTransaction = new TransactionListDTO
+                    {
+                        Date = order.StatusChangeDate.Value.ToString("MM/dd/yyyy"),
+                        InvoiceNum = $"{order.InvoiceNumber:D12}",
+                        Src = "VOIDED",
+                        DiscType = discType,
+                        Percent = order.DiscountPercent?.ToString() ?? "",
+                        SubTotal = Math.Round(-subTotal, 2),
+                        AmountDue = Math.Round(-amountDue, 2),
+                        GrossSales = Math.Round(-grossSales, 2),
+                        Returns = 0m,
+                        NetOfReturns = Math.Round(-grossSales, 2),
+                        LessDiscount = Math.Round(-lessDiscount, 2),
+                        NetOfSales = Math.Round(-netOfSales, 2),
+                        Vatable = Math.Round(-vatable, 2),
+                        ZeroRated = 0m,
+                        Exempt = Math.Round(-exempt, 2),
+                        Vat = Math.Round(-vat, 2)
+                    };
+                    transactionList.Add(cancelledTransaction);
+
+                    // Update totals for cancellation
+                    UpdateTotals(totalTransactionList, -grossSales, 0m, -lessDiscount, -netOfSales, -vatable, -exempt, -vat);
+                }
+
+                // If order has refunds, add a return entry
+                if (order.Status == InvoiceStatusType.Returned && returns > 0)
+                {
+                    var returnedTransaction = new TransactionListDTO
+                    {
+                        Date = order.StatusChangeDate.Value.ToString("MM/dd/yyyy"),
+                        InvoiceNum = $"{order.InvoiceNumber:D12}",
+                        Src = "REFUNDED",
+                        DiscType = discType,
+                        Percent = order.DiscountPercent?.ToString() ?? "",
+                        SubTotal = Math.Round(-returns, 2),
+                        AmountDue = 0m,
+                        GrossSales = -returns,
+                        Returns = returns,
+                        NetOfReturns = -returns,
+                        LessDiscount = 0m, // No discount on refunds
+                        NetOfSales = -returns,
+                        Vatable = Math.Round(-vatable * (returns / grossSales), 2),
+                        ZeroRated = 0m,
+                        Exempt = Math.Round(-exempt * (returns / grossSales), 2),
+                        Vat = Math.Round(-vat * (returns / grossSales), 2)
+                    };
+                    transactionList.Add(returnedTransaction);
+
+                    // Update totals for return
+                    UpdateTotals(totalTransactionList, -returns, returns, 0m, -returns,
+                        -vatable * (returns / grossSales),
+                        -exempt * (returns / grossSales),
+                        -vat * (returns / grossSales));
+                }
+            }
+
+            return (transactionList.OrderBy(t => t.InvoiceNum).ToList(), totalTransactionList);
+        }
+        public async Task<(List<TransactionListDTO> Data, TotalTransactionListDTO Totals, string FilePath)> GetPwdOrSeniorList(DateTime fromDate, DateTime toDate, string type)
+        {
+            try
+            {
+                var posInfo = await _terminalMachine.GetTerminalInfo();
+
+                _pDFService.UpdateBusinessInfo(
+                    posInfo.RegisteredName ?? "N/A",
+                    posInfo.Address ?? "N/A",
+                    posInfo.VatTinNumber ?? "N/A"
+                );
+
+                // Get the transaction list data
+                var (transactions, totals) = await GetPwdOrSeniorData(fromDate, toDate, type);
+
+                // Generate PDF
+                var pdfBytes = _pDFService.GeneratePwdOrSeniorListPDF(transactions, fromDate, toDate, type);
+
+                var typeName = type == DiscountType.SeniorCitizen ? "SeniorCitizen" : "PWD";
+
+                // BASE name (no suffix):
+                var baseName = $"{typeName}_{fromDate:yyyyMMdd}_to_{toDate:yyyyMMdd}";
+
+                // Append a timestamp so it's always unique
+                var uniqueSuffix = DateTime.Now.ToString("yyyyMMddHHmmssfff");
+                var fileName = $"{baseName}_{uniqueSuffix}.pdf";
+                var folderPath = FolderPath.PDF.GetPath(type);
+
+                // Ensure directory exists
+                if (!Directory.Exists(folderPath))
+                    Directory.CreateDirectory(folderPath);
+
+                var filePath = Path.Combine(folderPath, fileName);
+                // Save PDF file
+                await File.WriteAllBytesAsync(filePath, pdfBytes);
+
+                // Save PDF file
+                await File.WriteAllBytesAsync(filePath, pdfBytes);
+
+                return (transactions, totals, filePath);
+            }
+            catch (Exception ex)
+            {
+                // Log the error appropriately
+                throw new Exception($"Error generating transaction list report: {ex.Message}", ex);
+            }
+        }
+
     }
 }

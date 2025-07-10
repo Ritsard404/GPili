@@ -9,10 +9,11 @@ namespace GPili.Presentation.Popups.Manager
     {
         private readonly IPopupService _popupService;
 
-        public SelectionOfDateViewModel(IPopupService popupService, bool isRangeMode = true)
+        public SelectionOfDateViewModel(IPopupService popupService, bool isRangeMode = true, bool isPwdOrSenior = false)
         {
             _popupService = popupService;
             IsRangeMode = isRangeMode;
+            IsPwdOrSenior = isPwdOrSenior;
         }
 
         [ObservableProperty]
@@ -25,6 +26,10 @@ namespace GPili.Presentation.Popups.Manager
 
         [ObservableProperty]
         private bool _isRangeMode;
+        [ObservableProperty]
+        private bool _isPwdOrSenior;
+        [ObservableProperty]
+        private string _discType =  "";
 
         public double PopupWidth => Shell.Current.CurrentPage.Width * 0.35;
         public double PopupHeight => Shell.Current.CurrentPage.Height * 0.3;
@@ -38,13 +43,26 @@ namespace GPili.Presentation.Popups.Manager
             {
                 if (SelectedFromDate > SelectedToDate)
                 {
-                    _ = Snackbar.Make("Invalid date range selected.", duration: TimeSpan.FromSeconds(1))
-                                  .Show();
+                    Shell.Current.DisplayAlert("Invalid Date!", "Invalid date range selected.", "Ok");
                     return;
                 }
+                if (IsPwdOrSenior)
+                {
+                    if (string.IsNullOrEmpty(DiscType))
+                    {
+                        Shell.Current.DisplayAlert("Invalid", "Select List Type.", "Ok");
 
-                // trigger the event with the tuple
-                CloseRequested?.Invoke(this, (SelectedFromDate, SelectedToDate));
+                        return;
+                    }
+
+                    // trigger the event with the tuple
+                    CloseRequested?.Invoke(this, (SelectedFromDate, SelectedToDate, DiscType));
+                }
+                else
+                {
+                    // trigger the event with the tuple
+                    CloseRequested?.Invoke(this, (SelectedFromDate, SelectedToDate));
+                }
             }
             else
             {

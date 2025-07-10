@@ -674,5 +674,31 @@ namespace GPili.Presentation.Features.Manager
 
             IsLoading = false;
         }
+
+        [RelayCommand]
+        private async Task PrintPwdOrSeniorLists()
+        {
+            IsLoading = true;
+
+            var vm = new SelectionOfDateViewModel(_popupService, isRangeMode: true, isPwdOrSenior: true);
+            var popup = new DateSelectionPopup(vm);
+            var result = await Shell.Current.ShowPopupAsync(popup);
+
+            if (result is ValueTuple<DateTime, DateTime, string> range)
+            {
+                var fromDate = range.Item1;
+                var toDate = range.Item2;
+                var type = range.Item3;
+
+                var print = await _report.GetPwdOrSeniorList(fromDate, toDate, type);
+
+                await Shell.Current.DisplayAlert($"{type} List Printed",
+                    $"File Path: {print.FilePath}",
+                    "OK");
+            }
+
+            IsLoading = false;
+        }
+
     }
 }
