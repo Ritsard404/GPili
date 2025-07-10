@@ -600,7 +600,34 @@ namespace GPili.Presentation.Features.Manager
             if (!ToSelectedRefundItems.Any())
                 return;
 
-            var (isSuccess, message) = await _order.ReturnItems(ManagerEmail!, InvId, ToSelectedRefundItems);
+            var reason = await Shell.Current.DisplayPromptAsync(
+                title: "Return Item",
+                message: "Please enter the reason for the return:",
+                accept: "Submit",
+                cancel: "Not specified",
+                placeholder: "e.g., Damaged item, Wrong order",
+                keyboard: Keyboard.Text
+            );
+
+            //if (string.IsNullOrWhiteSpace(reason))
+            //{
+            //    await Shell.Current.DisplayAlert(
+            //        title: "Invalid Input",
+            //        message: "Reason for return cannot be empty. Please try again.",
+            //        cancel: "OK"
+            //    );
+            //    IsRefundDisplay = false;
+            //    IsLoading = false;
+            //    return;
+            //}
+
+            if (string.IsNullOrWhiteSpace(reason))
+            {
+                reason = "Not specified"; // Default reason if none provided
+            }
+
+
+            var (isSuccess, message) = await _order.ReturnItems(ManagerEmail!, InvId, ToSelectedRefundItems, reason);
             if (isSuccess)
             {
                 await Shell.Current.DisplayAlert("Refunded", message, "Ok");

@@ -9,7 +9,7 @@
              xmlns:input="clr-namespace:InputKit.Shared.Controls;assembly=InputKit.Maui"
              xmlns:model="clr-namespace:ServiceLibrary.Models;assembly=ServiceLibrary"
              x:Name="SaleTypeRoot">
-    <Grid
+    <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Grid.RowSpan="4"
        BackgroundColor="#80000000" 
        ZIndex="1">
         <BoxView BackgroundColor="Transparent">

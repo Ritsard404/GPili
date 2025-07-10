@@ -246,7 +246,7 @@
                                 <Button.ImageSource>
                                     <FontImageSource FontFamily="FASolid"
                                         Glyph="{x:Static fa:Solid.MoneyBillWave}"
-                                        Color="Black" Size="40"/>
+                                        Color="Black" Size="35"/>
                             </Button.ImageSource>
                         </Button>
                         <Button Text="Sale Types"

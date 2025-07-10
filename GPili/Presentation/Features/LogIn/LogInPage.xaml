@@ -111,7 +111,7 @@
         </Border>
 
         <Grid Grid.Row="1">
-            <!--<footer:FooterView />-->
+            <footer:FooterView />
         </Grid>
     </Grid>
 </ContentPage>

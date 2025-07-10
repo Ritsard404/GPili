@@ -220,12 +220,15 @@ namespace ServiceLibrary.Services.Repositories
             return (true, "Invoice successfully returned!");
         }
 
-        public async Task<(bool isSuccess, string message)> ReturnItems(string managerEmail, long invoiceNumber, List<Item> items)
+        public async Task<(bool isSuccess, string message)> ReturnItems(string managerEmail, long invoiceNumber, List<Item> items, string reason)
         {
             var isTrainMode = await _terminalMachine.IsTrainMode();
             var managerResult = await _auth.IsManagerValid(managerEmail);
             if (!managerResult.isSuccess || managerResult.manager == null)
                 return (false, "Invalid manager email. Please check and try again.");
+
+            //if (string.IsNullOrEmpty(reason))
+            //    return (false, "Reason for return cannot be empty. Please try again.");
 
             var invoiceToRefund = await _dataContext.Invoice
                 .Include(i => i.Items)
@@ -264,6 +267,7 @@ namespace ServiceLibrary.Services.Repositories
             invoiceToRefund.Status = InvoiceStatusType.Returned;
             invoiceToRefund.StatusChangeDate = DateTime.Now;
             invoiceToRefund.ReturnedAmount = returnAmount;
+            invoiceToRefund.Reason = reason;
 
             // Log the return action
             await _auditLog.AddManagerAudit(managerResult.manager, AuditActionType.ReturnItem, $"Items returned from invoice {invoiceNumber:D12} by {managerResult.manager.Email}", null);
@@ -326,7 +330,7 @@ namespace ServiceLibrary.Services.Repositories
             return (true, "Item voided successfully!");
         }
 
-        public async Task<(bool isSuccess, string message)> VoidOrder(string cashierEmail, string managerEmail)
+        public async Task<(bool isSuccess, string message)> VoidOrder(string cashierEmail, string managerEmail, string reason)
         {
             var cashierResult = await _auth.IsCashierValid(cashierEmail);
             if (!cashierResult.isSuccess || cashierResult.cashier == null)
@@ -370,6 +374,7 @@ namespace ServiceLibrary.Services.Repositories
             // Set the order status to Void
             pendingOrder.Status = InvoiceStatusType.Void;
             pendingOrder.StatusChangeDate = DateTime.Now;
+            pendingOrder.Reason = reason;
             _dataContext.Invoice.Update(pendingOrder);
 
             // Log the void action

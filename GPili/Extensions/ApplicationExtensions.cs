@@ -53,7 +53,7 @@ internal static class ApplicationExtensions
     {
         #if ANDROID
             // External public path (survives uninstall with permission)
-            var basePath = Path.Combine("/storage/emulated/0/YourAppName/Database");
+            var basePath = Path.Combine("/storage/emulated/0/GPili/Database");
         #elif WINDOWS || MACCATALYST
                 // App-scoped local data
                 var basePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "GPili");

@@ -11,8 +11,8 @@ using ServiceLibrary.Data;
 namespace ServiceLibrary.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250704023435_GPili5")]
-    partial class GPili5
+    [Migration("20250710140144_GPili")]
+    partial class GPili
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -183,6 +183,9 @@ namespace ServiceLibrary.Migrations
                     b.Property<string>("OSCAIdNum")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Reason")
+                        .HasColumnType("TEXT");
+
                     b.Property<decimal?>("ReturnedAmount")
                         .HasColumnType("TEXT");
 
@@ -214,9 +217,14 @@ namespace ServiceLibrary.Migrations
                     b.Property<decimal?>("VatZero")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("VoidedByEmail")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CashierEmail");
+
+                    b.HasIndex("VoidedByEmail");
 
                     b.ToTable("Invoice");
                 });
@@ -611,6 +619,36 @@ namespace ServiceLibrary.Migrations
                     b.ToTable("Product");
                 });
 
+            modelBuilder.Entity("ServiceLibrary.Models.Reading", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsTrainMode")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("LastInvoice")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Present")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Previous")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Sales")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Reading");
+                });
+
             modelBuilder.Entity("ServiceLibrary.Models.SaleType", b =>
                 {
                     b.Property<int>("Id")
@@ -772,7 +810,13 @@ namespace ServiceLibrary.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ServiceLibrary.Models.User", "VoidedBy")
+                        .WithMany()
+                        .HasForeignKey("VoidedByEmail");
+
                     b.Navigation("Cashier");
+
+                    b.Navigation("VoidedBy");
                 });
 
             modelBuilder.Entity("ServiceLibrary.Models.InvoiceDocument", b =>

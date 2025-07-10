@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ServiceLibrary.Migrations
 {
     /// <inheritdoc />
-    public partial class GPili1 : Migration
+    public partial class GPili : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -54,7 +54,8 @@ namespace ServiceLibrary.Migrations
                     Status = table.Column<string>(type: "TEXT", nullable: false),
                     User_Email = table.Column<string>(type: "TEXT", nullable: false),
                     QtyPerBaseUnit = table.Column<string>(type: "TEXT", nullable: false),
-                    QtyBalanceInBaseUnit = table.Column<string>(type: "TEXT", nullable: false)
+                    QtyBalanceInBaseUnit = table.Column<string>(type: "TEXT", nullable: false),
+                    IsPushed = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -93,6 +94,8 @@ namespace ServiceLibrary.Migrations
                     DiscountMax = table.Column<decimal>(type: "TEXT", nullable: false),
                     CostCenter = table.Column<string>(type: "TEXT", nullable: false),
                     BranchCenter = table.Column<string>(type: "TEXT", nullable: false),
+                    UseCenter = table.Column<string>(type: "TEXT", nullable: false),
+                    DbName = table.Column<string>(type: "TEXT", nullable: false),
                     PrinterName = table.Column<string>(type: "TEXT", nullable: false),
                     ResetCounterNo = table.Column<int>(type: "INTEGER", nullable: false),
                     ResetCounterTrainNo = table.Column<int>(type: "INTEGER", nullable: false),
@@ -103,6 +106,24 @@ namespace ServiceLibrary.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_PosTerminalInfo", x => x.PosSerialNumber);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Reading",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    LastInvoice = table.Column<string>(type: "TEXT", nullable: false),
+                    Previous = table.Column<decimal>(type: "TEXT", nullable: false),
+                    Present = table.Column<decimal>(type: "TEXT", nullable: false),
+                    Sales = table.Column<decimal>(type: "TEXT", nullable: false),
+                    IsTrainMode = table.Column<bool>(type: "INTEGER", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Reading", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -152,7 +173,6 @@ namespace ServiceLibrary.Migrations
                     Cost = table.Column<decimal>(type: "TEXT", nullable: false),
                     Price = table.Column<decimal>(type: "TEXT", nullable: false),
                     IsAvailable = table.Column<bool>(type: "INTEGER", nullable: false),
-                    ImagePath = table.Column<string>(type: "TEXT", nullable: true),
                     ItemType = table.Column<string>(type: "TEXT", nullable: false),
                     VatType = table.Column<string>(type: "TEXT", nullable: false),
                     CategoryId = table.Column<int>(type: "INTEGER", nullable: false),
@@ -224,6 +244,8 @@ namespace ServiceLibrary.Migrations
                     DiscountPercent = table.Column<int>(type: "INTEGER", nullable: true),
                     DiscountAmount = table.Column<decimal>(type: "TEXT", nullable: true),
                     ReturnedAmount = table.Column<decimal>(type: "TEXT", nullable: true),
+                    Reason = table.Column<string>(type: "TEXT", nullable: true),
+                    VoidedByEmail = table.Column<string>(type: "TEXT", nullable: true),
                     CashierEmail = table.Column<string>(type: "TEXT", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
                     StatusChangeDate = table.Column<DateTime>(type: "TEXT", nullable: true),
@@ -240,6 +262,11 @@ namespace ServiceLibrary.Migrations
                         principalTable: "User",
                         principalColumn: "Email",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Invoice_User_VoidedByEmail",
+                        column: x => x.VoidedByEmail,
+                        principalTable: "User",
+                        principalColumn: "Email");
                 });
 
             migrationBuilder.CreateTable(
@@ -424,6 +451,11 @@ namespace ServiceLibrary.Migrations
                 column: "CashierEmail");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Invoice_VoidedByEmail",
+                table: "Invoice",
+                column: "VoidedByEmail");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_InvoiceDocument_InvoiceId",
                 table: "InvoiceDocument",
                 column: "InvoiceId");
@@ -487,6 +519,9 @@ namespace ServiceLibrary.Migrations
 
             migrationBuilder.DropTable(
                 name: "PosTerminalInfo");
+
+            migrationBuilder.DropTable(
+                name: "Reading");
 
             migrationBuilder.DropTable(
                 name: "Timestamp");

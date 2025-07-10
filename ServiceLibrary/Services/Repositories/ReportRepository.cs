@@ -501,14 +501,22 @@ namespace ServiceLibrary.Services.Repositories
                 posInfo.ZCounterNo += 1;
             }
 
-            await _dataContext.Reading.AddAsync(new Reading
+            var recentInvoice = GetOrderNumber(orders.Max(o => o?.InvoiceNumber));
+
+            var isSameLastInvoice = await _dataContext.Reading
+                .OrderBy(r => r.Id)
+                .LastOrDefaultAsync(l => l.LastInvoice == recentInvoice);
+
+            // Determine reading values based on whether the invoice already exists
+            var reading = new Reading
             {
                 IsTrainMode = isTrainMode,
-                LastInvoice = GetOrderNumber(orders.Max(o => o?.InvoiceNumber)),
+                LastInvoice = recentInvoice,
                 Present = presentAccumulatedSales,
-                Previous = previousAccumulatedSales,
-                Sales = salesForTheDay,
-            });
+                Previous = isSameLastInvoice != null ? presentAccumulatedSales : previousAccumulatedSales,
+                Sales = isSameLastInvoice != null ? 0m : salesForTheDay,
+            };
+            await _dataContext.Reading.AddAsync(reading);
             await _dataContext.SaveChangesAsync();
 
             return dto;
@@ -1165,8 +1173,8 @@ namespace ServiceLibrary.Services.Repositories
                 .Include(o => o.Cashier)
                 .Where(o => o.IsTrainMode == isTrainMode)
                 .AsEnumerable()
-                .Where(o => o.CreatedAt.Date >= startDate.Date 
-                    && o.CreatedAt.Date <= endDate.Date 
+                .Where(o => o.CreatedAt.Date >= startDate.Date
+                    && o.CreatedAt.Date <= endDate.Date
                     && o.DiscountType == type)
                 .OrderBy(o => o.InvoiceNumber)
                 .ToList();

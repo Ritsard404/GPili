@@ -318,10 +318,37 @@ namespace GPili.Presentation.Features.Cashiering
                 if (string.IsNullOrWhiteSpace(managerEmail))
                     return;
 
+
+                var reason = await Shell.Current.DisplayPromptAsync(
+                    title: "Void Order",
+                    message: "Please enter the reason for the void:",
+                    accept: "Submit",
+                    cancel: "Not specified",
+                    placeholder: "e.g., Damaged item, Wrong order",
+                    keyboard: Keyboard.Text
+                );
+
+                //if (string.IsNullOrWhiteSpace(reason))
+                //{
+                //    await Shell.Current.DisplayAlert(
+                //        title: "Invalid Input",
+                //        message: "Reason for void cannot be empty. Please try again.",
+                //        cancel: "OK"
+                //    );
+                //    IsRefundDisplay = false;
+                //    IsLoading = false;
+                //    return;
+                //}
+
+                if (string.IsNullOrWhiteSpace(reason))
+                {
+                    reason = "Not specified"; // Default reason if none provided
+                }
+
                 await _popUpService.ShowAsync("Processing...", true);
 
                 var (isSuccess, message) = await _order.VoidOrder(cashierEmail: CashierState.Info.CashierEmail!,
-                    managerEmail: managerEmail);
+                    managerEmail: managerEmail, reason: reason);
                 if (isSuccess)
                 {
                     await Snackbar.Make(message,
