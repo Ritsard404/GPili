@@ -106,6 +106,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="Presentation\Contents\Manager\SaleTypesView.xaml.cs">
+	    <DependentUpon>SaleTypesView.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="Presentation\Features\Manager\ProductsPage.xaml.cs">
 	    <DependentUpon>ProductsPage.xaml</DependentUpon>
 	  </Compile>
@@ -128,6 +131,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Presentation\Contents\Manager\RefundInvoice.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Presentation\Contents\Manager\SaleTypesView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Presentation\Contents\Manager\TransactionLists.xaml">

@@ -15,6 +15,7 @@ namespace ServiceLibrary.Services.Interfaces
             GetTransactList(DateTime fromDate, DateTime toDate);
         Task<string> GetAuditTrail(DateTime fromDate, DateTime toDate);
         Task<string> GetSalesReport(DateTime fromDate, DateTime toDate);
+        Task<string> GetSalesBook(DateTime fromDate, DateTime toDate);
         Task<string> GetVoidedListsReport(DateTime fromDate, DateTime toDate);
         Task<(List<TransactionListDTO> Data, TotalTransactionListDTO Totals, string FilePath)> 
             GetPwdOrSeniorList(DateTime fromDate, DateTime toDate, string type);

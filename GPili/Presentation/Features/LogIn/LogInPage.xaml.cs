@@ -7,7 +7,9 @@ public partial class LogInPage : ContentPage
 	public LogInPage()
 	{
 		InitializeComponent();
-	}
+
+        AdminAuth.Focus();
+    }
 
     protected override async void OnAppearing()
     {

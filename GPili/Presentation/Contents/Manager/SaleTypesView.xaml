@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="GPili.Presentation.Contents.Manager.SaleTypesView"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+             xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
+             xmlns:validation="clr-namespace:InputKit.Shared.Validations;assembly=InputKit.Maui"
+             xmlns:input="clr-namespace:InputKit.Shared.Controls;assembly=InputKit.Maui"
+             xmlns:model="clr-namespace:ServiceLibrary.Models;assembly=ServiceLibrary"
+             x:Name="SaleTypeRoot">
+    <Grid
+       BackgroundColor="#80000000" 
+       ZIndex="1">
+        <BoxView BackgroundColor="Transparent">
+            <BoxView.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding ToggleSalesTypeCommand}"/>
+            </BoxView.GestureRecognizers>
+        </BoxView>
+        <Border 
+            Stroke="Black"
+            StrokeShape="RoundRectangle 15"
+            StrokeThickness="3"
+            Padding="10" BackgroundColor="White"
+            WidthRequest="{Binding PopupWidth}"
+            HeightRequest="{Binding PopupHeight}">
+            <Grid RowDefinitions="Auto, Auto, *">
+
+                <Button Grid.Column="3" StyleClass="FilledButton"  Grid.Row="0"
+                    Text="New Sale Type" FontSize="Small"
+                    Command="{Binding ToggleAddSalesTypeCommand}"
+                    WidthRequest="200" HorizontalOptions="End" Margin="0,0,0,10">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="FASolid"
+                                 Glyph="{x:Static fa:Solid.Plus}"
+                                 Color="Blue" Size="16"/>
+                    </Button.ImageSource>
+                </Button>
+                <Border Grid.Row="1"
+                    Stroke="Transparent"
+                    StrokeShape="RoundRectangle 12,12,0,0"
+                    StrokeThickness="0" HeightRequest="50"
+                    Background="#383949">
+                    <Grid ColumnDefinitions="*,*,*,*,*" ColumnSpacing="10">
+                        <Label Text="Name" Grid.Column="0" 
+                       FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"
+                       />
+                        <Label Text="Account" Grid.Column="1" FontAttributes="Bold" 
+                       HorizontalOptions="Center" VerticalOptions="Center"/>
+                        <Label Text="Type" Grid.Column="2" 
+                       FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"
+                       />
+                            <Label Text="Status" Grid.Column="3" FontAttributes="Bold" 
+                       HorizontalOptions="Center" VerticalOptions="Center"/>
+                            <Label Text="Action" Grid.Column="4" FontAttributes="Bold" 
+                       HorizontalOptions="Center" VerticalOptions="Center"/>
+                    </Grid>
+                </Border>
+                <Border Grid.Row="2"
+                    Stroke="Transparent"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 0,0,12,12"
+                    Background="#121125" Margin="0,0,0,5">
+                    <CollectionView
+                        ItemsSource="{Binding SaleTypes}"
+                        SelectionMode="Single"
+                        Margin="0,0,0,5"
+                        ItemSizingStrategy="MeasureAllItems">
+
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="model:SaleType">
+                                <Grid ColumnDefinitions="0.2*,0.2*,0.15*,0.12*,0.33*"
+                                ColumnSpacing="20" Padding="10">
+                                    <material:TextField Title="{Binding Name}" Text="{Binding Name}"
+                                                Grid.Column="0">
+                                        <validation:RequiredValidation />
+                                    </material:TextField>
+                                    <material:TextField Title="{Binding Account}" Text="{Binding Account}"
+                                                Grid.Column="1">
+                                        <validation:RequiredValidation />
+                                    </material:TextField>
+                                    <material:TextField Title="{Binding Type}" Text="{Binding Type}"
+                                                Grid.Column="2">
+                                        <validation:RequiredValidation />
+                                    </material:TextField>
+                                    <HorizontalStackLayout Grid.Column="3" Spacing="5" HorizontalOptions="Center" VerticalOptions="Center">
+                                        <CheckBox IsChecked="{Binding IsActive}" />
+                                        <Label Text="{Binding Status}"
+                                            VerticalOptions="Center" />
+                                    </HorizontalStackLayout>
+                                    <Grid ColumnDefinitions="*,*" Grid.Column="4" Padding="10" ColumnSpacing="10">
+                                        <Button Text="Save" FontSize="Small"
+                                            Grid.Column="0"
+                                            Command="{Binding BindingContext.UpdateSaleTypeCommand, Source={x:Reference SaleTypeRoot}}"
+                                            CommandParameter="{Binding .}">
+                                            <Button.ImageSource>
+                                                <FontImageSource FontFamily="FASolid"
+                                             Glyph="{x:Static fa:Solid.Folder}"
+                                             Color="Green" Size="16"/>
+                                            </Button.ImageSource>
+                                        </Button>
+                                        <Button Text="Remove" FontSize="Small"
+                                            Grid.Column="1" Style="{StaticResource RedButton}"
+                                            Command="{Binding BindingContext.RemoveSaleTypeCommand, Source={x:Reference SaleTypeRoot}}"
+                                            CommandParameter="{Binding .}">
+                                            <Button.ImageSource>
+                                                <FontImageSource FontFamily="FASolid"
+                                             Glyph="{x:Static fa:Solid.Trash}"
+                                             Color="Red" Size="16"/>
+                                            </Button.ImageSource>
+                                        </Button>
+                                    </Grid>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </Border>
+            </Grid>
+        </Border>
+        <Grid IsVisible="{Binding IsAddSaleTypeDisplay}"
+           BackgroundColor="#80000000" 
+           ZIndex="1">
+            <BoxView BackgroundColor="Transparent">
+                <BoxView.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding ToggleAddSalesTypeCommand}"/>
+                </BoxView.GestureRecognizers>
+            </BoxView>
+            <Border 
+             Stroke="Black"
+             StrokeShape="RoundRectangle 15"
+             StrokeThickness="3"
+             WidthRequest="{Binding PopupSaleTypeWidth}"
+             MaximumHeightRequest="{Binding PopupSaleTypeHeight}">
+                <Grid RowDefinitions="Auto, *" Background="#121125"
+                   HorizontalOptions="Fill" VerticalOptions="Fill"
+                   Padding="5"> 
+                    <Label Grid.Row="0" HorizontalOptions="Center"
+                        VerticalOptions="Center" TextColor="White"
+                        FontSize="Medium" FontAttributes="Bold"
+                        Text="New Sale Type" />
+
+                    <input:FormView Grid.Row="1" SubmitCommand="{Binding AddSaleTypeCommand}" Spacing="20">
+                        <Grid RowDefinitions="*,Auto" ColumnDefinitions="*" RowSpacing="10" ColumnSpacing="10">
+                            <VerticalStackLayout Spacing="10" Padding="10" HorizontalOptions="Fill" VerticalOptions="End">
+
+                                <!-- Sale Type Name -->
+                                <material:TextField Title="Name" TextColor="White" Text="{Binding NewSaleType.Name}">
+                                    <validation:RequiredValidation />
+                                </material:TextField>
+
+                                <!-- Account -->
+                                <material:TextField Grid.Column="0" TextColor="White" Title="Account" Text="{Binding NewSaleType.Account}">
+                                    <validation:RequiredValidation />
+                                </material:TextField>
+
+                                <!-- Type -->
+                                <material:TextField Grid.Column="1" TextColor="White" Title="Type" Text="{Binding NewSaleType.Type}">
+                                    <validation:RequiredValidation />
+                                </material:TextField>
+
+                            </VerticalStackLayout>
+                            <Button Text="Add" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                 input:FormView.IsSubmitButton="True" Margin="10,0,10,0"
+                                 VerticalOptions="Center" FontAttributes="Bold" FontSize="18"
+                                 StyleClass="FilledButton"/>
+                        </Grid>
+                    </input:FormView>
+                </Grid>
+            </Border>
+
+        </Grid>
+    </Grid>
+
+</ContentPage>

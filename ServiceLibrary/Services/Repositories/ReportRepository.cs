@@ -500,6 +500,15 @@ namespace ServiceLibrary.Services.Repositories
             {
                 posInfo.ZCounterNo += 1;
             }
+
+            await _dataContext.Reading.AddAsync(new Reading
+            {
+                IsTrainMode = isTrainMode,
+                LastInvoice = GetOrderNumber(orders.Max(o => o?.InvoiceNumber)),
+                Present = presentAccumulatedSales,
+                Previous = previousAccumulatedSales,
+                Sales = salesForTheDay,
+            });
             await _dataContext.SaveChangesAsync();
 
             return dto;
@@ -953,6 +962,50 @@ namespace ServiceLibrary.Services.Repositories
                 var uniqueSuffix = DateTime.Now.ToString("yyyyMMddHHmmssfff");
                 var fileName = $"{baseName}_{uniqueSuffix}.pdf";
                 var folderPath = FolderPath.PDF.SalesHistory;
+
+                // Ensure directory exists
+                if (!Directory.Exists(folderPath))
+                    Directory.CreateDirectory(folderPath);
+
+                var filePath = Path.Combine(folderPath, fileName);
+                // Save PDF file
+                await File.WriteAllBytesAsync(filePath, pdfBytes);
+
+                return (filePath);
+            }
+            catch (Exception ex)
+            {
+                // Log the error appropriately
+                throw new Exception($"Error generating sales report: {ex.Message}", ex);
+            }
+        }
+        public async Task<string> GetSalesBook(DateTime fromDate, DateTime toDate)
+        {
+            try
+            {
+                var posInfo = await _terminalMachine.GetTerminalInfo();
+
+                _salesReportPDFService.UpdateBusinessInfo(
+                    posInfo.RegisteredName ?? "N/A",
+                    posInfo.Address ?? "N/A",
+                    posInfo.VatTinNumber ?? "N/A"
+                );
+                // Get the sales report data
+                var salesBook = await _dataContext.Reading
+                    .Where(r => r.IsTrainMode == posInfo.IsTrainMode &&
+                        r.CreatedAt.Date >= fromDate.Date && r.CreatedAt.Date <= toDate.Date)
+                    .ToListAsync();
+
+                // Generate PDF
+                var pdfBytes = _salesReportPDFService.GenerateSalesBookPDF(salesBook, fromDate, toDate);
+
+                // BASE name (no suffix):
+                var baseName = $"SalesBook_{fromDate:yyyyMMdd}_to_{toDate:yyyyMMdd}";
+
+                // Append a timestamp so it's always unique
+                var uniqueSuffix = DateTime.Now.ToString("yyyyMMddHHmmssfff");
+                var fileName = $"{baseName}_{uniqueSuffix}.pdf";
+                var folderPath = FolderPath.PDF.SalesBook;
 
                 // Ensure directory exists
                 if (!Directory.Exists(folderPath))

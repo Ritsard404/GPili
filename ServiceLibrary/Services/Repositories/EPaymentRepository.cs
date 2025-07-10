@@ -54,7 +54,9 @@ namespace ServiceLibrary.Services.Repositories
 
         public async Task<(bool isSuccess, string message)> AddSaleType(SaleType saleType, string managerEmail)
         {
-            if (saleType == null || string.IsNullOrWhiteSpace(saleType.Name) || string.IsNullOrWhiteSpace(saleType.Account) || string.IsNullOrWhiteSpace(saleType.Type))
+            if ( string.IsNullOrWhiteSpace(saleType.Name) || 
+                string.IsNullOrWhiteSpace(saleType.Account) || 
+                string.IsNullOrWhiteSpace(saleType.Type))
                 return (false, "All SaleType fields are required.");
 
             // Check for unique name (case-insensitive)

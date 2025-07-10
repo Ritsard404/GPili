@@ -525,5 +525,6 @@ namespace ServiceLibrary.Services.Repositories
                     && i.IsTrainingMode == isTrainMode)
                 .ToListAsync();
         }
+    
     }
 }

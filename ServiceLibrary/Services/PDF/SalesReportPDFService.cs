@@ -1,6 +1,8 @@
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
+using ServiceLibrary.Models;
 using ServiceLibrary.Services.DTO.Report;
+using ServiceLibrary.Utils;
 using System.Globalization;
 using System.Text;
 
@@ -243,6 +245,142 @@ namespace EBISX_POS.API.Services.PDF
                 x += colWidths[i];
             }
             y += rowHeight;
+
+            // Save to memory stream
+            using var stream = new MemoryStream();
+            document.Save(stream);
+            return stream.ToArray();
+        }
+
+        public byte[] GenerateSalesBookPDF(List<Reading> readings, DateTime fromDate, DateTime toDate)
+        {
+            using var document = new PdfDocument();
+            var page = document.AddPage();
+            page.Orientation = PdfSharp.PageOrientation.Portrait;
+            page.Width = XUnit.FromInch(8.5);
+            page.Height = XUnit.FromInch(11.0);
+            var gfx = XGraphics.FromPdfPage(page);
+            var phCulture = new CultureInfo("en-PH");
+
+            // Fonts
+            var titleFont = new XFont("Arial", 16, XFontStyle.Bold);
+            var headerFont = new XFont("Arial", 10, XFontStyle.Bold);
+            var normalFont = new XFont("Arial", 9, XFontStyle.Regular);
+            var smallFont = new XFont("Arial", 8, XFontStyle.Regular);
+
+            double y = 40;
+            double margin = 30;
+            double tableTop = 0;
+            double pageWidth = page.Width - margin * 2;
+
+            // Header
+            gfx.DrawString(_businessName, titleFont, XBrushes.DarkBlue, new XPoint(margin, y));
+            y += 18;
+            gfx.DrawString(_address, normalFont, XBrushes.Black, new XPoint(margin, y));
+            y += 12;
+            gfx.DrawString($"TIN {_tin}", normalFont, XBrushes.Black, new XPoint(margin, y));
+            y += 18;
+            gfx.DrawString("SALES BOOK REPORT", headerFont, XBrushes.DarkBlue, new XPoint(margin, y));
+            y += 14;
+            gfx.DrawString($"From {fromDate:MM-dd-yyyy} To {toDate:MM-dd-yyyy}", normalFont, XBrushes.Black, new XPoint(margin, y));
+            y += 18;
+            tableTop = y;
+
+            // Table columns for portrait mode (sum to 1.0)
+            var columns = new[]
+            {
+                ("DATE", 0.15),
+                ("INVOICE", 0.18),
+                ("PREVIOUS", 0.18),
+                ("PRESENT", 0.18),
+                ("SALES", 0.16),
+                ("Z-COUNTER", 0.15)
+            };
+            double[] colWidths = columns.Select(c => c.Item2 * pageWidth).ToArray();
+            double headerRowHeight = 30;
+            double rowHeight = 18;
+            var formats = new[]
+            {
+                XStringFormats.Center,
+                XStringFormats.CenterLeft,
+                XStringFormats.CenterLeft,
+                XStringFormats.Center,
+                XStringFormats.Center,
+                XStringFormats.Center
+            };
+
+            // Draw table header
+            double headerY = y;
+            double x = margin;
+            for (int i = 0; i < columns.Length; i++)
+            {
+                var rect = new XRect(x, headerY, colWidths[i], headerRowHeight);
+                gfx.DrawRectangle(XBrushes.LightGray, rect);
+                var headerLines = columns[i].Item1.Split('\n');
+                double lineHeight = headerRowHeight / headerLines.Length;
+                for (int j = 0; j < headerLines.Length; j++)
+                {
+                    var lineRect = new XRect(x, headerY + j * lineHeight, colWidths[i], lineHeight);
+                    gfx.DrawString(headerLines[j], smallFont, XBrushes.Black, lineRect, formats[i]);
+                }
+                x += colWidths[i];
+            }
+            y += headerRowHeight;
+
+            // Table rows
+            foreach (var reading in readings)
+            {
+                // Check if adding the next row will exceed the page height (with a bottom margin)
+                if (y + rowHeight > page.Height - margin)
+                {
+                    // Add a new page
+                    page = document.AddPage();
+                    page.Orientation = PdfSharp.PageOrientation.Portrait;
+                    page.Width = XUnit.FromInch(8.5);
+                    page.Height = XUnit.FromInch(11.0);
+                    gfx = XGraphics.FromPdfPage(page);
+                    y = margin; // Reset y position for the new page
+
+                    // Redraw table header on the new page
+                    double currentHeaderY = y;
+                    double currentX = margin;
+                    for (int i = 0; i < columns.Length; i++)
+                    {
+                        var rect = new XRect(currentX, currentHeaderY, colWidths[i], headerRowHeight);
+                        gfx.DrawRectangle(XBrushes.LightGray, rect);
+                        var headerLines = columns[i].Item1.Split('\n');
+                        double lineHeight = headerRowHeight / headerLines.Length;
+                        for (int j = 0; j < headerLines.Length; j++)
+                        {
+                            var lineRect = new XRect(currentX, currentHeaderY + j * lineHeight, colWidths[i], lineHeight);
+                            gfx.DrawString(headerLines[j], smallFont, XBrushes.Black, lineRect, formats[i]);
+                        }
+                        currentX += colWidths[i];
+                    }
+                    y += headerRowHeight;
+                }
+
+                x = margin;
+                var values = new[]
+                {
+                    reading.CreatedAt.DateFormat(),
+                    reading.LastInvoice,
+                    reading.Previous.ToString("N2"),
+                    reading.Present.ToString("N2"),
+                    reading.Sales.ToString("N2"),
+                    reading.Id.ToString()
+                };
+
+                for (int i = 0; i < values.Length; i++)
+                {
+                    var rect = new XRect(x, y, colWidths[i], rowHeight);
+                    gfx.DrawString(values[i], smallFont, XBrushes.Black, rect, formats[i]);
+                    x += colWidths[i];
+                }
+                y += rowHeight;
+                // Draw row line
+                gfx.DrawLine(XPens.Gray, margin, y, margin + pageWidth, y);
+            }
 
             // Save to memory stream
             using var stream = new MemoryStream();

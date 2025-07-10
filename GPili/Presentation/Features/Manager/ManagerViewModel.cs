@@ -78,6 +78,12 @@ namespace GPili.Presentation.Features.Manager
         [ObservableProperty]
         private List<GetInvoiceDocumentDTO> _transactLists = new();
 
+        // Sale Types
+        [ObservableProperty]
+        private bool _isSaleTypesDisplay = false;
+        [ObservableProperty]
+        private List<SaleType> _saleTypes = new();
+
 
         [RelayCommand]
         private async Task LoadData()
@@ -462,6 +468,97 @@ namespace GPili.Presentation.Features.Manager
             IsLoading = false;
         }
 
+        // Sale Types
+        [ObservableProperty]
+        private bool _isAddSaleTypeDisplay = false;
+        [ObservableProperty]
+        private SaleType _newSaleType;
+        public double PopupSaleTypeWidth => Shell.Current.CurrentPage.Width * 0.4;
+        public double PopupSaleTypeHeight => Shell.Current.CurrentPage.Height * 0.6;
+
+
+        [RelayCommand]
+        private void ToggleAddSalesType()
+        {
+            IsLoading = true;
+
+
+            if (!IsAddSaleTypeDisplay)
+            {
+                // When opening the popup, initialize NewSaleType
+                NewSaleType = new SaleType { Name = "", Type = "", Account = "" };
+            }
+
+            IsAddSaleTypeDisplay = !IsAddSaleTypeDisplay;
+            IsLoading = false;
+        }
+        [RelayCommand]
+        private async Task ToggleSalesType()
+        {
+            IsLoading = true;
+            SaleTypes.Clear();
+            SaleTypes = await _ePayment.SaleTypes();
+
+            IsSaleTypesDisplay = !IsSaleTypesDisplay;
+            IsLoading = false;
+        }
+        [RelayCommand]
+        private async Task UpdateSaleType(SaleType saleType)
+        {
+            IsLoading = true;
+
+            var (isSuccess, message) = await _ePayment.UpdateSaleType(saleType, ManagerEmail!);
+            if (isSuccess)
+            {
+                SaleTypes.Clear();
+                SaleTypes = await _ePayment.SaleTypes();
+
+            }
+            else
+            {
+                await Shell.Current.DisplayAlert("Error", message, "Ok");
+            }
+            IsLoading = false;
+        }
+        [RelayCommand]
+        private async Task RemoveSaleType(SaleType saleType)
+        {
+            IsLoading = true;
+
+            var (isSuccess, message) = await _ePayment.DeleteSaleType(saleType.Id, ManagerEmail!);
+            if (isSuccess)
+            {
+                SaleTypes.Clear();
+                SaleTypes = await _ePayment.SaleTypes();
+
+            }
+            else
+            {
+                await Shell.Current.DisplayAlert("Error", message, "Ok");
+            }
+            IsLoading = false;
+        }
+        
+        [RelayCommand]
+        private async Task AddSaleType()
+        {
+            IsLoading = true;
+
+            var (isSuccess, message) = await _ePayment.AddSaleType(NewSaleType, ManagerEmail!);
+            if (isSuccess)
+            {
+                SaleTypes.Clear();
+                SaleTypes = await _ePayment.SaleTypes();
+                IsAddSaleTypeDisplay = false;
+
+            }
+            else
+            {
+                await Shell.Current.DisplayAlert("Error", message, "Ok");
+            }
+            IsLoading = false;
+        }
+
         // Refund
         [RelayCommand]
         private void ToggleRefundInvoice()
@@ -602,7 +699,7 @@ namespace GPili.Presentation.Features.Manager
 
             IsLoading = false;
         }
-    
+
         [RelayCommand]
         private async Task PrintAuditTrail()
         {
@@ -626,7 +723,7 @@ namespace GPili.Presentation.Features.Manager
 
             IsLoading = false;
         }
-    
+
         [RelayCommand]
         private async Task PrintSalesHistory()
         {
@@ -650,7 +747,31 @@ namespace GPili.Presentation.Features.Manager
 
             IsLoading = false;
         }
-    
+
+        [RelayCommand]
+        private async Task PrintSalesBook()
+        {
+            IsLoading = true;
+
+            var vm = new SelectionOfDateViewModel(_popupService, isRangeMode: true);
+            var popup = new DateSelectionPopup(vm);
+            var result = await Shell.Current.ShowPopupAsync(popup);
+
+            if (result is ValueTuple<DateTime, DateTime> range)
+            {
+                var fromDate = range.Item1;
+                var toDate = range.Item2;
+
+                var filePath = await _report.GetSalesBook(fromDate, toDate);
+
+                await Shell.Current.DisplayAlert("Sales Book Printed",
+                    $"File Path: {filePath}",
+                    "OK");
+            }
+
+            IsLoading = false;
+        }
+
         [RelayCommand]
         private async Task PrintVoidedLists()
         {

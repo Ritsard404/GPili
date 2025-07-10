@@ -188,7 +188,8 @@
                                 Grid.Row="2" Grid.Column="0"
                                 Command="{Binding PrintVoidedListsCommand}"/>
                         <Button Text="Sales Book" Grid.Row="2" Grid.Column="1" 
-                                ContentLayout="top, 0" ImageSource="sales_book.png"/>
+                                ContentLayout="top, 0" ImageSource="sales_book.png"
+                                Command="{Binding PrintSalesBookCommand}"/>
                         <Button Text="PWD/SC List" Grid.Row="2" Grid.Column="3" 
                                 ContentLayout="top, 0" ImageSource="pwd_list.png"
                                 Command="{Binding PrintPwdOrSeniorListsCommand}"/>
@@ -208,7 +209,7 @@
                            FontSize="Medium"/>
                     
                     <!--Second Row-->
-                    <Grid Grid.Row="1"  RowDefinitions="Auto, Auto, Auto"
+                    <Grid Grid.Row="1"  RowDefinitions="Auto, Auto, Auto, Auto"
                           ColumnDefinitions="*, *, *" RowSpacing="18"
                           ColumnSpacing="18" Padding="5,0,5,5">
                         
@@ -237,12 +238,37 @@
                                 Grid.Row="2" Grid.Column="2" 
                                 IsVisible="{Binding IsDeveloper}" 
                                 Command="{Binding SettingsCommand}"/>
+                        <Button Text="Sale Types"
+                                ContentLayout="top, 0"
+                                IsVisible="{Binding IsDeveloper, Converter={StaticResource InverseBoolConverter}}" 
+                                Grid.Row="2" Grid.Column="2" 
+                                Command="{Binding ToggleSalesTypeCommand}">
+                                <Button.ImageSource>
+                                    <FontImageSource FontFamily="FASolid"
+                                        Glyph="{x:Static fa:Solid.MoneyBillWave}"
+                                        Color="Black" Size="40"/>
+                            </Button.ImageSource>
+                        </Button>
+                        <Button Text="Sale Types"
+                                ContentLayout="top, 0"
+                                IsVisible="{Binding IsDeveloper}" 
+                                Grid.Row="3" Grid.Column="0" >
+                                <Button.ImageSource>
+                                    <FontImageSource FontFamily="FASolid"
+                                        Glyph="{x:Static fa:Solid.MoneyBillWave}"
+                                        Color="Black" Size="40"/>
+                            </Button.ImageSource>
+                        </Button>
 
                     </Grid>
                 </Grid>
             </Border>
         </Grid>
 
+        <!--Fake Popup Sale Types-->
+        <content:SaleTypesView Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+                    IsVisible="{Binding IsSaleTypesDisplay}"/>
+        
         <!--Fake Popup TransactLists-->
         <content:TransactionLists Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
                     IsVisible="{Binding IsDisplayTransactLists}"/>
@@ -250,6 +276,7 @@
         <!--Fake Popup Refund Invoice-->
         <content:RefundInvoice Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
                     IsVisible="{Binding IsRefundDisplay}"/>
+        
 
         <!-- Loader Overlay -->
         <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
