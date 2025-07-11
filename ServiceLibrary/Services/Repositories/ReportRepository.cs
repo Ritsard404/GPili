@@ -70,7 +70,7 @@ namespace ServiceLibrary.Services.Repositories
                 .Include(i => i.EPayments)
                     .ThenInclude(ap => ap.SaleType)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(i => i.Id == invId);
+                .FirstOrDefaultAsync(i => i.Id == invId && i.Status != InvoiceStatusType.Void);
 
             if (order == null)
                 return null;
