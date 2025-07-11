@@ -84,11 +84,6 @@ namespace ServiceLibrary.Services.Repositories
 
                 await _auditLog.AddManagerAudit(managerResult.manager, AuditActionType.AddCashier, $"Added new cashier: {user.FullName} ({user.Email})", null);
             }
-            else if (user.Role == RoleType.Manager)
-            {
-                await _auditLog.AddManagerAudit(user, AuditActionType.AddManager, $"Added new manager: {user.FullName} ({user.Email})", null);
-            }
-            // ... handle other roles if needed
 
             user.IsActive = true;
             user.CreatedAt = DateTime.Now;
@@ -96,6 +91,11 @@ namespace ServiceLibrary.Services.Repositories
             _dataContext.User.Add(user);
 
             await _dataContext.SaveChangesAsync();
+
+            if (user.Role == RoleType.Manager)
+            {
+                await _auditLog.AddManagerAudit(user, AuditActionType.AddManager, $"Added new manager: {user.FullName} ({user.Email})", null);
+            }
             return (true, $"{user.Role} added successfully");
         }
 
