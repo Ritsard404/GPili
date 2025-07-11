@@ -23,6 +23,7 @@ namespace ServiceLibrary.Services.Repositories
                 .Where(t => t.Cashier.Email == cashierEmail &&
                     t.TsOut == null && t.CashInDrawerAmount != null &&
                     t.IsTrainMode == isTrainMode)
+                .AsNoTracking()
                 .FirstOrDefaultAsync();
 
             if (timestamp == null || timestamp.CashInDrawerAmount == null)
@@ -38,6 +39,7 @@ namespace ServiceLibrary.Services.Repositories
 
             // Fetch all orders with their cashier
             var orders = await _dataContext.Invoice
+                .Where(i => !i.IsRead)
                 .Include(o => o.Cashier)
                 .ToListAsync();
 
@@ -154,19 +156,20 @@ namespace ServiceLibrary.Services.Repositories
 
             var posInfo = await _terminalMachine.GetTerminalInfo();
 
+            var ts = await _dataContext.Timestamp
+                .Include(t => t.Cashier)
+                .OrderBy(t => t.Id)
+                .AsNoTracking()
+                .LastOrDefaultAsync(o => o.IsTrainMode == isTrainMode);
+
             var orders = await _dataContext.Invoice
                 .Include(o => o.Cashier)
                 .Include(o => o.Items)
                 .Include(o => o.EPayments)
                     .ThenInclude(ap => ap.SaleType)
                 .Where(o => !o.IsRead && o.IsTrainMode == isTrainMode)
+                .AsNoTracking()
                 .ToListAsync();
-
-
-            var ts = await _dataContext.Timestamp
-                .Include(t => t.Cashier)
-                .OrderBy(t => t.Id)
-                .LastOrDefaultAsync(o => o.IsTrainMode == isTrainMode);
 
             // Handle empty orders scenario
             var firstOrder = orders.FirstOrDefault();
@@ -258,15 +261,15 @@ namespace ServiceLibrary.Services.Repositories
                 IsTrainMode = isTrainMode
             };
 
-            // Mark orders as read if any exist
-            if (orders.Any())
+            foreach (var order in orders)
             {
-                foreach (var order in orders)
+                var trackedOrder = await _dataContext.Invoice.FindAsync(order.Id);
+                if (trackedOrder != null)
                 {
-                    order.IsRead = true;
+                    trackedOrder.IsRead = true;
                 }
-                await _dataContext.SaveChangesAsync();
             }
+            await _dataContext.SaveChangesAsync();
 
             return dto;
         }
@@ -529,10 +532,12 @@ namespace ServiceLibrary.Services.Repositories
 
         public async Task<List<GetInvoiceDocumentDTO>> InvoiceDocuments(DateTime fromDate, DateTime toDate)
         {
+            var isTrainMode = await _terminalMachine.IsTrainMode();
+
             return await _dataContext.InvoiceDocument
                 .Include(d => d.Invoice)
                 .Include(d => d.Manager)
-                .Where(d => d.CreatedAt.Date >= fromDate.Date && d.CreatedAt.Date <= toDate.Date)
+                .Where(d => d.CreatedAt.Date >= fromDate.Date && d.CreatedAt.Date <= toDate.Date && d.IsTrainMode == isTrainMode)
                 .Select(d => new GetInvoiceDocumentDTO
                 {
                     Id = d.Id,

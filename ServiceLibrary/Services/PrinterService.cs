@@ -262,6 +262,7 @@ namespace ServiceLibrary.Services
                 InvoiceBlob = receiptBytes,
                 Type = InvoiceDocumentType.Invoice, // or "X", "Y", etc. as needed
                 Invoice = invoice,
+                IsTrainMode = isTrainMode
             };
 
             _dataContext.InvoiceDocument.Add(invoiceDocument);
@@ -371,6 +372,7 @@ namespace ServiceLibrary.Services
             var invoiceDocument = new InvoiceDocument
             {
                 InvoiceBlob = receiptBytes,
+                IsTrainMode = isTrainMode,
                 Type = InvoiceDocumentType.XReport, // or "X", "Y", etc. as needed
             };
 
@@ -389,6 +391,7 @@ namespace ServiceLibrary.Services
         public async Task PrintZReading()
         {
             var zInvoice = await _report.GetZInvoice();
+            var isTrainMode = await _terminalMachine.IsTrainMode();
 
             var reportPath = SalesReport.ZInvoiceReports;
 
@@ -506,6 +509,7 @@ namespace ServiceLibrary.Services
             var invoiceDocument = new InvoiceDocument
             {
                 InvoiceBlob = receiptBytes,
+                IsTrainMode = isTrainMode,
                 Type = InvoiceDocumentType.ZReport, // or "X", "Y", etc. as needed
             };
 
