@@ -743,10 +743,7 @@ namespace ServiceLibrary.Services.Repositories
             var auditTrail = new List<AuditTrailDTO>();
             var startDate = fromDate.Date;
             var endDate = toDate.Date.AddDays(1);
-            var phCulture = new CultureInfo("en-PH");
-            const string DATE_FORMAT = "MM/dd/yyyy";
             const string TIME_FORMAT = "hh:mm tt";
-            const string CURRENCY_FORMAT = "₱{0:N2}";
 
             // Get user logs
             var userLogs = await _dataContext.AuditLog
@@ -755,14 +752,14 @@ namespace ServiceLibrary.Services.Repositories
                 .Where(c => c.CreatedAt >= startDate && c.CreatedAt < endDate)
                 .Select(m => new AuditTrailDTO
                 {
-                    Date = m.CreatedAt.ToLocalTime().ToString(DATE_FORMAT, phCulture),
-                    Time = m.CreatedAt.ToLocalTime().ToString(TIME_FORMAT, phCulture),
+                    Date = m.CreatedAt.DateFormat(),
+                    Time = m.CreatedAt.ToString(TIME_FORMAT),
                     UserName = m.Manager != null
                         ? $"{m.Manager.FName} {m.Manager.LName}"
                         : $"{m.Cashier.FName} {m.Cashier.LName}",
                     Action = m.Action,
                     Amount = m.Amount > 0
-                        ? string.Format(CURRENCY_FORMAT, m.Amount)
+                        ? m.Amount.PesoFormat()
                         : null,
                     SortDateTime = m.CreatedAt.ToLocalTime()
                 })
@@ -791,13 +788,13 @@ namespace ServiceLibrary.Services.Repositories
                     var tsInDateTime = t.TsIn.Value;
                     var action = t.CashInDrawerAmount.HasValue ? "Set Cash in Drawer" : "Log In";
                     var amount = t.CashInDrawerAmount.HasValue
-                        ? string.Format(CURRENCY_FORMAT, t.CashInDrawerAmount.Value)
+                        ? t.CashInDrawerAmount.Value.PesoFormat()
                         : null;
 
                     auditTrail.Add(new AuditTrailDTO
                     {
-                        Date = tsInDateTime.ToLocalTime().ToString(DATE_FORMAT, phCulture),
-                        Time = tsInDateTime.ToLocalTime().ToString(TIME_FORMAT, phCulture),
+                        Date = tsInDateTime.DateFormat(),
+                        Time = tsInDateTime.ToString(TIME_FORMAT),
                         UserName = t.ManagerIn != null
                             ? $"{t.ManagerIn.FName} {t.ManagerIn.LName}"
                             : "Super Admin",
@@ -814,13 +811,13 @@ namespace ServiceLibrary.Services.Repositories
                     var manager = t.ManagerOut ?? t.ManagerIn;
                     var action = t.CashOutDrawerAmount.HasValue ? "Set Cash out Drawer" : "Log Out";
                     var amount = t.CashOutDrawerAmount.HasValue
-                        ? string.Format(CURRENCY_FORMAT, t.CashOutDrawerAmount.Value)
+                        ? t.CashOutDrawerAmount.Value.PesoFormat()
                         : null;
 
                     auditTrail.Add(new AuditTrailDTO
                     {
-                        Date = tsOutDateTime.ToLocalTime().ToString(DATE_FORMAT, phCulture),
-                        Time = tsOutDateTime.ToLocalTime().ToString(TIME_FORMAT, phCulture),
+                        Date = tsOutDateTime.DateFormat(),
+                        Time = tsOutDateTime.ToString(TIME_FORMAT),
                         UserName = manager != null
                             ? $"{manager.FName} {manager.LName}"
                             : "Super Admin",
