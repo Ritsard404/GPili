@@ -11,9 +11,9 @@ using System.Linq;
 
 namespace ServiceLibrary.Services.Repositories
 {
-    public class OrderRepository(DataContext _dataContext, 
-        IGPiliTerminalMachine _terminalMachine, 
-        IAuth _auth, IAuditLog _auditLog, 
+    public class OrderRepository(DataContext _dataContext,
+        IGPiliTerminalMachine _terminalMachine,
+        IAuth _auth, IAuditLog _auditLog,
         IReport _report, IPrinterService _printer,
         IInventory _inventory) : IOrder
     {
@@ -108,6 +108,7 @@ namespace ServiceLibrary.Services.Repositories
             var existingItem = await _dataContext.Item
                 .Include(i => i.Product)
                 .Include(i => i.Invoice)
+                    .ThenInclude(i => i.Cashier)
                 .FirstOrDefaultAsync(i => i.Id == itemId);
 
 
@@ -118,7 +119,7 @@ namespace ServiceLibrary.Services.Repositories
                 return (false, "Quantity and subtotal must be greater than zero.");
 
             var oldQty = existingItem.Qty;
-            if(existingItem.Product.Quantity < qty + oldQty) 
+            if (existingItem.Product.Quantity < qty + oldQty)
                 return (false, $"Insufficient stock. Only {existingItem.Product.Quantity} “{existingItem.Product.Name}” left in inventory.");
 
 
@@ -526,10 +527,10 @@ namespace ServiceLibrary.Services.Repositories
                 .Include(i => i.Product)
                 .Include(i => i.Invoice)
                 .Where(i => i.Invoice.InvoiceNumber == invNum &&
-                    i.Invoice.Status == InvoiceStatusType.Paid 
+                    i.Invoice.Status == InvoiceStatusType.Paid
                     && i.IsTrainingMode == isTrainMode)
                 .ToListAsync();
         }
-    
+
     }
 }

@@ -84,11 +84,10 @@ namespace ServiceLibrary.Services.PDF
                 XStringFormats.CenterRight,
                 XStringFormats.CenterRight,
                 XStringFormats.CenterRight,
-                XStringFormats.CenterLeft,
                 XStringFormats.Center,
                 XStringFormats.Center,
                 XStringFormats.Center,
-                XStringFormats.Center
+                XStringFormats.Center,
             };
 
             // Draw table headers

@@ -69,6 +69,7 @@ namespace ServiceLibrary.Services.Repositories
                 .Include(i => i.Cashier)
                 .Include(i => i.EPayments)
                     .ThenInclude(ap => ap.SaleType)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(i => i.Id == invId);
 
             if (order == null)
