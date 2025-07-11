@@ -70,7 +70,7 @@ namespace ServiceLibrary.Services.Repositories
                 .Include(i => i.EPayments)
                     .ThenInclude(ap => ap.SaleType)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(i => i.Id == invId && i.Status != InvoiceStatusType.Void);
+                .FirstOrDefaultAsync(i => i.Id == invId);
 
             if (order == null)
                 return null;
@@ -97,14 +97,17 @@ namespace ServiceLibrary.Services.Repositories
                 IsTrainMode = terminalInfo.IsTrainMode,
             };
 
-            var items = order.Items.Select(item => new ItemInfo
+            var items = order.Items
+            .Where(item => item.Status != InvoiceStatusType.Void)
+            .Select(item => new ItemInfo
             {
                 Qty = item.QtyDisplay,
                 Description = item.DisplayNameWithPrice.Length > 20
                     ? item.DisplayNameWithPrice.Substring(0, 20)
                     : item.DisplayNameWithPrice,
                 Amount = item.DisplaySubtotalVat,
-            }).ToList();
+            })
+            .ToList();
 
             var otherPayments = order.EPayments.Select(ap => new OtherPayment
             {

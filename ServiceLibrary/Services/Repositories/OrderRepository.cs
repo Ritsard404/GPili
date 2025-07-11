@@ -328,6 +328,9 @@ namespace ServiceLibrary.Services.Repositories
             await _auditLog.AddManagerAudit(managerResult.manager, AuditActionType.VoidItem, $"Item ID {itemId} voided by {managerResult.manager.Email} at the request of cashier {cashierResult.cashier.Email}", itemToVoid.SubTotal);
             await _auditLog.AddCashierAudit(cashierResult.cashier, AuditActionType.VoidItem, $"Item ID {itemId} voided at the request of manager {managerResult.manager.Email}", itemToVoid.SubTotal);
 
+            // Ensure voided status is persisted before any further actions
+            await _dataContext.SaveChangesAsync();
+
             return (true, "Item voided successfully!");
         }
 
@@ -394,7 +397,8 @@ namespace ServiceLibrary.Services.Repositories
         {
             return await _dataContext.Invoice
                 .Include(i => i.Items)
-                .FirstOrDefaultAsync(p => p.Status == InvoiceStatusType.Pending && p.IsTrainMode == isTrainMode);
+                .FirstOrDefaultAsync(p => p.Status == InvoiceStatusType.Pending &&
+                        p.IsTrainMode == isTrainMode);
         }
 
         public async Task<long> GenerateInvoiceNumberAsync(bool isTrainingMode)
@@ -422,7 +426,11 @@ namespace ServiceLibrary.Services.Repositories
                 if (!cashierResult.isSuccess || cashierResult.cashier == null)
                     return (false, "Invalid cashier email. Please check and try again.", null);
 
-                var pendingOrder = await PendingOrder(isTrainMode);
+                var pendingOrder = await _dataContext.Invoice
+                    .Include(i => i.Cashier)
+                    .Include(i => i.Items)
+                        .ThenInclude(it => it.Product)
+                    .FirstOrDefaultAsync(p => p.Status == InvoiceStatusType.Pending && p.IsTrainMode == isTrainMode);
                 if (pendingOrder == null)
                     return (false, "No pending order found.", null);
 
@@ -445,8 +453,6 @@ namespace ServiceLibrary.Services.Repositories
                 pendingOrder.VatExempt = pay.VatExempt;
                 pendingOrder.VatAmount = pay.VatAmount;
                 pendingOrder.VatZero = pay.VatZero;
-
-
 
                 // Map Discount
                 if (pay.Discount != null)
@@ -478,7 +484,14 @@ namespace ServiceLibrary.Services.Repositories
                     pendingOrder.EPayments.Add(ePayment);
                 }
 
-                foreach (var item in pendingOrder.Items)
+                // Reload items from DB to ensure up-to-date status
+                var items = await _dataContext.Item
+                    .Where(i => i.Invoice.Id == pendingOrder.Id 
+                        && i.Status == InvoiceStatusType.Pending)
+                    .Include(i => i.Product)
+                    .ToListAsync();
+
+                foreach (var item in items)
                 {
                     item.Status = InvoiceStatusType.Paid;
                     // Record inventory OUT transaction for each item
@@ -491,6 +504,7 @@ namespace ServiceLibrary.Services.Repositories
                     );
                 }
 
+
                 await _auditLog.AddCashierAudit(
                     cashierResult.cashier,
                     AuditActionType.PayOrder,
@@ -502,6 +516,7 @@ namespace ServiceLibrary.Services.Repositories
                 await _auditLog.AddTendersJournal(pendingOrder.Id);
                 await _auditLog.AddTotalsJournal(pendingOrder.Id);
 
+                _dataContext.Invoice.Update(pendingOrder);
                 await _dataContext.SaveChangesAsync();
 
                 // Print the invoice
