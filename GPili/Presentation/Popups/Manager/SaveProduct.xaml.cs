@@ -11,6 +11,7 @@ public partial class SaveProduct : Popup
         var vm = IPlatformApplication.Current.Services.GetRequiredService<SaveProductViewModel>();
         vm.Popup = this;
         vm.IsEdit = isEdit;
+        vm.IsRestoType = !POSInfo.Terminal.IsRetailType;
         vm.ManagerEmail = managerEmail; vm.Product = product ?? new Product
         {
             ProdId = Guid.NewGuid().ToString(),
@@ -23,7 +24,8 @@ public partial class SaveProduct : Popup
             IsAvailable = true,
             ItemType = string.Empty,
             VatType = string.Empty,
-            Category = category.FirstOrDefault()!
+            Category = category.FirstOrDefault()!,
+            ImagePath = null
         };
         vm.Categories = category;
         BindingContext = vm;

@@ -21,10 +21,15 @@
         public static class Database
         {
             public const string Test = "C:\\Database";
+            public const string Password = "Ritsard200303";
         }
         public static class JournalLink
         {
             public const string Ebisx = "https://ebisx.com/";
+        }
+        public static class ImagePath
+        {
+            public const string Image = "C:\\GPIli\\Images";
         }
         public static class PDF
         {

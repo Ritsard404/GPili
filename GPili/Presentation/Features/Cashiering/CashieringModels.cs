@@ -17,6 +17,7 @@ namespace GPili.Presentation.Features.Cashiering
         private string _qtyBuffer = "";
 
         public bool IsInitialDisplay => InitialQty > 0;
+    
     }
     public partial class PendingItems : ObservableObject
     {

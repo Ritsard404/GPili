@@ -35,5 +35,8 @@ namespace ServiceLibrary.Models
         public int ZCounterTrainNo { get; set; } = 0;
 
         public bool IsTrainMode { get; set; } = false;
+
+        // Is Retail Type
+        public bool IsRetailType { get; set; } = true;
     }
 }

@@ -503,6 +503,9 @@ namespace ServiceLibrary.Migrations
                     b.Property<decimal>("DiscountMax")
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("IsRetailType")
+                        .HasColumnType("INTEGER");
+
                     b.Property<bool>("IsTrainMode")
                         .HasColumnType("INTEGER");
 
@@ -582,6 +585,9 @@ namespace ServiceLibrary.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ImagePath")
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsAvailable")

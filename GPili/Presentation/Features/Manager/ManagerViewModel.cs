@@ -587,6 +587,7 @@ namespace GPili.Presentation.Features.Manager
                     "Not found!",
                     "Invalid Invoice.",
                     "OK");
+                IsLoading = false;
                 return;
             }
 

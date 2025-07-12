@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Data.Sqlite;
 using ServiceLibrary.Data;
+using ServiceLibrary.Utils;
 
 namespace ServiceLibrary.Services
 {
@@ -34,13 +35,17 @@ namespace ServiceLibrary.Services
 
                 // Ensure data folder exists
                 var connection = (SqliteConnection)_context.Database.GetDbConnection();
-                var dataSource = connection.DataSource;
-                var folder = Path.GetDirectoryName(dataSource);
+                var folder = Path.GetDirectoryName(connection.DataSource);
+
                 if (!string.IsNullOrEmpty(folder) && !Directory.Exists(folder))
                 {
                     _logger.LogDebug("Creating database folder: {Folder}", folder);
                     Directory.CreateDirectory(folder);
                 }
+
+                // Open  the database connection
+                _logger.LogDebug("Opening database connection.");
+                await connection.OpenAsync();
 
                 // Apply migrations (will create DB if missing and record history)
                 _logger.LogInformation("Applying migrations if any.");

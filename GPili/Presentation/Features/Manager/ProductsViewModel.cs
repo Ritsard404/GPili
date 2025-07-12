@@ -30,6 +30,9 @@ namespace GPili.Presentation.Features.Manager
         private bool _isLoading = false;
 
         [ObservableProperty]
+        private bool _isRestoType = false;
+
+        [ObservableProperty]
         private string _managerEmail;
 
         [ObservableProperty]
@@ -46,7 +49,7 @@ namespace GPili.Presentation.Features.Manager
         private async Task EditProduct(Product product)
         {
             IsLoading = true;
-            var popup = new SaveProduct(isEdit: false, category: Categories,
+            var popup = new SaveProduct(isEdit: true, category: Categories,
                 managerEmail: ManagerEmail, product: product);
             var result = await Shell.Current.ShowPopupAsync(popup); 
             

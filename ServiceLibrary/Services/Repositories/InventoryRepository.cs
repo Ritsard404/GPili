@@ -37,6 +37,7 @@ namespace ServiceLibrary.Services.Repositories
                 .OrderBy(p => p.Category.CtgryName)
                 .ThenBy(p => p.Name)
                 .Take(30) // Limit to 30 products for performance
+                .AsNoTracking()
                 .ToArrayAsync();
         }
 
@@ -121,11 +122,19 @@ namespace ServiceLibrary.Services.Repositories
                 .ToArrayAsync();
         }
 
+
         public async Task<(bool isSuccess, string message)> NewProduct(Product product, string managerEmail)
         {
             if (product == null)
                 return (false, "Cannot add empty product");
 
+            // Get POS type
+            var posInfo = await _terminalMachine.GetTerminalInfo();
+            if (posInfo == null)
+                return (false, "Terminal information not found.");
+            if (posInfo.IsRetailType)
+                product.ImagePath = null;
+            // else: allow as provided
 
             // Validate required fields
             if (string.IsNullOrWhiteSpace(product.Name) ||
@@ -172,6 +181,14 @@ namespace ServiceLibrary.Services.Repositories
             if (product == null)
                 return (false, "Cannot update empty product");
 
+            // Get POS type
+            var posInfo = await _terminalMachine.GetTerminalInfo();
+            if (posInfo == null)
+                return (false, "Terminal information not found.");
+            if (posInfo.IsRetailType)
+                product.ImagePath = null;
+            // else: allow as provided
+
             var existing = await _dataContext.Product
                 .Include(p => p.Category)
                 .FirstOrDefaultAsync(p => p.Id == product.Id && p.IsAvailable);
@@ -217,6 +234,7 @@ namespace ServiceLibrary.Services.Repositories
             existing.VatType = product.VatType;
             existing.Category = category;
             existing.UpdatedAt = DateTime.Now;
+            existing.ImagePath = product.ImagePath; // enforce logic above
 
             _dataContext.Product.Update(existing);
             await _dataContext.SaveChangesAsync();
@@ -250,6 +268,11 @@ namespace ServiceLibrary.Services.Repositories
             }
             else
             {
+                // Delete image file if exists
+                if (!string.IsNullOrWhiteSpace(existing.ImagePath) && File.Exists(existing.ImagePath))
+                {
+                    File.Delete(existing.ImagePath);
+                }
                 _dataContext.Product.Remove(existing);
             }
 

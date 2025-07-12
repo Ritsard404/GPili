@@ -11,8 +11,8 @@ using ServiceLibrary.Data;
 namespace ServiceLibrary.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250711075853_GPili1")]
-    partial class GPili1
+    [Migration("20250712155937_GPili")]
+    partial class GPili
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -506,6 +506,9 @@ namespace ServiceLibrary.Migrations
                     b.Property<decimal>("DiscountMax")
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("IsRetailType")
+                        .HasColumnType("INTEGER");
+
                     b.Property<bool>("IsTrainMode")
                         .HasColumnType("INTEGER");
 
@@ -585,6 +588,9 @@ namespace ServiceLibrary.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ImagePath")
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsAvailable")

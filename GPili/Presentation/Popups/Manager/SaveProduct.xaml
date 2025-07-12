@@ -8,7 +8,11 @@
              xmlns:input="clr-namespace:InputKit.Shared.Controls;assembly=InputKit.Maui"
             xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
             xmlns:model="clr-namespace:ServiceLibrary.Models;assembly=ServiceLibrary"
+             xmlns:converter="clr-namespace:GPili.Converters"
              Color="Transparent">
+    <toolkit:Popup.Resources>
+        <converter:HasValueConverter x:Key="HasValueConverter" />
+    </toolkit:Popup.Resources>
 
     <Border 
         Stroke="Black"
@@ -28,6 +32,38 @@
             <Grid RowDefinitions="*,Auto" ColumnDefinitions="*, *" RowSpacing="10" ColumnSpacing="10">
                     <ScrollView Orientation="Vertical" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
                         <VerticalStackLayout Spacing="10" Padding="10" HorizontalOptions="Fill">
+
+                            <!--Image On Resto Type--><!--
+                            <StackLayout IsVisible="{Binding IsRestoType}">
+                                <Label Text="Product Image" TextColor="White" />
+
+                                <Button Text="Select Image" Command="{Binding PickImageCommand}" />
+
+                                --><!-- Image with X-button overlay --><!--
+                                <Grid IsVisible="{Binding Product.ImagePath, Converter={StaticResource HasValueConverter}}"
+                                        HeightRequest="100" WidthRequest="100">
+                                    --><!-- Product Image --><!--
+                                    <Image Source="{Binding Product.ImagePath}"
+                                       Aspect="AspectFill"
+                                       HeightRequest="100"
+                                       WidthRequest="100" />
+
+                                    --><!-- Top-right FontAwesome X icon --><!--
+                                    <Button Command="{Binding RemoveImageCommand}"
+                                        BackgroundColor="Transparent"
+                                        WidthRequest="28"
+                                        HeightRequest="28"
+                                        HorizontalOptions="End"
+                                        VerticalOptions="Start"
+                                        Margin="2">
+                                        <Button.ImageSource>
+                                            <FontImageSource Glyph="{x:Static fa:Solid.Xmark}"
+                                                Size="20"
+                                                Color="Red" />
+                                        </Button.ImageSource>
+                                    </Button>
+                                </Grid>
+                            </StackLayout>-->
 
                             <!-- Barcode -->
                             <material:TextField Title="Barcode" TextColor="White" Text="{Binding Product.Barcode}">

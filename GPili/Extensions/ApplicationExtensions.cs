@@ -7,6 +7,7 @@ using GPili.Presentation.Features.LogIn;
 using GPili.Presentation.Features.Manager;
 using GPili.Presentation.Popups;
 using GPili.Presentation.Popups.Manager;
+using Microsoft.Data.Sqlite;
 using ServiceLibrary.Extension;
 using ServiceLibrary.Utils;
 
@@ -29,20 +30,28 @@ internal static class ApplicationExtensions
     {
         string dbPath;
 
-        #if DEBUG
-                // Use test path in Debug mode
-                dbPath = Path.Combine(FolderPath.Database.Test, "GPili.db");
-        #else
-            // Use persistent path in Release mode
-            dbPath = GetPersistentDatabasePath();
-        #endif
+#if DEBUG
+        // Use test path in Debug mode
+        dbPath = Path.Combine(FolderPath.Database.Test, "GPili.db");
+#else
+                    // Use persistent path in Release mode
+                    dbPath = GetPersistentDatabasePath();
+#endif
 
         // Ensure directory exists
         var dbDirectory = Path.GetDirectoryName(dbPath);
         if (!Directory.Exists(dbDirectory))
-            Directory.CreateDirectory(dbDirectory);
+            Directory.CreateDirectory(dbDirectory); 
+        
+        //var connectionString = $"Data Source={dbPath}";
 
-        var connectionString = $"Data Source={dbPath}";
+        // Added Database Security
+        var connectionString = new SqliteConnectionStringBuilder
+        {
+            DataSource = dbPath,
+            Mode = SqliteOpenMode.ReadWriteCreate,
+            Password = FolderPath.Database.Password 
+        }.ToString();
 
         services.AddDbContext<DataContext>(options =>
             options.UseSqlite(connectionString, x => x.MigrationsAssembly(nameof(ServiceLibrary))));
@@ -51,16 +60,16 @@ internal static class ApplicationExtensions
     }
     private static string GetPersistentDatabasePath()
     {
-        #if ANDROID
+#if ANDROID
             // External public path (survives uninstall with permission)
             var basePath = Path.Combine("/storage/emulated/0/GPili/Database");
-        #elif WINDOWS || MACCATALYST
-                // App-scoped local data
-                var basePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "GPili");
-        #else
+#elif WINDOWS || MACCATALYST
+        // App-scoped local data
+        var basePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "GPili");
+#else
             // Default MAUI internal storage
             var basePath = Path.Combine(FileSystem.AppDataDirectory, "Database");
-        #endif
+#endif
 
         return Path.Combine(basePath, "GPili.db");
     }

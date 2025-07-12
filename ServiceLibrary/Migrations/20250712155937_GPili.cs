@@ -101,7 +101,8 @@ namespace ServiceLibrary.Migrations
                     ResetCounterTrainNo = table.Column<int>(type: "INTEGER", nullable: false),
                     ZCounterNo = table.Column<int>(type: "INTEGER", nullable: false),
                     ZCounterTrainNo = table.Column<int>(type: "INTEGER", nullable: false),
-                    IsTrainMode = table.Column<bool>(type: "INTEGER", nullable: false)
+                    IsTrainMode = table.Column<bool>(type: "INTEGER", nullable: false),
+                    IsRetailType = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -167,6 +168,7 @@ namespace ServiceLibrary.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     ProdId = table.Column<string>(type: "TEXT", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
+                    ImagePath = table.Column<string>(type: "TEXT", nullable: true),
                     Barcode = table.Column<string>(type: "TEXT", nullable: false),
                     BaseUnit = table.Column<string>(type: "TEXT", nullable: false),
                     Quantity = table.Column<decimal>(type: "TEXT", nullable: true),
@@ -370,6 +372,7 @@ namespace ServiceLibrary.Migrations
                     ReprintCount = table.Column<int>(type: "INTEGER", nullable: false),
                     InvoiceId = table.Column<long>(type: "INTEGER", nullable: true),
                     ManagerEmail = table.Column<string>(type: "TEXT", nullable: true),
+                    IsTrainMode = table.Column<bool>(type: "INTEGER", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
