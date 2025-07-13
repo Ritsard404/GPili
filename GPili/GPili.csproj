@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net8.0-android;net8.0-maccatalyst</TargetFrameworks>
+		<!--<TargetFrameworks>net8.0-android;net8.0-maccatalyst</TargetFrameworks>-->
 		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net8.0-windows10.0.19041.0</TargetFrameworks>
 
 		<!-- Note for MacCatalyst:
@@ -10,13 +10,16 @@
 		The Mac App Store will NOT accept apps with ONLY maccatalyst-arm64 indicated;
 		either BOTH runtimes must be indicated or ONLY macatalyst-x64. -->
 		<!-- For example: <RuntimeIdentifiers>maccatalyst-x64;maccatalyst-arm64</RuntimeIdentifiers> -->
-
+		<DebugType>none</DebugType>
+		
+		
 		<OutputType>Exe</OutputType>
 		<RootNamespace>GPili</RootNamespace>
 		<UseMaui>true</UseMaui>
 		<SingleProject>true</SingleProject>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+		
 
 		<!-- Display name -->
 		<ApplicationTitle>GPili</ApplicationTitle>
@@ -45,6 +48,7 @@
 		<PackageCertificateThumbprint>D8539E9624A5BF9D1AEE9CDF08855996DD3BB2C1</PackageCertificateThumbprint>
 	</PropertyGroup>
 
+
 	<ItemGroup>
 		<!-- App Icon -->
 		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
@@ -68,10 +72,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Include="..\..\..\Downloads\GPili Icon.png">
-	    <Pack>True</Pack>
-	    <PackagePath>\</PackagePath>
-	  </None>
+		<None Include="..\..\..\Downloads\GPili Icon.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -93,6 +97,10 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.5" />
+		<PackageReference Include="Microsoft.Net.Native.Compiler" Version="2.2.3">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 		<PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />
 		<PackageReference Include="PdfSharp" Version="6.2.0" />
 		<PackageReference Include="sqlite-net-sqlcipher" Version="1.9.172" />
@@ -109,81 +117,86 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Update="Presentation\Contents\Manager\SaleTypesView.xaml.cs">
-	    <DependentUpon>SaleTypesView.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Presentation\Features\Manager\ProductsPage.xaml.cs">
-	    <DependentUpon>ProductsPage.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Presentation\Features\Manager\UsersPage.xaml.cs">
-	    <DependentUpon>UsersPage.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Presentation\Popups\EPaymentView.xaml.cs">
-	    <DependentUpon>EPaymentView.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Presentation\Popups\Manager\TerminalMachinePopup.xaml.cs">
-	    <DependentUpon>TerminalMachinePopup.xaml</DependentUpon>
-	  </Compile>
+		<Compile Update="Presentation\Contents\Manager\SaleTypesView.xaml.cs">
+			<DependentUpon>SaleTypesView.xaml</DependentUpon>
+		</Compile>
+		<Compile Update="Presentation\Features\Manager\ProductsPage.xaml.cs">
+			<DependentUpon>ProductsPage.xaml</DependentUpon>
+		</Compile>
+		<Compile Update="Presentation\Features\Manager\UsersPage.xaml.cs">
+			<DependentUpon>UsersPage.xaml</DependentUpon>
+		</Compile>
+		<Compile Update="Presentation\Popups\EPaymentView.xaml.cs">
+			<DependentUpon>EPaymentView.xaml</DependentUpon>
+		</Compile>
+		<Compile Update="Presentation\Popups\Manager\TerminalMachinePopup.xaml.cs">
+			<DependentUpon>TerminalMachinePopup.xaml</DependentUpon>
+		</Compile>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiXaml Update="Presentation\Contents\Cashiering\OrderSummaryView.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Presentation\Contents\FooterView.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Presentation\Contents\Manager\RefundInvoice.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Presentation\Contents\Manager\SaleTypesView.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Presentation\Contents\Manager\TransactionLists.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Presentation\Contents\UserFooterView.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Presentation\Features\Cashiering\CashieringPage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Presentation\Features\LogIn\LogInPage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Presentation\Features\Manager\ManagerPage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Presentation\Popups\DiscountView.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Presentation\Popups\EditItemView.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Presentation\Popups\EPaymentView.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Presentation\Popups\LoaderView.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Presentation\Popups\ManagerAuthView.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Presentation\Features\Manager\ProductsPage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Presentation\Popups\Manager\CategoriesView.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Presentation\Popups\Manager\SaveProduct.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Presentation\Popups\Manager\TerminalMachinePopup.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Presentation\Features\Manager\UsersPage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
+		<MauiXaml Update="Presentation\Contents\Cashiering\OrderSummaryView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Presentation\Contents\FooterView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Presentation\Contents\Manager\RefundInvoice.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Presentation\Contents\Manager\SaleTypesView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Presentation\Contents\Manager\TransactionLists.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Presentation\Contents\UserFooterView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Presentation\Features\Cashiering\CashieringPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Presentation\Features\LogIn\LogInPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Presentation\Features\Manager\ManagerPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Presentation\Popups\DiscountView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Presentation\Popups\EditItemView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Presentation\Popups\EPaymentView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Presentation\Popups\LoaderView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Presentation\Popups\ManagerAuthView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Presentation\Features\Manager\ProductsPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Presentation\Popups\Manager\CategoriesView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Presentation\Popups\Manager\SaveProduct.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Presentation\Popups\Manager\TerminalMachinePopup.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Presentation\Features\Manager\UsersPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
 	</ItemGroup>
 
+	<Target Name="ExcludeServiceLibraryPdb" BeforeTargets="CollectFilesForMsixPackaging">
+		<ItemGroup>
+			<MsixPackageFiles Remove="**\ServiceLibrary.pdb" />
+		</ItemGroup>
+	</Target>
 </Project>

@@ -61,13 +61,14 @@ namespace ServiceLibrary.Services
 
         private string GetDefaultPrinterName()
         {
-#if WINDOWS
-    using var settings = new PrinterSettings();
-    return settings.PrinterName;
-#else
-            throw new PlatformNotSupportedException(
-                "Default printer detection is only supported on Windows.");
-#endif
+            //#if WINDOWS
+            //    using var settings = new PrinterSettings();
+            //    return settings.PrinterName;
+            //#else
+            //            throw new PlatformNotSupportedException(
+            //                "Default printer detection is only supported on Windows.");
+            //#endif
+            return string.Empty;
         }
 
         private async void PrintToPrinter(StringBuilder content)

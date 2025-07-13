@@ -208,12 +208,12 @@ namespace ServiceLibrary.Services.PDF
                 {
                     for (int j = 0; j < bitMatrix.Height; j++)
                     {
-                        bitmap.SetPixel(i, j, bitMatrix[i, j] ? Color.Black : Color.White);
+                        bitmap.SetPixel(i, j, bitMatrix[i, j] ? System.Drawing.Color.Black : System.Drawing.Color.White);
                     }
                 }
 
                 using var ms = new MemoryStream();
-                bitmap.Save(ms, ImageFormat.Png);
+                bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
                 ms.Position = 0;
 
                 using var barcodeImage = XImage.FromStream(ms);
