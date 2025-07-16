@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GPili", "GPili.csproj", "{A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceLibrary", "..\ServiceLibrary\ServiceLibrary.csproj", "{03FF3A40-EAE3-499F-A5BF-A0E7653386C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestData", "..\TestData\TestData.csproj", "{4E0860AB-9217-40E4-8454-6BB73E2BFD4D}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

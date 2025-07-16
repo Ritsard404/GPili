@@ -34,6 +34,7 @@ namespace GPili.Services
             var result = await _auth.HasPendingOrder();
 
             POSInfo.Terminal = await _terminalMachine.GetTerminalInfo();
+
             if (result.isSuccess)
             {
 

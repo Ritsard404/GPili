@@ -30,7 +30,7 @@ internal static class ApplicationExtensions
     {
         string dbPath;
 
-#if DEBUG
+#if DEBUG && WINDOWS
         // Use test path in Debug mode
         dbPath = Path.Combine(FolderPath.Database.Test, "GPili.db");
 #else
@@ -62,7 +62,7 @@ internal static class ApplicationExtensions
     {
 #if ANDROID
             // External public path (survives uninstall with permission)
-            var basePath = Path.Combine("/storage/emulated/0/GPili/Database");
+               var basePath = Path.Combine(FileSystem.AppDataDirectory, "GPili");
 #elif WINDOWS || MACCATALYST
         // App-scoped local data
         var basePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "GPili");
@@ -108,7 +108,7 @@ internal static class ApplicationExtensions
         // Manager
         services.AddTransientPopup<DateSelectionPopup, SelectionOfDateViewModel>();
         services.AddTransientPopup<TerminalMachinePopup, TerminalMachineViewModel>();
-        services.AddTransientPopup<SaveProduct, SaveProductViewModel>();
+        //services.AddTransientPopup<SaveProduct, SaveProductViewModel>();
         services.AddTransientPopup<CategoriesView, ProductsViewModel>();
 
         return services;

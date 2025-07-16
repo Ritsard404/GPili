@@ -1,14 +1,14 @@
 namespace GPili.Presentation.Popups.Manager;
 
+[XamlCompilation(XamlCompilationOptions.Compile)]
 public partial class TerminalMachinePopup : Popup
 {
-    public TerminalMachinePopup()
+    public TerminalMachinePopup(TerminalMachineViewModel vm)
     {
         PopupState.PopupInfo.OpenPopup("Terminal", "Terminal machine");
         InitializeComponent();
-        var vm = IPlatformApplication.Current.Services.GetRequiredService<TerminalMachineViewModel>();
-        _ = vm.LoadTerminalInfos();
         vm.Popup = this;
+        _ = vm.LoadTerminalInfos();
         BindingContext = vm;
         Closed += (_, _) => PopupState.PopupInfo.ClosePopup();
     }

@@ -1,6 +1,6 @@
 namespace GPili.Presentation.Contents.Manager;
 
-public partial class SaleTypesView : ContentPage
+public partial class SaleTypesView : ContentView
 {
 	public SaleTypesView()
 	{

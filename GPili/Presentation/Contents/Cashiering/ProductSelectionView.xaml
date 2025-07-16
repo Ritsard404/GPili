@@ -3,8 +3,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="GPili.Presentation.Contents.Cashiering.ProductSelectionView"
+             xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
+             xmlns:converter="clr-namespace:GPili.Converters"
+             xmlns:model="clr-namespace:ServiceLibrary.Models;assembly=ServiceLibrary"
              x:Name="ProductSelectionViewRoot">
     <ContentView.Resources>
+        <converter:InverseBoolConverter x:Key="InverseBoolConverter" />
+        <converter:IsNullOrEmptyConverter x:Key="IsNullOrEmptyConverter" />
         <Style x:Key="KeypadButton" TargetType="Button">
             <Setter Property="WidthRequest" Value="90"/>
             <Setter Property="HeightRequest" Value="40"/>
@@ -93,6 +98,7 @@
         <Style x:Key="RedButton" TargetType="Button" BasedOn="{StaticResource KeypadButton}">
             <Setter Property="BackgroundColor" Value="Red"/>
             <Setter Property="TextColor" Value="White"/>
+            <Setter Property="MaximumWidthRequest" Value="250"/>
             <Setter Property="FontAttributes" Value="Bold"/>
             <Setter Property="CornerRadius" Value="8"/>
             <Setter Property="VisualStateManager.VisualStateGroups">
@@ -138,7 +144,7 @@
                        ClearButtonVisibility="WhileEditing"
                        Background="White"
                        TextColor="Black"
-                       FontSize="15"
+                       FontSize="15" IsVisible="{Binding IsRetail}"
                        >
                     <Entry.Behaviors>
                         <toolkit:EventToCommandBehavior
@@ -148,7 +154,7 @@
 
                 </Entry>
                 <Button Command="{Binding SearchCommand}" Text="Search"
-                        Grid.Column="1"></Button>
+                        Grid.Column="1"  IsVisible="{Binding IsRetail}"></Button>
                 <Button Text="MANAGER" Grid.Column="3" x:Name="MANAGER"
                         ImageSource="ctrlm.png" ContentLayout="right"
                         WidthRequest="165" 
@@ -157,12 +163,12 @@
             </Grid>
         </Grid>
         <Grid RowDefinitions="Auto,Auto,*" Grid.Row="1" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
-     
-                <!-- FIXED HEADER ROW -->
+
+            <!-- FIXED HEADER ROW -->
             <Border Grid.Row="0"
                 Stroke="Transparent"
                 StrokeShape="RoundRectangle 12,12,0,0"
-                StrokeThickness="0"
+                StrokeThickness="0"  IsVisible="{Binding IsRetail}"
                 Background="#383949">
                 <Grid ColumnDefinitions="0.30*,0.15*,0.15*,0.25*,0.15*"
                         Padding="12">
@@ -177,7 +183,7 @@
             <!-- SCROLLABLE ITEMS -->
             <Border Grid.Row="1"
                 Stroke="Transparent"
-                StrokeThickness="0"
+                StrokeThickness="0" IsVisible="{Binding IsRetail}"
                 StrokeShape="RoundRectangle 0,0,12,12"
                 Background="#121125" Margin="0,0,0,5">
                 <CollectionView
@@ -214,17 +220,107 @@
                     </CollectionView.ItemTemplate>
                 </CollectionView>
             </Border>
-               
+
+            <!--Restaurant Selection Type-->
+            <Border Grid.Row="0" Grid.RowSpan="2"
+                Stroke="Transparent" HeightRequest="350"
+                StrokeThickness="0" IsVisible="{Binding IsRetail, Converter={StaticResource InverseBoolConverter}}"
+                StrokeShape="RoundRectangle 12"
+                Background="#121125" Margin="0,0,0,5">
+                <Grid RowDefinitions="0.15*, 0.85*" RowSpacing="10" Padding="0,10,0,5">
+                    <CollectionView  Grid.Row="0" ItemsSource="{Binding Categories}">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout ItemSpacing="10" Orientation="Horizontal"/>
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="20, 0" StrokeShape="RoundRectangle 10" BackgroundColor="Gold">
+                                    <HorizontalStackLayout Spacing="5">
+                                        <Label Text="{Binding CtgryName}" VerticalOptions="Center" VerticalTextAlignment="Center"
+                                                   FontAttributes="Bold" TextColor="Maroon">
+                                            <Label.Triggers>
+                                                <DataTrigger Binding="{Binding IsSelected}"
+                                                      TargetType="Label"
+                                                      Value="True">
+                                                    <Setter Property="TextColor" Value="Black"/>
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </HorizontalStackLayout>
+                                    <Border.Triggers>
+                                        <DataTrigger Binding="{Binding IsSelected}"
+                                                     TargetType="Border"
+                                                     Value="True">
+                                            <Setter Property="Background" Value="AliceBlue"/>
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding BindingContext.SelectCategoryCommand, Source={x:Reference ProductSelectionViewRoot}}"
+                                                              CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    <CollectionView Grid.Row="1" 
+                            ItemsSource="{Binding Products}"
+                            SelectionMode="Single">
+                        <CollectionView.ItemsLayout>
+                            <GridItemsLayout VerticalItemSpacing="10" HorizontalItemSpacing="10" 
+                                             Orientation="Vertical" Span="4"/>
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="model:Product">
+                                <Border Padding="5" StrokeShape="RoundRectangle 10" BackgroundColor="#23233a"
+                                        Stroke="#FFD700" MaximumWidthRequest="220" HorizontalOptions="Center">
+                                    <VerticalStackLayout Spacing="5">
+                                        <Grid BackgroundColor="#2d2d44" HeightRequest="100">
+                                            <Image Source="{Binding ImagePath}" MaximumHeightRequest="100" WidthRequest="100"
+                                                   HorizontalOptions="Center" VerticalOptions="Center" Aspect="Center"
+                                                   IsVisible="{Binding ImagePath, Converter={StaticResource IsNullOrEmptyConverter}, ConverterParameter=False}" />
+                                            <Image 
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center"
+                                                   IsVisible="{Binding ImagePath, Converter={StaticResource IsNullOrEmptyConverter}}">
+                                                <Image.Source>
+                                                    <FontImageSource FontFamily="MaterialSharp"
+                                                        Glyph="{x:Static fa:Solid.Pager}"
+                                                        Color="#FFD700"/>
+                                                </Image.Source>
+                                            </Image>
+
+                                        </Grid>
+                                        <VerticalStackLayout Spacing="5">
+                                            <Label Text="{Binding Name}" FontSize="16" FontAttributes="Bold" HorizontalOptions="Center"/>
+                                            <Label Text="{Binding Price, StringFormat='₱{0:F2}'}" FontSize="18" FontAttributes="Bold"
+                                                   TextColor="#FFD700" HorizontalOptions="End"/>
+                                        </VerticalStackLayout>
+                                    </VerticalStackLayout>
+
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                        Command="{Binding BindingContext.AddItemCommand, Source={x:Reference ProductSelectionViewRoot}}"
+                                        CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+
+                    </CollectionView>
+                </Grid>
+            </Border>
+
+
             <!-- KEYPADS -->
-            <Grid  Grid.Row="2" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+            <Grid  Grid.Row="2" VerticalOptions="Fill" HorizontalOptions="Fill">
                 <!-- KEYPADS -->
                 <Border Grid.Column="0"
                        BackgroundColor="#F5F5F5"
                        VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand"
                        StrokeShape="RoundRectangle 15"
-                       StrokeThickness="0" Padding="8">
+                       StrokeThickness="0">
                     <HorizontalStackLayout VerticalOptions="Fill" HorizontalOptions="Center"
-                                           Spacing="10">
+                                           Spacing="20">
                         <!-- Number pad -->
                         <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto"
                               RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
@@ -335,7 +431,7 @@
                                  Style="{StaticResource RedButton}" FontAttributes="Bold" 
                                  CornerRadius="8"
                                  Command="{Binding DiscountCommand}"/>
-                           
+
                             <Button Text="VOID" x:Name="VOID"
                                  ImageSource="shiftf10.png" ContentLayout="right"
                                  WidthRequest="165"

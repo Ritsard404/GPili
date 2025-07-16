@@ -8,6 +8,7 @@
             xmlns:model="clr-namespace:ServiceLibrary.Models;assembly=ServiceLibrary"
             xmlns:footer="clr-namespace:GPili.Presentation.Contents"
              xmlns:converter="clr-namespace:GPili.Converters"
+             xmlns:fakePopup="clr-namespace:GPili.Presentation.Popups.Manager"
              x:Name="ProductsPageRoot">
     <ContentPage.Resources>
         <converter:BoolToTextStatus x:Key="BoolToTextStatus" />
@@ -75,6 +76,7 @@
             </Setter>
         </Style>
     </ContentPage.Resources>
+
     <Grid  RowDefinitions="Auto,*, Auto, Auto" RowSpacing="10"
                HorizontalOptions="Fill" VerticalOptions="Fill"
                Padding="10">
@@ -229,6 +231,9 @@
             <footer:UserFooterView />
         </Grid>
 
+        <fakePopup:SaveProduct IsVisible="{Binding IsSaveProdDisplay}"
+                               Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Grid.RowSpan="4"/>
+
         <!-- Loader Overlay -->
         <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Grid.RowSpan="4"
           BackgroundColor="#80000000" 
@@ -246,4 +251,5 @@
             </StackLayout>
         </Grid>
     </Grid>
+
 </ContentPage>

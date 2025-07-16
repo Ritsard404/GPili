@@ -19,7 +19,16 @@ namespace GPili.Presentation.Features.Cashiering
         private Product[] _products = [];
 
         [ObservableProperty]
+        private CategoryObservable[] _categories = [];
+        [ObservableProperty]
+
+        private CategoryObservable _selectedCategory;
+
+        [ObservableProperty]
         private string? _searchProduct;
+
+        [ObservableProperty]
+        private bool _isRetail;
 
         [ObservableProperty]
         private ObservableCollection<Item> _items = new();
@@ -37,6 +46,7 @@ namespace GPili.Presentation.Features.Cashiering
 
         public async Task InitializeAsync()
         {
+            IsRetail = POSInfo.Terminal.IsRetailType;
 
             bool isCashedDrawer = await _auth.IsCashedDrawer(CashierState.Info.CashierEmail);
 
@@ -74,9 +84,28 @@ namespace GPili.Presentation.Features.Cashiering
                 isCashedDrawer = true;
             }
 
-            Products = await _inventory.GetProducts();
+            if (!IsRetail)
+            {
 
-            await LoadItems();
+                var categories = await _inventory.GetCategories();
+
+                Categories = categories.Select(c => new CategoryObservable
+                {
+                    Id = c.Id,
+                    CtgryName = c.CtgryName,
+                    IsSelected = false
+                }).ToArray();
+                Categories[0].IsSelected = true;
+                SelectedCategory = Categories[0];
+
+                Products = await _inventory.GetProductsByCategory(SelectedCategory.Id);
+            }
+            else
+            {
+                Products = await _inventory.GetProducts();
+
+                await LoadItems();
+            }
 
             await _popUpService.ShowAsync("", false);
             PopupState.PopupInfo.ClosePopup();
@@ -148,6 +177,27 @@ namespace GPili.Presentation.Features.Cashiering
 
             ClearQty();
             await LoadItems();
+        }
+
+        [RelayCommand]
+        private async Task SelectCategory(CategoryObservable category)
+        {
+            if (SelectedCategory.Id == category.Id)
+                return;
+            await _popUpService.ShowAsync("Loading Menu...", true);
+
+            var existSelectedCategory = Categories.First(c => c.IsSelected);
+            existSelectedCategory.IsSelected = false;
+
+            var newSelectedCategory = Categories.First(c => c.Id == category.Id);
+            newSelectedCategory.IsSelected = true;
+
+            SelectedCategory = newSelectedCategory;
+
+            Products = await _inventory.GetProductsByCategory(category.Id);
+            OnPropertyChanged(nameof(Products));
+
+            await _popUpService.ShowAsync("Loaded Menu...", false);
         }
 
         [RelayCommand]
@@ -261,11 +311,19 @@ namespace GPili.Presentation.Features.Cashiering
             var result = await _order.PayOrder(payOrder);
             if (result.isSuccess)
             {
-                await Snackbar.Make("Order paid successfully!", 
+                await Snackbar.Make("Order paid successfully!",
                     duration: TimeSpan.FromSeconds(1)).Show();
 
+                if (IsRetail)
+                {
+                    Products = await _inventory.GetProducts();
+                }
+                else
+                {
+                    Products = await _inventory.GetProductsByCategory(SelectedCategory.Id);
+                }
                 await LoadItems();
-                Products = await _inventory.GetProducts();
+
                 ClearQty();
                 SelectedKeypadAction = KeypadActions.QTY;
                 Tenders.Discount = null;

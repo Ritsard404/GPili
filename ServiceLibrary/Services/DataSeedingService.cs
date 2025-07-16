@@ -21,7 +21,7 @@ namespace ServiceLibrary.Services
             {
                 await SeedUsersAsync();
                 await SeedPosTerminalInfoAsync();
-                //await SeedCategoriesAndProductsAsync();
+                await SeedCategoriesAndProductsAsync();
                 await SeedSaleTypesAsync();
             }
             catch(Exception ex)
@@ -41,7 +41,7 @@ namespace ServiceLibrary.Services
             var users = new List<User>
             {
                 new() { Email = "ebisx@gpili.com", FName = "Admin", LName = "User", Role = RoleType.Developer },
-                new() { Email = "cashier@gpili.com", FName = "John", LName = "Cashier", Role = RoleType.Cashier },
+                new() { Email = "demo@ebisx.com", FName = "John", LName = "Cashier", Role = RoleType.Cashier },
                 new() { Email = "manager@gpili.com", FName = "Jane", LName = "Manager", Role = RoleType.Manager }
             };
 

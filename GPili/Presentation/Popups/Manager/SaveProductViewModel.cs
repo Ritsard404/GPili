@@ -43,7 +43,7 @@ namespace GPili.Presentation.Popups.Manager
                 if (isSuccess)
                 {
                     await Shell.Current.DisplayAlert("Success", "Product updated successfully.", "OK");
-                    Popup.CloseResult(isSuccess);
+                    //Popup.CloseResult(isSuccess);
                 }
                 else
                 {
@@ -72,6 +72,7 @@ namespace GPili.Presentation.Popups.Manager
                 }
             }
         }
+        
         [RelayCommand]
         private async Task PickImage()
         {

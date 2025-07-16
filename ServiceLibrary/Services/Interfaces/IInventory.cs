@@ -5,6 +5,7 @@ namespace ServiceLibrary.Services.Interfaces
     public interface IInventory
     {
         Task<Product[]> GetProducts();
+        Task<Product[]> GetProductsByCategory(int id);
         Task<Product[]> SearchProducts(string keyword);
         Task<Product?> GetProductByBarcode(string barcode);
         Task<(bool isSuccess, string message)> RecordInventoryTransaction(string transactionType,

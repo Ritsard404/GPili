@@ -36,6 +36,7 @@ namespace ServiceLibrary.Services.Repositories
         public async Task<PosTerminalInfo?> GetTerminalInfo()
         {
             return await _dataContext.PosTerminalInfo
+                .AsNoTracking()
                 .SingleOrDefaultAsync();
         }
 

@@ -4,7 +4,9 @@ using ServiceLibrary.Models;
 using ServiceLibrary.Services.DTO.Report;
 using ServiceLibrary.Services.Interfaces;
 using ServiceLibrary.Utils;
-using WinRT.Interop;
+#if WINDOWS
+using WinRT;
+#endif
 
 namespace GPili.Presentation.Features.Manager
 {
@@ -389,12 +391,15 @@ namespace GPili.Presentation.Features.Manager
         [RelayCommand]
         private async Task Settings()
         {
-            IsLoading = true;
+            //IsLoading = true;
+            //var vm = new TerminalMachineViewModel(_terminalMachine);
+            //var popup = new TerminalMachinePopup(vm);
+            //var result = await Shell.Current.ShowPopupAsync(popup);
 
-            var popup = new TerminalMachinePopup();
+            var popup = IPlatformApplication.Current.Services.GetRequiredService<TerminalMachinePopup>();
             var result = await Shell.Current.ShowPopupAsync(popup);
 
-            IsLoading = false;
+            //IsLoading = false;
         }
 
         [RelayCommand]
@@ -404,6 +409,8 @@ namespace GPili.Presentation.Features.Manager
 
             var products = await _inventory.GetProducts();
             var categories = await _inventory.GetCategories();
+
+            var IsRestoType = !POSInfo.Terminal.IsRetailType;
 
             if (categories.Length == 0)
             {
@@ -418,6 +425,7 @@ namespace GPili.Presentation.Features.Manager
                     {"Products", products },
                     {"Categories", categories },
                     {"ManagerEmail", ManagerEmail },
+                    {"IsRestoType", IsRestoType },
                 });
 
             IsLoading = false;

@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace GPili.Presentation.Popups.Manager
 {
+    [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class TerminalMachineViewModel(IGPiliTerminalMachine _terminalMachine) : ObservableValidator
     {
         public TerminalMachinePopup Popup;
@@ -35,7 +36,8 @@ namespace GPili.Presentation.Popups.Manager
                 return;
             }
 
-            var info = new PosTerminalInfo {
+            var info = new PosTerminalInfo
+            {
                 AccreditationNumber = TerminalConfig.AccreditationNumber,
                 Address = TerminalConfig.Address,
                 BranchCenter = TerminalConfig.BranchCenter,
@@ -53,15 +55,18 @@ namespace GPili.Presentation.Popups.Manager
                 Vat = TerminalConfig.Vat,
                 VatTinNumber = TerminalConfig.VatTinNumber,
                 ValidUntil = TerminalConfig.ValidUntil,
-                PrinterName = TerminalConfig.PrinterName
-                };
+                PrinterName = TerminalConfig.PrinterName,
+                IsRetailType = TerminalConfig.IsRetailType
+            };
 
             var (isSuccess, message) = await _terminalMachine.SetPosTerminalInfo(info);
 
             if (isSuccess)
             {
-                await Snackbar.Make(message, 
+                await Snackbar.Make(message,
                     duration: TimeSpan.FromSeconds(1)).Show();
+
+                POSInfo.Terminal = await _terminalMachine.GetTerminalInfo();
                 Popup.Close();
             }
         }
@@ -90,7 +95,9 @@ namespace GPili.Presentation.Popups.Manager
                     BranchCenter = posInfo.BranchCenter,
                     UseCenter = posInfo.UseCenter,
                     DbName = posInfo.DbName,
-                    PrinterName = posInfo.PrinterName
+                    PrinterName = posInfo.PrinterName,
+                    IsRetailType = posInfo.IsRetailType,
+
                 };
             }
             else
@@ -101,92 +108,96 @@ namespace GPili.Presentation.Popups.Manager
         }
     }
 
-        [NotifyDataErrorInfo]
-        public partial class TerminalConfiguration : ObservableValidator
+    public partial class TerminalConfiguration : ObservableValidator
+    {
+        // POS machine details
+        [Required(ErrorMessage = "POS Serial Number is required")]
+        [ObservableProperty]
+        private string _posSerialNumber = string.Empty;
+
+        [Required(ErrorMessage = "MIN Number is required")]
+        [ObservableProperty]
+        private string _minNumber = string.Empty;
+
+        [Required(ErrorMessage = "Accreditation Number is required")]
+        [ObservableProperty]
+        private string _accreditationNumber = string.Empty;
+
+        [Required(ErrorMessage = "PTU Number is required")]
+        [ObservableProperty]
+        private string _ptuNumber = string.Empty;
+
+        [Required(ErrorMessage = "Date Issued is required")]
+        [ObservableProperty]
+        private DateTime _dateIssued;
+
+        [Required(ErrorMessage = "Valid Until date is required")]
+        [ObservableProperty]
+        private DateTime _validUntil;
+
+        // Business details
+        [Required(ErrorMessage = "POS Name is required")]
+        [ObservableProperty]
+        private string _posName = string.Empty;
+
+        [Required(ErrorMessage = "Registered Name is required")]
+        [ObservableProperty]
+        private string _registeredName = string.Empty;
+
+        [Required(ErrorMessage = "Operated By is required")]
+        [ObservableProperty]
+        private string _operatedBy = string.Empty;
+
+        [Required(ErrorMessage = "Address is required")]
+        [ObservableProperty]
+        private string _address = string.Empty;
+
+        [Required(ErrorMessage = "VAT TIN Number is required")]
+        [ObservableProperty]
+        private string _vatTinNumber = string.Empty;
+
+        [Required(ErrorMessage = "VAT percentage is required")]
+        [Range(0, int.MaxValue, ErrorMessage = "VAT must be a non-negative number")]
+        [ObservableProperty]
+        private int _vat;
+
+        [Required(ErrorMessage = "Discount Max is required")]
+        [Range(0, double.MaxValue, ErrorMessage = "Discount Max must be a non-negative value")]
+        [ObservableProperty]
+        private decimal _discountMax;
+
+        // API Flags
+        [Required(ErrorMessage = "Cost Center is required")]
+        [ObservableProperty]
+        private string _costCenter = string.Empty;
+
+        [Required(ErrorMessage = "Branch Center is required")]
+        [ObservableProperty]
+        private string _branchCenter = string.Empty;
+
+        [Required(ErrorMessage = "Use Center is required")]
+        [ObservableProperty]
+        private string _useCenter = string.Empty;
+
+        [Required(ErrorMessage = "Database Name is required")]
+        [ObservableProperty]
+        private string _dbName = string.Empty;
+
+        [Required(ErrorMessage = "Printer Name is required")]
+        [ObservableProperty]
+        private string _printerName = string.Empty;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(PosTypeName))]
+        private bool _isRetailType;
+        public string PosTypeName => IsRetailType ? "Retail POS" : "Restaurant POS";
+
+        /// <summary>
+        /// Call this method to validate all properties.
+        /// </summary>
+        public void ValidateAll()
         {
-            // POS machine details
-            [Required(ErrorMessage = "POS Serial Number is required")]
-            [ObservableProperty]
-            private string _posSerialNumber = string.Empty;
-
-            [Required(ErrorMessage = "MIN Number is required")]
-            [ObservableProperty]
-            private string _minNumber = string.Empty;
-
-            [Required(ErrorMessage = "Accreditation Number is required")]
-            [ObservableProperty]
-            private string _accreditationNumber = string.Empty;
-
-            [Required(ErrorMessage = "PTU Number is required")]
-            [ObservableProperty]
-            private string _ptuNumber = string.Empty;
-
-            [Required(ErrorMessage = "Date Issued is required")]
-            [ObservableProperty]
-            private DateTime _dateIssued;
-
-            [Required(ErrorMessage = "Valid Until date is required")]
-            [ObservableProperty]
-            private DateTime _validUntil;
-
-            // Business details
-            [Required(ErrorMessage = "POS Name is required")]
-            [ObservableProperty]
-            private string _posName = string.Empty;
-
-            [Required(ErrorMessage = "Registered Name is required")]
-            [ObservableProperty]
-            private string _registeredName = string.Empty;
-
-            [Required(ErrorMessage = "Operated By is required")]
-            [ObservableProperty]
-            private string _operatedBy = string.Empty;
-
-            [Required(ErrorMessage = "Address is required")]
-            [ObservableProperty]
-            private string _address = string.Empty;
-
-            [Required(ErrorMessage = "VAT TIN Number is required")]
-            [ObservableProperty]
-            private string _vatTinNumber = string.Empty;
-
-            [Required(ErrorMessage = "VAT percentage is required")]
-            [Range(0, int.MaxValue, ErrorMessage = "VAT must be a non-negative number")]
-            [ObservableProperty]
-            private int _vat;
-
-            [Required(ErrorMessage = "Discount Max is required")]
-            [Range(0, double.MaxValue, ErrorMessage = "Discount Max must be a non-negative value")]
-            [ObservableProperty]
-            private decimal _discountMax;
-
-            // API Flags
-            [Required(ErrorMessage = "Cost Center is required")]
-            [ObservableProperty]
-            private string _costCenter = string.Empty;
-
-            [Required(ErrorMessage = "Branch Center is required")]
-            [ObservableProperty]
-            private string _branchCenter = string.Empty;
-
-            [Required(ErrorMessage = "Use Center is required")]
-            [ObservableProperty]
-            private string _useCenter = string.Empty;
-
-            [Required(ErrorMessage = "Database Name is required")]
-            [ObservableProperty]
-            private string _dbName = string.Empty;
-
-            [Required(ErrorMessage = "Printer Name is required")]
-            [ObservableProperty]
-            private string _printerName = string.Empty;
-
-            /// <summary>
-            /// Call this method to validate all properties.
-            /// </summary>
-            public void ValidateAll()
-            {
-                ValidateAllProperties();
-            }
+            ValidateAllProperties();
         }
     }
+}

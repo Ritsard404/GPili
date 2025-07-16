@@ -4,14 +4,17 @@
     <!--<TargetFramework>net8.0</TargetFramework>-->
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-	<IsPublishable>false</IsPublishable>
+	<!--<IsPublishable>false</IsPublishable>-->
 	  <UseMaui>true</UseMaui>
 	  <SingleProject>true</SingleProject>
-	  <RuntimeIdentifier>win10-x64</RuntimeIdentifier>
+	  <TargetFrameworks>net8.0-android;net8.0-windows10.0.19041.0</TargetFrameworks>
 
-	  <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net8.0-windows10.0.19041.0</TargetFrameworks>
+	  <!--<RuntimeIdentifier>win10-x64</RuntimeIdentifier>-->
+
+	  <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
 	  <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
 	  <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+  
   </PropertyGroup>
 
   <ItemGroup>

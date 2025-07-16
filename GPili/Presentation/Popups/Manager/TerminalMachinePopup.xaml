@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+            xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
             xmlns:input="clr-namespace:InputKit.Shared.Controls;assembly=InputKit.Maui"
             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
             xmlns:validation="clr-namespace:InputKit.Shared.Validations;assembly=InputKit.Maui"
             xmlns:v="clr-namespace:UraniumUI.Validations;assembly=UraniumUI.Validations.DataAnnotations"
-            xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
             x:Class="GPili.Presentation.Popups.Manager.TerminalMachinePopup"
             Color="Transparent">
     <toolkit:Popup.Resources>
@@ -215,15 +215,21 @@
                                 TextColor="Black" BorderColor="Black" AccentColor="#00BCD4">
                                 <validation:RequiredValidation />
                             </material:TextField>
+                            <HorizontalStackLayout Spacing="5" HorizontalOptions="Fill" VerticalOptions="Center">
+                                <CheckBox IsChecked="{Binding TerminalConfig.IsRetailType, Mode=TwoWay}" />
+                                <Label Text="{Binding TerminalConfig.PosTypeName}"
+                                       TextColor="Black"
+                                       VerticalOptions="Center" />
+                            </HorizontalStackLayout>
                         </VerticalStackLayout>
                     </ScrollView>
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,20,0,0">
                         <Button Text="Cancel"
-                Command="{Binding ClosePopupCommand}"
-                Style="{StaticResource Void}" Grid.Column="0"/>
+                            Command="{Binding ClosePopupCommand}"
+                            Style="{StaticResource Void}" Grid.Column="0"/>
                         <Button Text="Save"
-                input:FormView.IsSubmitButton="True"
-                Style="{StaticResource Save}" Grid.Column="1"/>
+                            input:FormView.IsSubmitButton="True"
+                            Style="{StaticResource Save}" Grid.Column="1"/>
                     </Grid>
                 </input:FormView>
 

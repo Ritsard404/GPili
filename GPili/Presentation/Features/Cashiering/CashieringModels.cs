@@ -5,6 +5,14 @@ using ServiceLibrary.Utils;
 
 namespace GPili.Presentation.Features.Cashiering
 {
+
+    public partial class CategoryObservable: ObservableObject
+    {
+        public int Id { get; set; }
+        public string? CtgryName { get; set; }
+        [ObservableProperty]
+        private bool _isSelected;
+    }
     public partial class InitialItem : ObservableObject
     {
 

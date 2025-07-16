@@ -134,11 +134,13 @@ namespace ServiceLibrary.Services.Repositories
                 return (false, "Terminal information not found.");
             if (posInfo.IsRetailType)
                 product.ImagePath = null;
+
+            if(posInfo.IsRetailType && string.IsNullOrWhiteSpace(product.Barcode))
+                return (false, "All product fields are required.");
             // else: allow as provided
 
             // Validate required fields
             if (string.IsNullOrWhiteSpace(product.Name) ||
-                string.IsNullOrWhiteSpace(product.Barcode) ||
                 string.IsNullOrWhiteSpace(product.BaseUnit) ||
                 string.IsNullOrWhiteSpace(product.ItemType) ||
                 string.IsNullOrWhiteSpace(product.VatType) ||
@@ -539,6 +541,16 @@ namespace ServiceLibrary.Services.Repositories
             await File.WriteAllBytesAsync(filePath, barcodePdf);
 
             return (true, $"Barcodes generated successfully: {filePath}");
+        }
+
+        public async Task<Product[]> GetProductsByCategory(int id)
+        {
+            return await _dataContext.Product
+                .Include(p => p.Category)
+                .Where(p => p.IsAvailable && p.Category.Id == id)
+                .OrderBy(p => p.Name)
+                .AsNoTracking()
+                .ToArrayAsync();
         }
     }
 }
