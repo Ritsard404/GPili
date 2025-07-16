@@ -4,6 +4,7 @@ using ServiceLibrary.Models;
 using ServiceLibrary.Services.Interfaces;
 using ServiceLibrary.Utils;
 using System.Diagnostics;
+using System.Text.Json;
 using static ServiceLibrary.Utils.FolderPath;
 
 namespace ServiceLibrary.Services.Repositories
@@ -414,15 +415,16 @@ namespace ServiceLibrary.Services.Repositories
             var errorMessages = new List<string>();
             int batchSize = 100;
             int batchCounter = 0;
+            var pushedJournals = new List<PushedJournalInfo>(); // Collect successfully pushed journals with URL
 
             progress?.Report((0, total, $"Found {total} entries to push for {dateString}."));
 
             foreach (var journal in journals)
             {
+                string url = $"asspos/mobilepostransactions.php?{ToQueryString(journal)}";
                 try
                 {
                     progress?.Report((current, total, $"Pushing {current + 1}/{total}"));
-                    var url = $"asspos/mobilepostransactions.php?{ToQueryString(journal)}";
                     using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
                     Debug.WriteLine(url);
                     var response = await _httpClient.GetAsync(url, cts.Token);
@@ -430,6 +432,7 @@ namespace ServiceLibrary.Services.Repositories
                     if (response.IsSuccessStatusCode)
                     {
                         journal.IsPushed = true;
+                        pushedJournals.Add(new PushedJournalInfo { Url = url, Journal = journal }); // Add to pushed list
                         await Task.Delay(2000);
                     }
                     else
@@ -457,6 +460,22 @@ namespace ServiceLibrary.Services.Repositories
             if (journals.Any(j => j.IsPushed))
                 await _dataContext.SaveChangesAsync();
 
+            // Write pushed journals to file (after loop)
+            if (pushedJournals.Count > 0)
+            {
+                string fileName = $"PushedJournals_{DateTime.Now:yyyyMMdd_HHmmss}.json";
+                string filePath = Path.Combine(FolderPath.Database.TestPush, fileName);
+
+                // Ensure directory exists
+                var dir = Path.GetDirectoryName(filePath);
+                if (!Directory.Exists(dir))
+                    Directory.CreateDirectory(dir);
+
+                var json = JsonSerializer.Serialize(pushedJournals, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(filePath, json);
+                Debug.WriteLine($"Pushed journals saved to: {filePath}");
+            }
+
             var isSuccess = errors == 0;
             var message = isSuccess
                 ? $"All {total} journals pushed successfully."
@@ -469,6 +488,13 @@ namespace ServiceLibrary.Services.Repositories
                     .Where(p => p.Name != nameof(Journal.UniqueId) && p.Name != nameof(Journal.IsPushed))
                     .Select(p => $"{p.Name.ToLowerInvariant()}={Uri.EscapeDataString(p.GetValue(journal)?.ToString() ?? "")}"));
             }
+        }
+
+        // Helper class for pushed journal info
+        private class PushedJournalInfo
+        {
+            public string Url { get; set; } = string.Empty;
+            public Journal Journal { get; set; } = null!;
         }
     }
 }

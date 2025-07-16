@@ -1,5 +1,6 @@
 ﻿using ServiceLibrary.Utils;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ServiceLibrary.Models
 {
@@ -22,5 +23,24 @@ namespace ServiceLibrary.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
+
+        [NotMapped]
+        public bool HasImage => !string.IsNullOrEmpty(ImagePath) && File.Exists(ImagePath);
+
+        [NotMapped]
+        public string ImageSourcePath
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(ImagePath))
+                    return null;
+                if (ImagePath.StartsWith("file://") || ImagePath.StartsWith("http"))
+                    return ImagePath;
+                if (System.IO.Path.IsPathRooted(ImagePath))
+                    return new Uri(ImagePath).AbsoluteUri;
+                return ImagePath;
+            }
+        }
+      
     }
 }

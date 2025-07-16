@@ -22,6 +22,7 @@
         {
             public const string Test = "C:\\Database";
             public const string Password = "Ritsard200303";
+            public const string TestPush = "C:\\TestPush";
         }
         public static class JournalLink
         {

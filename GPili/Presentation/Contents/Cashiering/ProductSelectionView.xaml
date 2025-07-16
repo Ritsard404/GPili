@@ -275,16 +275,17 @@
                                         Stroke="#FFD700" MaximumWidthRequest="220" HorizontalOptions="Center">
                                     <VerticalStackLayout Spacing="5">
                                         <Grid BackgroundColor="#2d2d44" HeightRequest="100">
-                                            <Image Source="{Binding ImagePath}" MaximumHeightRequest="100" WidthRequest="100"
-                                                   HorizontalOptions="Center" VerticalOptions="Center" Aspect="Center"
-                                                   IsVisible="{Binding ImagePath, Converter={StaticResource IsNullOrEmptyConverter}, ConverterParameter=False}" />
-                                            <Image 
+                                            <Image Source="{Binding ImageSourcePath}"
+                                                   HorizontalOptions="Center" VerticalOptions="Center" Aspect="AspectFit"
+                                                   IsVisible="{Binding HasImage}"/>
+                                            <Image WidthRequest="60" HeightRequest="60"
+                                                   Aspect="AspectFit"
                                                    HorizontalOptions="Center"
                                                    VerticalOptions="Center"
-                                                   IsVisible="{Binding ImagePath, Converter={StaticResource IsNullOrEmptyConverter}}">
+                                                   IsVisible="{Binding HasImage, Converter={StaticResource InverseBoolConverter}}">
                                                 <Image.Source>
-                                                    <FontImageSource FontFamily="MaterialSharp"
-                                                        Glyph="{x:Static fa:Solid.Pager}"
+                                                    <FontImageSource 
+                                                        Glyph="{x:Static fa:Solid.BowlRice}"
                                                         Color="#FFD700"/>
                                                 </Image.Source>
                                             </Image>
