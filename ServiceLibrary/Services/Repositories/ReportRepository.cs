@@ -843,6 +843,8 @@ namespace ServiceLibrary.Services.Repositories
         {
             try
             {
+                // Enable debugging mode for QuestPDF during dev
+                QuestPDF.Settings.EnableDebugging = true;
 
                 var posInfo = await _terminalMachine.GetTerminalInfo();
 
@@ -856,6 +858,11 @@ namespace ServiceLibrary.Services.Repositories
                 );
                 // Get the audit trail data
                 var auditTrail = await GetAuditTrailData(fromDate, toDate);
+
+
+                // Null/empty list fallback
+                if (auditTrail == null || auditTrail.Count == 0)
+                    throw new Exception("No audit trail data available.");
 
                 // Generate PDF
                 var pdfBytes = _auditTrailPDFService.GenerateAuditTrailPDF(auditTrail, fromDate, toDate);

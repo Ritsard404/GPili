@@ -374,7 +374,7 @@ namespace GPili.Presentation.Features.Manager
             await Task.Delay(2000);
             IsLoading = true;
             await _inventory.GetProductBarcodes();
-            await Shell.Current.DisplayAlert("Success", "Product added successfully.", "OK");
+            await Shell.Current.DisplayAlert("Success", "Product printed successfully.", "OK");
             IsLoading = false;
         }
 

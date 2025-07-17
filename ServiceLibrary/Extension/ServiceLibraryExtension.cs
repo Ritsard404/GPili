@@ -1,5 +1,6 @@
 ﻿using EBISX_POS.API.Services.PDF;
 using Microsoft.Extensions.DependencyInjection;
+using QuestPDF.Infrastructure;
 using ServiceLibrary.Services;
 using ServiceLibrary.Services.Interfaces;
 using ServiceLibrary.Services.PDF;
@@ -11,6 +12,8 @@ namespace ServiceLibrary.Extension
     {
         public static IServiceCollection AddService(this IServiceCollection services)
         {
+            QuestPDF.Settings.License = LicenseType.Community;
+
             // PDF
             services.AddScoped<ProductBarcodePDFService>();
             services.AddScoped<TransactionListPDFService>();

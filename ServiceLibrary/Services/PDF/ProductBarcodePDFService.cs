@@ -1,43 +1,41 @@
-using PdfSharp.Drawing;
-using PdfSharp.Pdf;
-using System.Text;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
 using ZXing;
 using ZXing.Common;
-using System.Drawing;
-using System.Drawing.Imaging;
 using ServiceLibrary.Models;
+using QColors = QuestPDF.Helpers.Colors;
+using QIContainer = QuestPDF.Infrastructure.IContainer;
+using SkiaSharp;
+using ZXing.SkiaSharp;
+using System.Runtime.InteropServices;
 
 namespace ServiceLibrary.Services.PDF
 {
     public class ProductBarcodePDFService
     {
-        static ProductBarcodePDFService()
-        {
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-        }
+        // Long bond paper: 8.5 x 13 inches = 612 x 936 points
+        private const float PAGE_WIDTH = 612f;
+        private const float PAGE_HEIGHT = 936f;
+        private const float MARGIN = 30f;
+        private const float INNER_PADDING = 5f;
+        private const float LABEL_WIDTH = 175f;
+        private const float LABEL_HEIGHT = 70f;
+        private const float BARCODE_HEIGHT = 25f;
+        private const float TEXT_SPACING = 5f;
+        private const float CATEGORY_HEADER_HEIGHT = 40f;
+        private const float CATEGORY_SPACING = 25f;
+        private const float CATEGORY_PADDING = 10f;
 
-        // Constants for layout
-        private const double MARGIN = 20; // Margin in points
-        private const double INNER_PADDING = 5;    // Padding inside each label
-        private const double LABEL_WIDTH = 175; // Width of each label in points
-        private const double LABEL_HEIGHT = 70; // Height of each label in points
-        private const double BARCODE_HEIGHT = 25; // Height of barcode in points
-        private const double TEXT_SPACING = 5; // Spacing between elements in points
-        private const double CATEGORY_HEADER_HEIGHT = 40; // Increased height for category header
-        private const double CATEGORY_SPACING = 25; // Increased spacing between categories
-        private const double CATEGORY_PADDING = 10; // Padding inside category header
-
-        // Font settings
         private const string FONT_FAMILY = "Arial";
-        private const double ID_FONT_SIZE = 12;
-        private const double NAME_FONT_SIZE = 10;
-        private const double CATEGORY_FONT_SIZE = 14;
+        private const float ID_FONT_SIZE = 12f;
+        private const float NAME_FONT_SIZE = 10f;
+        private const float CATEGORY_FONT_SIZE = 14f;
 
-        private readonly BarcodeWriter<Bitmap> _barcodeWriter;
+        private readonly BarcodeWriterPixelData _barcodeWriter;
 
         public ProductBarcodePDFService()
         {
-            _barcodeWriter = new BarcodeWriter<Bitmap>
+            _barcodeWriter = new BarcodeWriterPixelData
             {
                 Format = BarcodeFormat.CODE_128,
                 Options = new EncodingOptions
@@ -46,206 +44,160 @@ namespace ServiceLibrary.Services.PDF
                     Height = (int)BARCODE_HEIGHT,
                     Margin = 0,
                     PureBarcode = true
-                }
+                },
             };
         }
 
-        public byte[] GenerateProductBarcodeLabels(List<Product> product)
+        public byte[] GenerateProductBarcodeLabels(List<Product> products)
         {
-            using var document = new PdfDocument();
-            var page = document.AddPage();
-            var gfx = XGraphics.FromPdfPage(page);
-
-            // Group products by category
-            var productByCategory = product
+            var productByCategory = products
                 .Where(m => m.Category != null)
                 .GroupBy(m => m.Category.CtgryName)
                 .OrderBy(g => g.Key)
                 .ToList();
 
-            // Page?usable dimensions (inside margins)
-            var pageWidth = page.Width - (MARGIN * 2);
-            var pageHeight = page.Height - (MARGIN * 2);
-
-            // How many labels fit horizontally
-            var columnsPerPage = (int)(pageWidth / LABEL_WIDTH);
-
-            double currentY = MARGIN;
-
-            foreach (var categoryGroup in productByCategory)
+            var document = Document.Create(container =>
             {
-                var categoryName = categoryGroup.Key;
-                var categoryProducts = categoryGroup.ToList();
-
-                // If not enough vertical space for header + at least one label, go to new page
-                if (currentY + CATEGORY_HEADER_HEIGHT + LABEL_HEIGHT > pageHeight + MARGIN)
+                container.Page(page =>
                 {
-                    page = document.AddPage();
-                    gfx = XGraphics.FromPdfPage(page);
-                    currentY = MARGIN;
-                }
+                    //page.Size(PAGE_WIDTH, PAGE_HEIGHT);
+                    page.Margin(MARGIN);
 
-                // Draw the category header
-                DrawCategoryHeader(gfx, categoryName, MARGIN, currentY);
-                currentY += CATEGORY_HEADER_HEIGHT;
-
-                int currentProductIndex = 0;
-                while (currentProductIndex < categoryProducts.Count)
-                {
-                    // If no more vertical space for one label, start a fresh page (and redraw header)
-                    if (currentY + LABEL_HEIGHT > pageHeight + MARGIN)
+                    // CONTENT
+                    page.Content().Column(mainCol =>
                     {
-                        page = document.AddPage();
-                        gfx = XGraphics.FromPdfPage(page);
-                        currentY = MARGIN;
+                        foreach (var categoryGroup in productByCategory)
+                        {
+                            var categoryName = categoryGroup.Key;
+                            var categoryProducts = categoryGroup.ToList();
 
-                        DrawCategoryHeader(gfx, categoryName, MARGIN, currentY);
-                        currentY += CATEGORY_HEADER_HEIGHT;
-                    }
+                            // Category Header
+                            mainCol.Item().Element(c => DrawCategoryHeader(c, categoryName));
+                            mainCol.Item().PaddingBottom(CATEGORY_SPACING / 2);
 
-                    // X?position is column * LABEL_WIDTH
-                    var position = currentProductIndex % columnsPerPage;
-                    var x = MARGIN + (position * LABEL_WIDTH);
+                            // Product Labels Grid
+                            mainCol.Item().Element(c => DrawProductLabelsGrid(c, categoryProducts));
 
-                    // Draw the label
-                    DrawLabel(gfx, categoryProducts[currentProductIndex], x, currentY);
+                            mainCol.Item().PaddingBottom(CATEGORY_SPACING);
+                        }
+                    });
 
-                    // If this was the last column in the row, move down one LABEL_HEIGHT
-                    if (position == (columnsPerPage - 1))
+                    // FOOTER
+                    page.Footer().AlignCenter().Text(x =>
                     {
-                        currentY += LABEL_HEIGHT;
-                    }
+                        x.Span("GPili Product Barcode Labels").FontSize(8);
+                        x.Span(" | Page ");
+                        x.CurrentPageNumber();
+                        x.Span(" of ");
+                        x.TotalPages();
+                    });
+                });
+            });
 
-                    currentProductIndex++;
-                }
-
-                // ??????????????????????????????????????????????????????????????
-                // **HERE**: if the last drawn row was not “full,” we never incremented currentY.
-                // So force one more LABEL_HEIGHT to move to the next “band” before spacing.
-                // (E.g. if count=5 and columnsPerPage=3, the 2nd row only had 2 items—no Y?bump yet.)
-                var itemsInLastRow = categoryProducts.Count % columnsPerPage;
-                if (itemsInLastRow != 0)
-                {
-                    currentY += LABEL_HEIGHT;
-                }
-                // ??????????????????????????????????????????????????????????????
-
-                // Finally add spacing before next category
-                currentY += CATEGORY_SPACING;
-            }
-
-            // Save PDF to stream
             using var stream = new MemoryStream();
-            document.Save(stream);
+            document.GeneratePdf(stream);
             return stream.ToArray();
         }
 
-        private void DrawCategoryHeader(XGraphics gfx, string categoryName, double x, double y)
+        private void DrawCategoryHeader(QIContainer container, string categoryName)
         {
-            var categoryFont = new XFont(FONT_FAMILY, CATEGORY_FONT_SIZE, XFontStyle.Bold);
-            var categoryBrush = new XSolidBrush(XColor.FromArgb(0, 0, 102)); // Dark blue color
-            
-            // Calculate header dimensions
-            var headerWidth = gfx.PdfPage.Width - (MARGIN * 2);
-            var headerRect = new XRect(x, y, headerWidth, CATEGORY_HEADER_HEIGHT);
-            
-            // Draw category background
-            var backgroundBrush = new XSolidBrush(XColor.FromArgb(230, 230, 255)); // Light blue background
-            gfx.DrawRectangle(backgroundBrush, headerRect);
-            
-            // Calculate text area with padding
-            var textRect = new XRect(
-                x + CATEGORY_PADDING,
-                y + CATEGORY_PADDING,
-                headerWidth - (CATEGORY_PADDING * 2),
-                CATEGORY_HEADER_HEIGHT - (CATEGORY_PADDING * 2)
-            );
-
-            // Draw category name
-            var format = new XStringFormat
-            {
-                Alignment = XStringAlignment.Near,
-                LineAlignment = XLineAlignment.Center
-            };
-
-            // Draw category name with ellipsis if too long
-            var displayName = categoryName.Length > 40 ? categoryName.Substring(0, 37) + "..." : categoryName;
-            gfx.DrawString(displayName, categoryFont, categoryBrush, textRect, format);
-            
-            // Draw bottom border
-            var pen = new XPen(XColor.FromArgb(0, 0, 102), 1.5);
-            gfx.DrawLine(pen,
-                x + 5,
-                y + CATEGORY_HEADER_HEIGHT,
-                x + headerWidth - 5,
-                y + CATEGORY_HEADER_HEIGHT);
-
-            // Add a subtle shadow effect
-            var shadowPen = new XPen(XColor.FromArgb(200, 200, 200), 0.5);
-            gfx.DrawLine(shadowPen,
-                x + 2,
-                y + CATEGORY_HEADER_HEIGHT + 1,
-                x + headerWidth - 2,
-                y + CATEGORY_HEADER_HEIGHT + 1);
+            container
+                .Background(QColors.Blue.Lighten4)
+                .Padding(CATEGORY_PADDING)
+                .Height(CATEGORY_HEADER_HEIGHT)
+                .AlignMiddle()
+                .Row(row =>
+                {
+                    row.RelativeItem().Text(categoryName.Length > 40 ? categoryName.Substring(0, 37) + "..." : categoryName)
+                        .FontFamily(FONT_FAMILY)
+                        .FontSize(CATEGORY_FONT_SIZE)
+                        .Bold()
+                        .FontColor(QColors.Blue.Darken2);
+                });
         }
 
-        private void DrawLabel(XGraphics gfx, Product product, double x, double y)
+        private void DrawProductLabelsGrid(QIContainer container, List<Product> products)
+        {
+            // Calculate columns per row for page width minus margins
+            int columnsPerRow = (int)((PAGE_WIDTH - (MARGIN * 2)) / LABEL_WIDTH);
+            if (columnsPerRow < 1) columnsPerRow = 1;
+
+            container.Column(col =>
+            {
+                for (int i = 0; i < products.Count; i += columnsPerRow)
+                {
+                    var rowProducts = products.Skip(i).Take(columnsPerRow).ToList();
+                    col.Item().Row(row =>
+                    {
+                        foreach (var product in rowProducts)
+                        {
+                            row.RelativeItem(1).Width(LABEL_WIDTH).Height(LABEL_HEIGHT).Element(c => DrawLabel(c, product));
+                        }
+                        // Fill empty columns if last row is not full
+                        int empty = columnsPerRow - rowProducts.Count;
+                        for (int j = 0; j < empty; j++)
+                        {
+                            row.RelativeItem(1).Width(LABEL_WIDTH).Height(LABEL_HEIGHT);
+                        }
+                    });
+                    col.Item().PaddingBottom(5);
+                }
+            });
+        }
+
+        private void DrawLabel(QIContainer container, Product product)
+        {
+            container
+                .Background(QColors.White)
+                .Border(0.5f)
+                .BorderColor(QColors.Grey.Lighten2)
+                .Padding(INNER_PADDING)
+                .Column(col =>
+                {
+                    // Barcode image (centered horizontally)
+                    col.Item().AlignCenter().Element(c =>
+                    {
+                        var barcodeBytes = GenerateBarcodeBytes(product.Barcode);
+                        if (barcodeBytes != null)
+                        {
+                            using var imgStream = new MemoryStream(barcodeBytes);
+                            c.Image(imgStream)
+                                .FitWidth();
+                        }
+                    });
+
+                    // Product barcode (centered, bold)
+                    col.Item().PaddingTop(TEXT_SPACING).AlignCenter().Text(product.Barcode)
+                        .FontFamily(FONT_FAMILY)
+                        .FontSize(ID_FONT_SIZE)
+                        .Bold();
+
+                    // Product name (centered, smaller font)
+                    col.Item().PaddingTop(2).AlignCenter().Text(
+                        product.Name.Length > 20 ? product.Name.Substring(0, 17) + "..." : product.Name)
+                        .FontFamily(FONT_FAMILY)
+                        .FontSize(NAME_FONT_SIZE);
+                });
+        }
+
+        private byte[]? GenerateBarcodeBytes(string text)
         {
             try
             {
-                var contentX = x + INNER_PADDING;
-                var contentY = y + INNER_PADDING;
-                var contentWidth = LABEL_WIDTH - (2 * INNER_PADDING);
+                var pixelData = _barcodeWriter.Write(text);
+                var info = new SKImageInfo(pixelData.Width, pixelData.Height, SKColorType.Bgra8888, SKAlphaType.Premul);
+                using var skBitmap = new SKBitmap(info);
 
-                // Draw label background
-                var labelRect = new XRect(x, y, LABEL_WIDTH, LABEL_HEIGHT);
-                gfx.DrawRectangle(XBrushes.White, labelRect);
+                // Copy pixel data into the bitmap safely
+                Marshal.Copy(pixelData.Pixels, 0, skBitmap.GetPixels(), pixelData.Pixels.Length);
 
-                // Generate barcode
-                var bitMatrix = _barcodeWriter.Encode(product.Barcode.ToString());
-                using var bitmap = new Bitmap(bitMatrix.Width, bitMatrix.Height);
-                for (int i = 0; i < bitMatrix.Width; i++)
-                {
-                    for (int j = 0; j < bitMatrix.Height; j++)
-                    {
-                        bitmap.SetPixel(i, j, bitMatrix[i, j] ? System.Drawing.Color.Black : System.Drawing.Color.White);
-                    }
-                }
-
-                using var ms = new MemoryStream();
-                bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                ms.Position = 0;
-
-                using var barcodeImage = XImage.FromStream(ms);
-                gfx.DrawImage(barcodeImage, contentX, contentY, contentWidth, BARCODE_HEIGHT);
-
-                // Draw product ID with better spacing
-                var idFont = new XFont(FONT_FAMILY, ID_FONT_SIZE, XFontStyle.Bold);
-                var idY = contentY + BARCODE_HEIGHT + TEXT_SPACING;
-                gfx.DrawString(product.Barcode.ToString(), idFont, XBrushes.Black,
-                    new XRect(contentX, idY, contentWidth, ID_FONT_SIZE), XStringFormats.Center);
-
-                // Draw product name with word wrapping
-                var nameFont = new XFont(FONT_FAMILY, NAME_FONT_SIZE, XFontStyle.Regular);
-                var nameY = idY + ID_FONT_SIZE + TEXT_SPACING;
-                var nameRect = new XRect(contentX, nameY, contentWidth, NAME_FONT_SIZE * 1.5);
-
-                var nameFormat = new XStringFormat
-                {
-                    Alignment = XStringAlignment.Center,
-                    LineAlignment = XLineAlignment.Center
-                };
-
-                var displayName = product.Name.Length > 20 ? product.Name.Substring(0, 17) + "..." : product.Name;
-                gfx.DrawString(displayName, nameFont, XBrushes.Black, nameRect, nameFormat);
-
-                // Draw subtle border
-                var borderPen = new XPen(XColor.FromArgb(200, 200, 200), 0.5);
-                gfx.DrawRectangle(borderPen, labelRect);
+                using var image = SKImage.FromBitmap(skBitmap);
+                using var data = image.Encode(SKEncodedImageFormat.Png, 100);
+                return data.ToArray();
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine($"Error generating barcode for product {product.Id}: {ex.Message}");
+                return null;
             }
         }
     }

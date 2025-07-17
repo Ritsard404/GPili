@@ -46,6 +46,7 @@
 		<AppInstallerUri>C:\Users\Acer\Documents</AppInstallerUri>
 		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
 		<PackageCertificateThumbprint>D8539E9624A5BF9D1AEE9CDF08855996DD3BB2C1</PackageCertificateThumbprint>
+		<DefaultLanguage>en</DefaultLanguage>
 	</PropertyGroup>
 
 
