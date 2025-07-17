@@ -16,7 +16,7 @@ public partial class CashieringPage : ContentPage
         InitializeComponent();
 #if WINDOWS
         // Get the root element reference for later use
-        var window = (Microsoft.Maui.Controls.Application.Current?.Windows?.FirstOrDefault())?.Handler?.PlatformView as Microsoft.UI.Xaml.Window;
+        var window = (Microsoft.Maui.Controls.Application.Current?.Windows?.FirstOrDefault())?.Handler?.PlatformView as Window;
         if (window?.Content is FrameworkElement root)
         {
             _rootElement = root;

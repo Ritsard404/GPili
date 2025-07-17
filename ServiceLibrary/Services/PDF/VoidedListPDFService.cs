@@ -1,226 +1,191 @@
-﻿using PdfSharp.Drawing;
-using PdfSharp.Pdf;
+﻿using QuestPDF.Fluent;
+using QuestPDF.Infrastructure;
+using QuestPDF.Helpers;
 using ServiceLibrary.Services.DTO.Report;
 using ServiceLibrary.Services.Interfaces;
-using System.Net;
+using System.Globalization;
 using System.Text;
+using QColors = QuestPDF.Helpers.Colors;
+using QIContainer = QuestPDF.Infrastructure.IContainer;
 
 namespace ServiceLibrary.Services.PDF
 {
     public class VoidedListPDFService(IGPiliTerminalMachine _terminalMachine)
     {
-        static VoidedListPDFService()
-        {
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-        }
         public async Task<byte[]> GenerateVoidedListPDF(List<VoidedListDTO> voidedLists, TotalVoidedListDTO totalVoided, DateTime fromDate, DateTime toDate)
         {
             var posInfo = await _terminalMachine.GetTerminalInfo();
-
-            using var document = new PdfDocument();
-            var page = document.AddPage();
-            page.Orientation = PdfSharp.PageOrientation.Landscape;
-            page.Width = XUnit.FromInch(13.0);
-            page.Height = XUnit.FromInch(8.5);
-            var gfx = XGraphics.FromPdfPage(page);
-            // Fonts
-            var titleFont = new XFont("Arial", 16, XFontStyle.Bold);
-            var headerFont = new XFont("Arial", 10, XFontStyle.Bold);
-            var normalFont = new XFont("Arial", 9, XFontStyle.Regular);
-            var smallFont = new XFont("Arial", 8, XFontStyle.Regular);
-
-            double y = 40;
-            double margin = 30;
-            double tableTop = 0;
-            double pageWidth = page.Width - margin * 2;
-
-            // Header
-            gfx.DrawString(posInfo.RegisteredName, titleFont, XBrushes.DarkBlue, new XPoint(margin, y));
-            y += 18;
-            gfx.DrawString(posInfo.Address, normalFont, XBrushes.Black, new XPoint(margin, y));
-            y += 12;
-            gfx.DrawString($"TIN {posInfo.VatTinNumber}", normalFont, XBrushes.Black, new XPoint(margin, y));
-            y += 18;
-            gfx.DrawString("VOIDED LIST REPORT", headerFont, XBrushes.DarkBlue, new XPoint(margin, y));
-            y += 14;
-            gfx.DrawString($"From {fromDate:MM-dd-yyyy} To {toDate:MM-dd-yyyy}", normalFont, XBrushes.Black, new XPoint(margin, y));
-            y += 18;
-            tableTop = y;
-
-            // Table columns (sum of fractions = 1.0)
+            var phCulture = new CultureInfo("en-PH");
             var columns = new[]
-                {
-                    ("DATE", 0.06),
-                    ("OR NO", 0.09),
-                    ("DISC\nTYPE", 0.06),
-                    ("%", 0.03),
-                    ("GROSS\nSALES", 0.06),
-                    ("DISCOUNT", 0.06),
-                    ("AMOUNT\nDUE", 0.06),
-                    ("NET OF\nSALES", 0.06),
-                    ("VATABLE", 0.05),
-                    ("ZERO\nRATED", 0.04),
-                    ("EXEMPT", 0.04),
-                    ("REASON", 0.12),         // Increased
-                    ("USER", 0.09),           // Increased
-                    ("CANCELLED\nBY", 0.09),  // Increased
-                    ("CANCELLED\nDATE", 0.06),
-                    ("CANCELLED\nTIME", 0.06)
-                };
-            double[] colWidths = columns.Select(c => c.Item2 * pageWidth).ToArray();
-            double headerRowHeight = 30;
-            double rowHeight = 18;
-            var formats = new[]
             {
-                XStringFormats.Center,
-                XStringFormats.CenterLeft,
-                XStringFormats.Center,
-                XStringFormats.CenterLeft,
-                XStringFormats.Center,
-                XStringFormats.CenterRight,
-                XStringFormats.CenterRight,
-                XStringFormats.CenterRight,
-                XStringFormats.CenterRight,
-                XStringFormats.CenterRight,
-                XStringFormats.CenterRight,
-                XStringFormats.CenterRight,
-                XStringFormats.Center,
-                XStringFormats.Center,
-                XStringFormats.Center,
-                XStringFormats.Center,
+                ("DATE", 0.06f),
+                ("OR NO", 0.09f),
+                ("DISC\nTYPE", 0.06f),
+                ("%", 0.03f),
+                ("GROSS\nSALES", 0.06f),
+                ("DISCOUNT", 0.06f),
+                ("AMOUNT\nDUE", 0.06f),
+                ("NET OF\nSALES", 0.06f),
+                ("VATABLE", 0.05f),
+                ("ZERO\nRATED", 0.04f),
+                ("EXEMPT", 0.04f),
+                ("REASON", 0.12f),
+                ("USER", 0.09f),
+                ("CANCELLED\nBY", 0.09f),
+                ("CANCELLED\nDATE", 0.06f),
+                ("CANCELLED\nTIME", 0.06f)
             };
 
-            // Draw table headers
-            double x = margin;
-            for (int i = 0; i < columns.Length; i++)
+            var document = Document.Create(container =>
             {
-                var rect = new XRect(x, y, colWidths[i], headerRowHeight);
-                gfx.DrawRectangle(XBrushes.LightGray, rect);
-                var headerLines = columns[i].Item1.Split('\n');
-                double lineHeight = headerRowHeight / headerLines.Length;
-                for (int j = 0; j < headerLines.Length; j++)
+                container.Page(page =>
                 {
-                    var lineRect = new XRect(x, y + j * lineHeight, colWidths[i], lineHeight);
-                    gfx.DrawString(headerLines[j], smallFont, XBrushes.Black, lineRect, XStringFormats.Center);
-                }
-                x += colWidths[i];
-            }
-            y += headerRowHeight;
+                    page.Size(936, 612); // 13 x 8.5 inches, landscape (long bond)
+                    page.Margin(30);
 
-            // Draw table rows (parent and child)
-            foreach (var item in voidedLists)
-            {
-                x = margin;
-                string[] row = new string[]
-                {
-                    item.Date,
-                    item.InvoiceNum,
-                    item.DiscType,
-                    item.Percent,
-                    item.GrossSales.ToString("N2"),
-                    item.Discount.ToString("N2"),
-                    item.AmountDue.ToString("N2"),
-                    (item.AmountDue - item.Discount).ToString("N2"),
-                    item.Vatable.ToString("N2"),
-                    item.ZeroRated.ToString("N2"),
-                    item.Exempt.ToString("N2"),
-                    item.Reason ?? string.Empty,
-                    item.User,
-                    item.CancelledBy,
-                    item.CancelledDate,
-                    item.CancelledTime
-                };
-
-                for (int i = 0; i < row.Length; i++)
-                {
-                    var rect = new XRect(x, y, colWidths[i], rowHeight);
-                    gfx.DrawString(row[i], smallFont, XBrushes.Black, rect, formats[i]);
-                    x += colWidths[i];
-                }
-                y += rowHeight;
-                // Draw row line
-                gfx.DrawLine(XPens.Gray, margin, y, margin + pageWidth, y);
-
-                // Add vertical space before child rows
-                y += 6;
-
-                // Draw child rows (VoidedItemList)
-                if (item.VoidedItemList != null && item.VoidedItemList.Count > 0)
-                {
-                    // Draw sub-header for items
-                    double childIndent = 40;
-                    double childX = margin + childIndent; // Indent
-                    double[] childColWidths = { 40, 80, 200, 60, 60, 70, 70, 120 };
-                    string[] childHeaders = { "No", "Barcode", "Item Name", "Qty", "Price", "Amount", "Return", "Reason" };
-                    for (int i = 0; i < childHeaders.Length; i++)
+                    // HEADER
+                    page.Header().Column(headerCol =>
                     {
-                        var rect = new XRect(childX, y, childColWidths[i], rowHeight - 4);
-                        gfx.DrawRectangle(XBrushes.LightGray, rect);
-                        gfx.DrawString(childHeaders[i], smallFont, XBrushes.Black, rect, XStringFormats.Center);
-                        childX += childColWidths[i];
-                    }
-                    y += rowHeight - 4;
+                        headerCol.Item().Text(posInfo.RegisteredName).Bold().FontSize(16).FontColor(QColors.Blue.Darken2);
+                        headerCol.Item().Text(posInfo.Address).FontSize(10);
+                        headerCol.Item().Text($"TIN {posInfo.VatTinNumber}").FontSize(10);
+                        headerCol.Item().PaddingVertical(10).LineHorizontal(1);
+                        headerCol.Item().Text("VOIDED LIST REPORT").Bold().FontSize(13).FontColor(QColors.Blue.Darken2);
+                        headerCol.Item().Text($"From {fromDate:MM-dd-yyyy} To {toDate:MM-dd-yyyy}").FontSize(10);
+                    });
 
-                    // Draw each voided item
-                    foreach (var child in item.VoidedItemList)
+                    // CONTENT
+                    page.Content().Column(col =>
                     {
-                        childX = margin + childIndent;
-                        string[] childRow =
+                        col.Item().Table(table =>
                         {
-                            child.No.ToString(),
-                            child.Barcode,
-                            child.ItemName,
-                            child.Quantity.ToString("N2"),
-                            child.Price.ToString("N2"),
-                            child.Amount.ToString("N2"),
-                            child.Return.ToString("N2"),
-                            child.Reason ?? string.Empty
-                        };
-                        for (int i = 0; i < childRow.Length; i++)
-                        {
-                            var rect = new XRect(childX, y, childColWidths[i], rowHeight - 4);
-                            gfx.DrawString(childRow[i], smallFont, XBrushes.Black, rect, XStringFormats.Center);
-                            childX += childColWidths[i];
-                        }
-                        y += rowHeight - 4;
-                        // Draw row line for child
-                        gfx.DrawLine(XPens.LightGray, margin + childIndent, y, margin + childIndent + childColWidths.Sum(), y);
-                    }
-                    // Add space after child rows
-                    y += 6;
-                }
-            }
+                            // Define columns
+                            table.ColumnsDefinition(def =>
+                            {
+                                foreach (var c in columns)
+                                    def.RelativeColumn(c.Item2);
+                            });
 
-            // Draw totals row
-            x = margin;
-            string[] totals = new string[]
-            {
-                "TOTAL", "", "", "",
-                totalVoided.TotalGross.ToString("N2"),
-                totalVoided.TotalDiscount.ToString("N2"),
-                totalVoided.TotalAmountDue.ToString("N2"),
-                "", // NET OF SALES (if needed, calculate)
-                totalVoided.TotalVatable.ToString("N2"),
-                totalVoided.TotalVatZero.ToString("N2"),
-                totalVoided.TotalExempt.ToString("N2"),
-                "", "", "", "", ""
-            };
-            for (int i = 0; i < totals.Length; i++)
-            {
-                var rect = new XRect(x, y, colWidths[i], rowHeight);
-                gfx.DrawRectangle(XBrushes.White, rect);
-                gfx.DrawString(totals[i], totals[i] == "TOTAL" ? headerFont : smallFont, XBrushes.Black, rect, formats[i]);
-                x += colWidths[i];
-            }
-            y += rowHeight;
+                            // Header row
+                            table.Header(header =>
+                            {
+                                foreach (var c in columns)
+                                    header.Cell().Element(CellStyle).Text(c.Item1.Replace("\n", "\n")).Bold().FontSize(10);
+                            });
 
-            // Save PDF to byte array
-            using (var stream = new MemoryStream())
-            {
-                document.Save(stream, false);
-                return stream.ToArray();
-            }
+                            // Data rows (parent and child)
+                            foreach (var item in voidedLists)
+                            {
+                                // Parent row
+                                table.Cell().Element(CellStyle).Text(item.Date).FontSize(10);
+                                table.Cell().Element(CellStyle).Text(item.InvoiceNum).FontSize(10);
+                                table.Cell().Element(CellStyle).Text(item.DiscType).FontSize(10);
+                                table.Cell().Element(CellStyle).Text(item.Percent).FontSize(10);
+                                table.Cell().Element(CellStyle).Text(item.GrossSales.ToString("N2", phCulture)).FontSize(10);
+                                table.Cell().Element(CellStyle).Text(item.Discount.ToString("N2", phCulture)).FontSize(10);
+                                table.Cell().Element(CellStyle).Text(item.AmountDue.ToString("N2", phCulture)).FontSize(10);
+                                table.Cell().Element(CellStyle).Text((item.AmountDue - item.Discount).ToString("N2", phCulture)).FontSize(10);
+                                table.Cell().Element(CellStyle).Text(item.Vatable.ToString("N2", phCulture)).FontSize(10);
+                                table.Cell().Element(CellStyle).Text(item.ZeroRated.ToString("N2", phCulture)).FontSize(10);
+                                table.Cell().Element(CellStyle).Text(item.Exempt.ToString("N2", phCulture)).FontSize(10);
+                                table.Cell().Element(CellStyle).Text(item.Reason ?? string.Empty).FontSize(10);
+                                table.Cell().Element(CellStyle).Text(item.User).FontSize(10);
+                                table.Cell().Element(CellStyle).Text(item.CancelledBy).FontSize(10);
+                                table.Cell().Element(CellStyle).Text(item.CancelledDate).FontSize(10);
+                                table.Cell().Element(CellStyle).Text(item.CancelledTime).FontSize(10);
+
+                                // Child rows (VoidedItemList)
+                                if (item.VoidedItemList != null && item.VoidedItemList.Count > 0)
+                                {
+                                    table.Cell().ColumnSpan(16).Element(childContainer =>
+                                    {
+                                        childContainer.PaddingLeft(30).Table(childTable =>
+                                        {
+                                            var childHeaders = new[] { "No", "Barcode", "Item Name", "Qty", "Price", "Amount", "Return", "Reason" };
+                                            var childColWidths = new[] { 40f, 80f, 200f, 60f, 60f, 70f, 70f, 120f };
+                                            // Define columns
+                                            childTable.ColumnsDefinition(def =>
+                                            {
+                                                foreach (var w in childColWidths)
+                                                    def.ConstantColumn(w);
+                                            });
+                                            // Header
+                                            childTable.Header(header =>
+                                            {
+                                                foreach (var h in childHeaders)
+                                                    header.Cell().Element(CellStyleChild).Text(h).Bold();
+                                            });
+                                            // Rows
+                                            foreach (var child in item.VoidedItemList)
+                                            {
+                                                childTable.Cell().Element(CellStyleChild).Text(child.No.ToString()).FontSize(10);
+                                                childTable.Cell().Element(CellStyleChild).Text(child.Barcode).FontSize(10);
+                                                childTable.Cell().Element(CellStyleChild).Text(child.ItemName).FontSize(10);
+                                                childTable.Cell().Element(CellStyleChild).Text(child.Quantity.ToString("N2", phCulture)).FontSize(10);
+                                                childTable.Cell().Element(CellStyleChild).Text(child.Price.ToString("N2", phCulture)).FontSize(10);
+                                                childTable.Cell().Element(CellStyleChild).Text(child.Amount.ToString("N2", phCulture)).FontSize(10);
+                                                childTable.Cell().Element(CellStyleChild).Text(child.Return.ToString("N2", phCulture)).FontSize(10);
+                                                childTable.Cell().Element(CellStyleChild).Text(child.Reason ?? string.Empty).FontSize(10);
+                                            }
+                                        });
+                                    });
+                                }
+                            }
+
+                            // Totals row
+                            table.Cell().Element(CellStyle).Text("TOTAL").Bold().FontSize(10);
+                            table.Cell().Element(CellStyle).Text("");
+                            table.Cell().Element(CellStyle).Text("");
+                            table.Cell().Element(CellStyle).Text("");
+                            table.Cell().Element(CellStyle).Text(totalVoided.TotalGross.ToString("N2", phCulture)).FontSize(10);
+                            table.Cell().Element(CellStyle).Text(totalVoided.TotalDiscount.ToString("N2", phCulture)).FontSize(10);
+                            table.Cell().Element(CellStyle).Text(totalVoided.TotalAmountDue.ToString("N2", phCulture)).FontSize(10);
+                            table.Cell().Element(CellStyle).Text(""); // NET OF SALES (if needed, calculate)
+                            table.Cell().Element(CellStyle).Text(totalVoided.TotalVatable.ToString("N2", phCulture)).FontSize(10);
+                            table.Cell().Element(CellStyle).Text(totalVoided.TotalVatZero.ToString("N2", phCulture)).FontSize(10);
+                            table.Cell().Element(CellStyle).Text(totalVoided.TotalExempt.ToString("N2", phCulture)).FontSize(10);
+                            table.Cell().Element(CellStyle).Text("");
+                            table.Cell().Element(CellStyle).Text("");
+                            table.Cell().Element(CellStyle).Text("");
+                            table.Cell().Element(CellStyle).Text("");
+                            table.Cell().Element(CellStyle).Text("");
+                        });
+                    });
+
+                    // FOOTER
+                    page.Footer().AlignCenter().Text(x =>
+                    {
+                        x.Span("EBISX POS System").FontSize(8);
+                        x.Span(" | Page ");
+                        x.CurrentPageNumber();
+                        x.Span(" of ");
+                        x.TotalPages();
+                    });
+                });
+            });
+
+            using var stream = new MemoryStream();
+            document.GeneratePdf(stream);
+            return stream.ToArray();
         }
 
+        private static QIContainer CellStyle(QIContainer container)
+        {
+            return container
+                .BorderBottom(1)
+                .BorderColor(QColors.Grey.Lighten2)
+                .PaddingVertical(2)
+                .PaddingHorizontal(4)
+                .AlignMiddle();
+        }
+        private static QIContainer CellStyleChild(QIContainer container)
+        {
+            return container
+                .BorderBottom(0.5f)
+                .BorderColor(QColors.Grey.Lighten3)
+                .PaddingVertical(1)
+                .PaddingHorizontal(2)
+                .AlignMiddle();
+        }
     }
 }

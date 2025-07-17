@@ -104,7 +104,6 @@
 		</PackageReference>
 		<!--<PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />-->
 		<PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" Condition="'$(TargetFramework)' == 'net8.0-windows10.0.19041.0'" />
-		<PackageReference Include="PdfSharp" Version="6.2.0" />
 		<PackageReference Include="sqlite-net-sqlcipher" Version="1.9.172" />
 		<PackageReference Include="SQLitePCLRaw.bundle_e_sqlcipher" Version="2.1.11" />
 		<PackageReference Include="UraniumUI" Version="2.12.1" />

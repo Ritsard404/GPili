@@ -1,30 +1,23 @@
-using PdfSharp.Drawing;
-using PdfSharp.Pdf;
+using QuestPDF.Fluent;
+using QuestPDF.Infrastructure;
+using QuestPDF.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Services.DTO.Report;
-using ServiceLibrary.Utils;
 using System.Globalization;
 using System.Text;
+using QColors = QuestPDF.Helpers.Colors;
+using QIContainer = QuestPDF.Infrastructure.IContainer;
+using ServiceLibrary.Utils;
 
 namespace EBISX_POS.API.Services.PDF
 {
     public class SalesReportPDFService
     {
-        static SalesReportPDFService()
-        {
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-        }
+        private string _businessName = "N/A";
+        private string _address = "N/A";
+        private string _tin = "N/A";
 
-        private string _businessName;
-        private string _address;
-        private string _tin;
-
-        public SalesReportPDFService()
-        {
-            _businessName = "N/A";
-            _address = "N/A";
-            _tin = "N/A";
-        }
+        public SalesReportPDFService() { }
 
         public void UpdateBusinessInfo(string businessName, string address, string tin)
         {
@@ -35,357 +28,206 @@ namespace EBISX_POS.API.Services.PDF
 
         public byte[] GenerateSalesReportPDF(List<SalesReportDTO> sales, DateTime fromDate, DateTime toDate)
         {
-            using var document = new PdfDocument();
-            var page = document.AddPage();
-            page.Orientation = PdfSharp.PageOrientation.Landscape;
-            page.Width = XUnit.FromInch(13.0);
-            page.Height = XUnit.FromInch(8.5);
-            var gfx = XGraphics.FromPdfPage(page);
-            var phCulture = new CultureInfo("en-PH");
-
-            // Fonts
-            var titleFont = new XFont("Arial", 16, XFontStyle.Bold);
-            var headerFont = new XFont("Arial", 10, XFontStyle.Bold);
-            var normalFont = new XFont("Arial", 9, XFontStyle.Regular);
-            var smallFont = new XFont("Arial", 8, XFontStyle.Regular);
-
-            double y = 40;
-            double margin = 30;
-            double tableTop = 0;
-            double pageWidth = page.Width - margin * 2;
-
-            // Header
-            gfx.DrawString(_businessName, titleFont, XBrushes.DarkBlue, new XPoint(margin, y));
-            y += 18;
-            gfx.DrawString(_address, normalFont, XBrushes.Black, new XPoint(margin, y));
-            y += 12;
-            gfx.DrawString($"TIN {_tin}", normalFont, XBrushes.Black, new XPoint(margin, y));
-            y += 18;
-            gfx.DrawString("SALES REPORT", headerFont, XBrushes.DarkBlue, new XPoint(margin, y));
-            y += 14;
-            gfx.DrawString($"From {fromDate:MM-dd-yyyy} To {toDate:MM-dd-yyyy}", normalFont, XBrushes.Black, new XPoint(margin, y));
-            y += 18;
-            tableTop = y;
-
-            // Table columns - Adjusted widths to sum up to 1.00
             var columns = new[]
             {
-                ("DATE", 0.055),     // Reduced from 0.06
-                ("INVOICE", 0.073),  // Reduced from 0.08
-                ("ITEM NAME", 0.184), // Reduced from 0.20
-                ("UNIT", 0.046),     // Reduced from 0.05
-                ("QTY", 0.037),      // Reduced from 0.04
-                ("COST", 0.046),     // Reduced from 0.05
-                ("PRICE", 0.064),    // Reduced from 0.07
-                ("GROUP", 0.138),    // Reduced from 0.15
-                ("BARCODE", 0.092),  // Reduced from 0.10
-                ("STATUS", 0.073),   // Reduced from 0.08
-                ("TOTAL\nCOST", 0.064), // Reduced from 0.07
-                ("REVENUE", 0.064),  // Reduced from 0.07
-                ("PROFIT", 0.064)    // Reduced from 0.07
-            };
-            // Total: 1.000 (100%)
-
-            double[] colWidths = columns.Select(c => c.Item2 * pageWidth).ToArray();
-            double headerRowHeight = 30;
-            double rowHeight = 18;
-
-            var formats = new[]
-            {
-                XStringFormats.Center,
-                XStringFormats.CenterLeft,
-                XStringFormats.CenterLeft,
-                XStringFormats.Center,
-                XStringFormats.Center,
-                XStringFormats.CenterRight,
-                XStringFormats.CenterRight,
-                XStringFormats.Center,
-                XStringFormats.CenterLeft,
-                XStringFormats.Center,
-                XStringFormats.CenterRight,
-                XStringFormats.CenterRight,
-                XStringFormats.CenterRight
+                ("DATE", 0.065f),
+                ("INVOICE", 0.073f),
+                ("ITEM NAME", 0.174f),
+                ("UNIT", 0.046f),
+                ("QTY", 0.037f),
+                ("COST", 0.046f),
+                ("PRICE", 0.064f),
+                ("GROUP", 0.138f),
+                ("BARCODE", 0.092f),
+                ("STATUS", 0.073f),
+                ("TOTAL COST", 0.064f),
+                ("REVENUE", 0.064f),
+                ("PROFIT", 0.064f)
             };
 
-            // Draw table header
-            double headerY = y;
-            double x = margin;
-            for (int i = 0; i < columns.Length; i++)
+            var document = Document.Create(container =>
             {
-                var rect = new XRect(x, headerY, colWidths[i], headerRowHeight);
-                gfx.DrawRectangle(XBrushes.LightGray, rect);
-                var headerLines = columns[i].Item1.Split('\n');
-                double lineHeight = headerRowHeight / headerLines.Length;
-                for (int j = 0; j < headerLines.Length; j++)
+                container.Page(page =>
                 {
-                    var lineRect = new XRect(x, headerY + j * lineHeight, colWidths[i], lineHeight);
-                    gfx.DrawString(headerLines[j], smallFont, XBrushes.Black, lineRect, formats[i]);
-                }
-                x += colWidths[i];
-            }
-            y += headerRowHeight;
+                    page.Size(PageSizes.Legal.Landscape());
+                    page.Margin(30);
 
-            // Table rows
-            foreach (var sale in sales)
-            {
-                // Check if adding the next row will exceed the page height (with a bottom margin)
-                if (y + rowHeight > page.Height - margin)
-                {
-                    // Add a new page
-                    page = document.AddPage();
-                    page.Orientation = PdfSharp.PageOrientation.Landscape;
-                    page.Width = XUnit.FromInch(13.0);
-                    page.Height = XUnit.FromInch(8.5);
-                    gfx = XGraphics.FromPdfPage(page);
-                    y = margin; // Reset y position for the new page
-
-                    // Redraw table header on the new page
-                    double currentHeaderY = y;
-                    double currentX = margin;
-                    for (int i = 0; i < columns.Length; i++)
+                    // HEADER
+                    page.Header().Column(headerCol =>
                     {
-                        var rect = new XRect(currentX, currentHeaderY, colWidths[i], headerRowHeight);
-                        gfx.DrawRectangle(XBrushes.LightGray, rect);
-                        var headerLines = columns[i].Item1.Split('\n');
-                        double lineHeight = headerRowHeight / headerLines.Length;
-                        for (int j = 0; j < headerLines.Length; j++)
+                        headerCol.Item().Text(_businessName).Bold().FontSize(16).FontColor(QColors.Blue.Darken2);
+                        headerCol.Item().Text(_address).FontSize(10);
+                        headerCol.Item().Text($"TIN {_tin}").FontSize(10);
+                        headerCol.Item().PaddingVertical(10).LineHorizontal(1);
+                        headerCol.Item().Text("SALES REPORT").Bold().FontSize(13).FontColor(QColors.Blue.Darken2);
+                        headerCol.Item().Text($"From {fromDate:MM-dd-yyyy} To {toDate:MM-dd-yyyy}").FontSize(10);
+                    });
+
+                    // CONTENT
+                    page.Content().Column(col =>
+                    {
+                        col.Item().Table(table =>
                         {
-                            var lineRect = new XRect(currentX, currentHeaderY + j * lineHeight, colWidths[i], lineHeight);
-                            gfx.DrawString(headerLines[j], smallFont, XBrushes.Black, lineRect, formats[i]);
-                        }
-                        currentX += colWidths[i];
-                    }
-                    y += headerRowHeight;
-                }
+                            // Define columns
+                            table.ColumnsDefinition(def =>
+                            {
+                                foreach (var c in columns)
+                                    def.RelativeColumn(c.Item2);
+                            });
 
-                x = margin;
+                            // Header row
+                            table.Header(header =>
+                            {
+                                foreach (var c in columns)
+                                    header.Cell().Element(CellStyle).Text(c.Item1).Bold().FontSize(11);
+                            });
 
-                // Truncate long text with ellipsis
-                var menuName = TruncateWithEllipsis(sale.MenuName, 30);
-                var itemGroup = TruncateWithEllipsis(sale.ItemGroup, 25);
+                            // Data rows
+                            foreach (var sale in sales)
+                            {
+                                table.Cell().Element(CellStyle).Text(sale.InvoiceDate.DateFormat()).FontSize(11);
+                                table.Cell().Element(CellStyle).Text(sale.InvoiceNumber.ToString()).FontSize(11).AlignCenter();
+                                table.Cell().Element(CellStyle).Text(TruncateWithEllipsis(sale.MenuName, 30)).FontSize(11);
+                                table.Cell().Element(CellStyle).Text(sale.BaseUnit).FontSize(11);
+                                table.Cell().Element(CellStyle).Text(sale.Quantity.ToString()).FontSize(11);
+                                table.Cell().Element(CellStyle).Text(sale.Cost.PesoFormat()).FontSize(11);
+                                table.Cell().Element(CellStyle).Text(sale.Price.PesoFormat()).FontSize(11);
+                                table.Cell().Element(CellStyle).Text(TruncateWithEllipsis(sale.ItemGroup, 25)).FontSize(11);
+                                table.Cell().Element(CellStyle).Text(sale.Barcode).FontSize(10);
+                                table.Cell().Element(CellStyle).Text(sale.Status).FontColor(sale.IsReturned ? QColors.Red.Medium : QColors.Black).FontSize(11);
+                                table.Cell().Element(CellStyle).Text(sale.TotalCost.PesoFormat()).FontSize(11);
+                                table.Cell().Element(CellStyle).Text(sale.Revenue.PesoFormat()).FontSize(11);
+                                table.Cell().Element(CellStyle).Text(sale.Profit.PesoFormat()).FontSize(11);
+                            }
 
-                var values = new[]
-                {
-                    sale.InvoiceDate.ToString("MM/dd/yyyy", phCulture),
-                    sale.InvoiceNumber.ToString("D12"),
-                    menuName,
-                    sale.BaseUnit,
-                    sale.Quantity.ToString(),
-                    sale.Cost.ToString("N2", phCulture),
-                    sale.Price.ToString("N2", phCulture),
-                    itemGroup,
-                    sale.Barcode,
-                    sale.Status,
-                    sale.TotalCost.ToString("N2", phCulture),
-                    sale.Revenue.ToString("N2", phCulture),
-                    sale.Profit.ToString("N2", phCulture)
-                };
+                            // Totals row
+                            var totalCost = sales.Where(s => !s.IsReturned).Sum(s => s.Cost);
+                            var totalPrice = sales.Where(s => !s.IsReturned).Sum(s => s.Price);
+                            var totalTotalCost = sales.Where(s => !s.IsReturned).Sum(s => s.TotalCost);
+                            var totalRevenue = sales.Where(s => !s.IsReturned).Sum(s => s.Revenue);
+                            var totalProfit = sales.Where(s => !s.IsReturned).Sum(s => s.Profit);
 
-                // Verify arrays have the same length
-                if (values.Length != columns.Length || values.Length != formats.Length)
-                {
-                    throw new InvalidOperationException($"Array length mismatch: values={values.Length}, columns={columns.Length}, formats={formats.Length}");
-                }
+                            table.Cell().Element(CellStyle).Text(""); // DATE
+                            table.Cell().Element(CellStyle).Text(""); // INVOICE
+                            table.Cell().Element(CellStyle).Text("TOTALS:").Bold();
+                            table.Cell().Element(CellStyle).Text(""); // UNIT
+                            table.Cell().Element(CellStyle).Text(""); // QTY
+                            table.Cell().Element(CellStyle).Text(totalCost.PesoFormat());
+                            table.Cell().Element(CellStyle).Text(totalPrice.PesoFormat());
+                            table.Cell().Element(CellStyle).Text(""); // GROUP
+                            table.Cell().Element(CellStyle).Text(""); // BARCODE
+                            table.Cell().Element(CellStyle).Text(""); // STATUS
+                            table.Cell().Element(CellStyle).Text(totalTotalCost.PesoFormat());
+                            table.Cell().Element(CellStyle).Text(totalRevenue.PesoFormat());
+                            table.Cell().Element(CellStyle).Text(totalProfit.PesoFormat());
+                        });
+                    });
 
-                // Use red color for returned items
-                var textBrush = sale.IsReturned ? XBrushes.Red : XBrushes.Black;
+                    // FOOTER
+                    page.Footer().AlignCenter().Text(x =>
+                    {
+                        x.Span("EBISX POS System").FontSize(8);
+                        x.Span(" | Page ");
+                        x.CurrentPageNumber();
+                        x.Span(" of ");
+                        x.TotalPages();
+                    });
+                });
+            });
 
-                for (int i = 0; i < values.Length; i++)
-                {
-                    var rect = new XRect(x, y, colWidths[i], rowHeight);
-                    gfx.DrawString(values[i], smallFont, textBrush, rect, formats[i]);
-                    x += colWidths[i];
-                }
-                y += rowHeight;
-                gfx.DrawLine(XPens.Gray, margin, y, margin + pageWidth, y);
-            }
-
-            // Totals row
-            // Check if adding the totals row will exceed the page height (with a bottom margin)
-            if (y + rowHeight > page.Height - margin)
-            {
-                // Add a new page for totals
-                page = document.AddPage();
-                page.Orientation = PdfSharp.PageOrientation.Landscape;
-                page.Width = XUnit.FromInch(13.0);
-                page.Height = XUnit.FromInch(8.5);
-                gfx = XGraphics.FromPdfPage(page);
-                y = margin; // Reset y position for the new page
-            }
-
-            x = margin;
-            var totals = new[]
-            {
-                "", // DATE
-                "", // INVOICE
-                "TOTALS:", // MENU NAME
-                "", // UNIT
-                "", // QTY
-                sales.Where(s => !s.IsReturned).Sum(s => s.Cost).ToString("N2", phCulture), // COST
-                sales.Where(s => !s.IsReturned).Sum(s => s.Price).ToString("N2", phCulture), // PRICE
-                "", // GROUP
-                "", // BARCODE
-                "", // STATUS
-                sales.Where(s => !s.IsReturned).Sum(s => s.TotalCost).ToString("N2", phCulture), // TOTAL COST
-                sales.Where(s => ! s.IsReturned).Sum(s => s.Revenue).ToString("N2", phCulture), // REVENUE
-                sales.Where(s => !s.IsReturned).Sum(s => s.Profit).ToString("N2", phCulture) // PROFIT
-            };
-
-            // Verify totals array length
-            if (totals.Length != columns.Length)
-            {
-                throw new InvalidOperationException($"Totals array length mismatch: totals={totals.Length}, columns={columns.Length}");
-            }
-
-            for (int i = 0; i < totals.Length; i++)
-            {
-                var rect = new XRect(x, y, colWidths[i], rowHeight);
-                gfx.DrawRectangle(XBrushes.White, rect);
-                gfx.DrawString(totals[i], totals[i] == "TOTALS:" ? headerFont : smallFont, XBrushes.Black, rect, formats[i]);
-                x += colWidths[i];
-            }
-            y += rowHeight;
-
-            // Save to memory stream
             using var stream = new MemoryStream();
-            document.Save(stream);
+            document.GeneratePdf(stream);
             return stream.ToArray();
         }
 
         public byte[] GenerateSalesBookPDF(List<Reading> readings, DateTime fromDate, DateTime toDate)
         {
-            using var document = new PdfDocument();
-            var page = document.AddPage();
-            page.Orientation = PdfSharp.PageOrientation.Portrait;
-            page.Width = XUnit.FromInch(8.5);
-            page.Height = XUnit.FromInch(11.0);
-            var gfx = XGraphics.FromPdfPage(page);
             var phCulture = new CultureInfo("en-PH");
-
-            // Fonts
-            var titleFont = new XFont("Arial", 16, XFontStyle.Bold);
-            var headerFont = new XFont("Arial", 10, XFontStyle.Bold);
-            var normalFont = new XFont("Arial", 9, XFontStyle.Regular);
-            var smallFont = new XFont("Arial", 8, XFontStyle.Regular);
-
-            double y = 40;
-            double margin = 30;
-            double tableTop = 0;
-            double pageWidth = page.Width - margin * 2;
-
-            // Header
-            gfx.DrawString(_businessName, titleFont, XBrushes.DarkBlue, new XPoint(margin, y));
-            y += 18;
-            gfx.DrawString(_address, normalFont, XBrushes.Black, new XPoint(margin, y));
-            y += 12;
-            gfx.DrawString($"TIN {_tin}", normalFont, XBrushes.Black, new XPoint(margin, y));
-            y += 18;
-            gfx.DrawString("SALES BOOK REPORT", headerFont, XBrushes.DarkBlue, new XPoint(margin, y));
-            y += 14;
-            gfx.DrawString($"From {fromDate:MM-dd-yyyy} To {toDate:MM-dd-yyyy}", normalFont, XBrushes.Black, new XPoint(margin, y));
-            y += 18;
-            tableTop = y;
-
-            // Table columns for portrait mode (sum to 1.0)
             var columns = new[]
             {
-                ("DATE", 0.15),
-                ("INVOICE", 0.18),
-                ("PREVIOUS", 0.18),
-                ("PRESENT", 0.18),
-                ("SALES", 0.16),
-                ("Z-COUNTER", 0.15)
-            };
-            double[] colWidths = columns.Select(c => c.Item2 * pageWidth).ToArray();
-            double headerRowHeight = 30;
-            double rowHeight = 18;
-            var formats = new[]
-            {
-                XStringFormats.Center,
-                XStringFormats.CenterLeft,
-                XStringFormats.CenterLeft,
-                XStringFormats.Center,
-                XStringFormats.Center,
-                XStringFormats.Center
+                ("DATE", 0.15f),
+                ("INVOICE", 0.18f),
+                ("PREVIOUS", 0.18f),
+                ("PRESENT", 0.18f),
+                ("SALES", 0.16f),
+                ("Z-COUNTER", 0.15f)
             };
 
-            // Draw table header
-            double headerY = y;
-            double x = margin;
-            for (int i = 0; i < columns.Length; i++)
+            var document = Document.Create(container =>
             {
-                var rect = new XRect(x, headerY, colWidths[i], headerRowHeight);
-                gfx.DrawRectangle(XBrushes.LightGray, rect);
-                var headerLines = columns[i].Item1.Split('\n');
-                double lineHeight = headerRowHeight / headerLines.Length;
-                for (int j = 0; j < headerLines.Length; j++)
+                container.Page(page =>
                 {
-                    var lineRect = new XRect(x, headerY + j * lineHeight, colWidths[i], lineHeight);
-                    gfx.DrawString(headerLines[j], smallFont, XBrushes.Black, lineRect, formats[i]);
-                }
-                x += colWidths[i];
-            }
-            y += headerRowHeight;
+                    page.Size(PageSizes.A4);
+                    page.Margin(30);
 
-            // Table rows
-            foreach (var reading in readings)
-            {
-                // Check if adding the next row will exceed the page height (with a bottom margin)
-                if (y + rowHeight > page.Height - margin)
-                {
-                    // Add a new page
-                    page = document.AddPage();
-                    page.Orientation = PdfSharp.PageOrientation.Portrait;
-                    page.Width = XUnit.FromInch(8.5);
-                    page.Height = XUnit.FromInch(11.0);
-                    gfx = XGraphics.FromPdfPage(page);
-                    y = margin; // Reset y position for the new page
-
-                    // Redraw table header on the new page
-                    double currentHeaderY = y;
-                    double currentX = margin;
-                    for (int i = 0; i < columns.Length; i++)
+                    // HEADER
+                    page.Header().Column(headerCol =>
                     {
-                        var rect = new XRect(currentX, currentHeaderY, colWidths[i], headerRowHeight);
-                        gfx.DrawRectangle(XBrushes.LightGray, rect);
-                        var headerLines = columns[i].Item1.Split('\n');
-                        double lineHeight = headerRowHeight / headerLines.Length;
-                        for (int j = 0; j < headerLines.Length; j++)
+                        headerCol.Item().Text(_businessName).Bold().FontSize(16).FontColor(QColors.Blue.Darken2);
+                        headerCol.Item().Text(_address).FontSize(10);
+                        headerCol.Item().Text($"TIN {_tin}").FontSize(10);
+                        headerCol.Item().PaddingVertical(10).LineHorizontal(1);
+                        headerCol.Item().Text("SALES BOOK REPORT").Bold().FontSize(13).FontColor(QColors.Blue.Darken2);
+                        headerCol.Item().Text($"From {fromDate:MM-dd-yyyy} To {toDate:MM-dd-yyyy}").FontSize(10);
+                    });
+
+                    // CONTENT
+                    page.Content().Column(col =>
+                    {
+                        col.Item().Table(table =>
                         {
-                            var lineRect = new XRect(currentX, currentHeaderY + j * lineHeight, colWidths[i], lineHeight);
-                            gfx.DrawString(headerLines[j], smallFont, XBrushes.Black, lineRect, formats[i]);
-                        }
-                        currentX += colWidths[i];
-                    }
-                    y += headerRowHeight;
-                }
+                            // Define columns
+                            table.ColumnsDefinition(def =>
+                            {
+                                foreach (var c in columns)
+                                    def.RelativeColumn(c.Item2);
+                            });
 
-                x = margin;
-                var values = new[]
-                {
-                    reading.CreatedAt.DateFormat(),
-                    reading.LastInvoice,
-                    reading.Previous.ToString("N2"),
-                    reading.Present.ToString("N2"),
-                    reading.Sales.ToString("N2"),
-                    reading.Id.ToString()
-                };
+                            // Header row
+                            table.Header(header =>
+                            {
+                                foreach (var c in columns)
+                                    header.Cell().Element(CellStyle).Text(c.Item1).Bold();
+                            });
 
-                for (int i = 0; i < values.Length; i++)
-                {
-                    var rect = new XRect(x, y, colWidths[i], rowHeight);
-                    gfx.DrawString(values[i], smallFont, XBrushes.Black, rect, formats[i]);
-                    x += colWidths[i];
-                }
-                y += rowHeight;
-                // Draw row line
-                gfx.DrawLine(XPens.Gray, margin, y, margin + pageWidth, y);
-            }
+                            // Data rows
+                            foreach (var reading in readings)
+                            {
+                                table.Cell().Element(CellStyle).Text(reading.CreatedAt.ToString("MM/dd/yyyy", phCulture));
+                                table.Cell().Element(CellStyle).Text(reading.LastInvoice);
+                                table.Cell().Element(CellStyle).Text(reading.Previous.PesoFormat());
+                                table.Cell().Element(CellStyle).Text(reading.Present.PesoFormat());
+                                table.Cell().Element(CellStyle).Text(reading.Sales.PesoFormat());
+                                table.Cell().Element(CellStyle).Text(reading.Id.ToString());
+                            }
+                        });
+                    });
 
-            // Save to memory stream
+                    // FOOTER
+                    page.Footer().AlignCenter().Text(x =>
+                    {
+                        x.Span("EBISX POS System").FontSize(8);
+                        x.Span(" | Page ");
+                        x.CurrentPageNumber();
+                        x.Span(" of ");
+                        x.TotalPages();
+                    });
+                });
+            });
+
             using var stream = new MemoryStream();
-            document.Save(stream);
+            document.GeneratePdf(stream);
             return stream.ToArray();
+        }
+
+        private static QIContainer CellStyle(QIContainer container)
+        {
+            return container
+                .BorderBottom(1)
+                .BorderColor(QColors.Grey.Lighten2)
+                .PaddingVertical(2)
+                .PaddingHorizontal(4)
+                .AlignMiddle();
         }
 
         private string TruncateWithEllipsis(string text, int maxLength)

@@ -1,13 +1,5 @@
-﻿using PdfSharp.Drawing;
-using PdfSharp.Pdf;
-using ServiceLibrary.Services.DTO.Report;
-using System.Globalization;
-using System.Text;
-using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using ServiceLibrary.Services.DTO.Report;
 using QuestPDF.Fluent;
-using QuestPDF.Infrastructure;
 using QColors = QuestPDF.Helpers.Colors;
 using QIContainer = QuestPDF.Infrastructure.IContainer;
 

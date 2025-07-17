@@ -1,6 +1,4 @@
-﻿using PdfSharp.Snippets;
-
-namespace GPili.Presentation.Contents;
+﻿namespace GPili.Presentation.Contents;
 
 public partial class UserFooterView : ContentView, IDisposable
 {
