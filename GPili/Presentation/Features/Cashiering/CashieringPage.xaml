@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="GPili.Presentation.Features.Cashiering.CashieringPage"
              xmlns:footer="clr-namespace:GPili.Presentation.Contents"
+             xmlns:loader="clr-namespace:GPili.Presentation.Popups"
              xmlns:products="clr-namespace:GPili.Presentation.Contents.Cashiering"
              Title="Cashiering">
     <Grid RowDefinitions="*, Auto">
@@ -19,6 +20,7 @@
                 <products:OrderSummaryView />
             </Border>
         </Grid>
+        <loader:LoaderView Grid.Row="0" IsVisible="{Binding IsLoading}" />
 
 
 

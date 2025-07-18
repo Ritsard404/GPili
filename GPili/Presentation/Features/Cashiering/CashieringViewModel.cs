@@ -8,12 +8,13 @@ using ServiceLibrary.Services.Interfaces;
 namespace GPili.Presentation.Features.Cashiering
 {
     public partial class CashieringViewModel(IAuth _auth,
-        IPopUpService _popUpService,
         IPopupService _popupService,
         INavigationService _navigationService,
         IOrder _order,
         IInventory _inventory) : ObservableObject
     {
+        [ObservableProperty]
+        private bool isWindows = DeviceInfo.Platform == DevicePlatform.WinUI;
 
         [ObservableProperty]
         private Product[] _products = [];
@@ -43,6 +44,9 @@ namespace GPili.Presentation.Features.Cashiering
         [NotifyPropertyChangedFor(nameof(IsPayKeypadSelected))]
         private string _selectedKeypadAction = KeypadActions.QTY;
         public bool IsPayKeypadSelected => SelectedKeypadAction == KeypadActions.PAY;
+
+        [ObservableProperty]
+        private bool _isLoading = true;
 
         public async Task InitializeAsync()
         {
@@ -77,7 +81,7 @@ namespace GPili.Presentation.Features.Cashiering
                     }
                 } while (!validCash);
 
-                await _popUpService.ShowAsync("Loading Products...", true);
+                IsLoading = true;
 
                 await _auth.SetCashInDrawer(CashierState.Info.CashierEmail!, cashValue);
                 await Snackbar.Make($"₱{cashValue} has been stored in the drawer.", duration: TimeSpan.FromSeconds(1)).Show();
@@ -107,7 +111,7 @@ namespace GPili.Presentation.Features.Cashiering
                 await LoadItems();
             }
 
-            await _popUpService.ShowAsync("", false);
+            IsLoading = false;
             PopupState.PopupInfo.ClosePopup();
         }
         private async Task LoadItems()
@@ -121,7 +125,7 @@ namespace GPili.Presentation.Features.Cashiering
         [RelayCommand]
         private async Task Search()
         {
-            await _popUpService.ShowAsync("Loading...", true);
+            IsLoading = true;
 
             try
             {
@@ -153,7 +157,7 @@ namespace GPili.Presentation.Features.Cashiering
             }
             finally
             {
-                await _popUpService.ShowAsync("Loaded", false);
+                IsLoading = false;
             }
         }
 
@@ -184,7 +188,7 @@ namespace GPili.Presentation.Features.Cashiering
         {
             if (SelectedCategory.Id == category.Id)
                 return;
-            await _popUpService.ShowAsync("Loading Menu...", true);
+            IsLoading = true;
 
             var existSelectedCategory = Categories.First(c => c.IsSelected);
             existSelectedCategory.IsSelected = false;
@@ -197,7 +201,7 @@ namespace GPili.Presentation.Features.Cashiering
             Products = await _inventory.GetProductsByCategory(category.Id);
             OnPropertyChanged(nameof(Products));
 
-            await _popUpService.ShowAsync("Loaded Menu...", false);
+            IsLoading = false   ;
         }
 
         [RelayCommand]
@@ -277,7 +281,7 @@ namespace GPili.Presentation.Features.Cashiering
         private async Task PayOrder(string payContent)
         {
 
-            await _popUpService.ShowAsync("Paying...", true);
+            IsLoading = true;
 
             if (payContent == KeypadActions.EXACT_PAY)
                 Tenders.SetExactCashAmount();
@@ -285,7 +289,7 @@ namespace GPili.Presentation.Features.Cashiering
             if (payContent == KeypadActions.ENTER && Tenders.ChangeAmount < 0)
             {
                 await Snackbar.Make("Please enter a valid amount to pay.", duration: TimeSpan.FromSeconds(1)).Show();
-                await _popUpService.ShowAsync("Paid", false);
+                IsLoading = false;
                 return;
             }
 
@@ -334,7 +338,7 @@ namespace GPili.Presentation.Features.Cashiering
 
             }
 
-            await _popUpService.ShowAsync("Paid", false);
+            IsLoading = false;
         }
 
         [RelayCommand]
@@ -403,7 +407,7 @@ namespace GPili.Presentation.Features.Cashiering
                     reason = "Not specified"; // Default reason if none provided
                 }
 
-                await _popUpService.ShowAsync("Processing...", true);
+                IsLoading = true;
 
                 var (isSuccess, message) = await _order.VoidOrder(cashierEmail: CashierState.Info.CashierEmail!,
                     managerEmail: managerEmail, reason: reason);
@@ -428,7 +432,7 @@ namespace GPili.Presentation.Features.Cashiering
             }
             finally
             {
-                await _popUpService.ShowAsync("Voided", false);
+                IsLoading = false;
             }
         }
 

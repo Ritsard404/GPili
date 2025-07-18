@@ -8,7 +8,6 @@ using System.Diagnostics;
 namespace GPili.Presentation.Features.LogIn
 {
     public partial class LogInViewModel(IAuth _auth,
-            IPopUpService _popUpService,
             IGPiliTerminalMachine _terminalMachine,
             INavigationService _navigationService) : ObservableObject
     {
@@ -21,8 +20,12 @@ namespace GPili.Presentation.Features.LogIn
         [ObservableProperty]
         private User[] _cashiers = [];
 
+        [ObservableProperty]
+        private bool _isLoading = false;
+
         public async ValueTask InitializeAsync()
         {
+            IsLoading = true;
             while (true)
             {
                 var (isValid, message) = await _terminalMachine.ValidateTerminalExpiration();
@@ -45,13 +48,13 @@ namespace GPili.Presentation.Features.LogIn
             Cashiers = await _auth.GetCashiers();
 
             SelectedCashier = Cashiers[0];
+            IsLoading = false;
         }
 
         [RelayCommand]
         public async Task LogIn()
         {
-
-            await _popUpService.ShowAsync("Logging in...", true);
+            IsLoading = true;
 
             try
             {
@@ -92,7 +95,7 @@ namespace GPili.Presentation.Features.LogIn
             catch (Exception ex)
             {
                 // Optional: log the exception to a service or file
-                await Shell.Current.DisplayAlert("An unexpected error occurred", $"{ex.Message}","Ok"
+                await Shell.Current.DisplayAlert("An unexpected error occurred", $"{ex.Message}", "Ok"
                     );
                 var error = ex.ToString();
                 if (ex.InnerException != null)
@@ -108,7 +111,8 @@ namespace GPili.Presentation.Features.LogIn
             }
             finally
             {
-                await _popUpService.ShowAsync("", false); // Ensure cleanup
+
+                IsLoading = false;
                 AdminEmail = string.Empty;
                 SelectedCashier = Cashiers[0];
             }

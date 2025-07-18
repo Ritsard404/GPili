@@ -4,6 +4,8 @@ using ServiceLibrary.Models;
 using ServiceLibrary.Services.DTO.Report;
 using ServiceLibrary.Services.Interfaces;
 using ServiceLibrary.Utils;
+using System.ComponentModel.DataAnnotations;
+
 #if WINDOWS
 using WinRT;
 #endif
@@ -79,13 +81,6 @@ namespace GPili.Presentation.Features.Manager
         private DateTime _to = DateTime.Now.AddDays(1);
         [ObservableProperty]
         private List<GetInvoiceDocumentDTO> _transactLists = new();
-
-        // Sale Types
-        [ObservableProperty]
-        private bool _isSaleTypesDisplay = false;
-        [ObservableProperty]
-        private List<SaleType> _saleTypes = new();
-
 
         [RelayCommand]
         private async Task LoadData()
@@ -388,18 +383,116 @@ namespace GPili.Presentation.Features.Manager
             await _navigationService.GoBack();
         }
 
+        // POS Terminal 
+        public double PopupSettingsWidth => Shell.Current.CurrentPage.Width * 0.4;
+        public double PopupSettingsHeight => Shell.Current.CurrentPage.Height * 0.8;
+
+        [ObservableProperty]
+        private TerminalConfiguration? _terminalConfig;
+        [ObservableProperty]
+        private bool _isSettingsDisplay = false;
+
         [RelayCommand]
-        private async Task Settings()
+        private async Task SettingsDisplay()
         {
             //IsLoading = true;
             //var vm = new TerminalMachineViewModel(_terminalMachine);
             //var popup = new TerminalMachinePopup(vm);
             //var result = await Shell.Current.ShowPopupAsync(popup);
+            IsLoading = true;
+            if (!IsSettingsDisplay)
+            {
+                var posInfo = await _terminalMachine.GetTerminalInfo();
+                if (posInfo != null)
+                {
+                    TerminalConfig = new TerminalConfiguration
+                    {
+                        PosSerialNumber = posInfo.PosSerialNumber,
+                        MinNumber = posInfo.MinNumber,
+                        AccreditationNumber = posInfo.AccreditationNumber,
+                        PtuNumber = posInfo.PtuNumber,
+                        DateIssued = posInfo.DateIssued,
+                        ValidUntil = posInfo.ValidUntil,
+                        PosName = posInfo.PosName,
+                        RegisteredName = posInfo.RegisteredName,
+                        OperatedBy = posInfo.OperatedBy,
+                        Address = posInfo.Address,
+                        VatTinNumber = posInfo.VatTinNumber,
+                        Vat = posInfo.Vat,
+                        DiscountMax = posInfo.DiscountMax,
+                        CostCenter = posInfo.CostCenter,
+                        BranchCenter = posInfo.BranchCenter,
+                        UseCenter = posInfo.UseCenter,
+                        DbName = posInfo.DbName,
+                        PrinterName = posInfo.PrinterName,
+                        IsRetailType = posInfo.IsRetailType,
 
-            var popup = IPlatformApplication.Current.Services.GetRequiredService<TerminalMachinePopup>();
-            var result = await Shell.Current.ShowPopupAsync(popup);
+                    };
+                }
+                else
+                {
+                    TerminalConfig = new TerminalConfiguration();
 
-            //IsLoading = false;
+                }
+            }
+
+            IsSettingsDisplay = !IsSettingsDisplay;
+
+            IsLoading = false;
+        }
+        [RelayCommand]
+        private async Task SaveSettings()
+        {
+            if (TerminalConfig is null)
+            {
+                return;
+            }
+
+            TerminalConfig.ValidateAll();
+
+            if (TerminalConfig.HasErrors)
+            {
+                return;
+            }
+
+            var info = new PosTerminalInfo
+            {
+                AccreditationNumber = TerminalConfig.AccreditationNumber,
+                Address = TerminalConfig.Address,
+                BranchCenter = TerminalConfig.BranchCenter,
+                CostCenter = TerminalConfig.CostCenter,
+                DateIssued = TerminalConfig.DateIssued,
+                DbName = TerminalConfig.DbName,
+                DiscountMax = TerminalConfig.DiscountMax,
+                MinNumber = TerminalConfig.MinNumber,
+                OperatedBy = TerminalConfig.OperatedBy,
+                PtuNumber = TerminalConfig.PtuNumber,
+                PosName = TerminalConfig.PosName,
+                PosSerialNumber = TerminalConfig.PosSerialNumber,
+                RegisteredName = TerminalConfig.RegisteredName,
+                UseCenter = TerminalConfig.UseCenter,
+                Vat = TerminalConfig.Vat,
+                VatTinNumber = TerminalConfig.VatTinNumber,
+                ValidUntil = TerminalConfig.ValidUntil,
+                PrinterName = TerminalConfig.PrinterName,
+                IsRetailType = TerminalConfig.IsRetailType
+            };
+
+            var (isSuccess, message) = await _terminalMachine.SetPosTerminalInfo(info);
+
+            if (isSuccess)
+            {
+                await Snackbar.Make(message,
+                    duration: TimeSpan.FromSeconds(1)).Show();
+
+                POSInfo.Terminal = await _terminalMachine.GetTerminalInfo();
+                IsSettingsDisplay = false;
+            }
+        }
+        [RelayCommand]
+        private void CloseSettings()
+        {
+            IsSettingsDisplay = false;
         }
 
         [RelayCommand]
@@ -478,9 +571,17 @@ namespace GPili.Presentation.Features.Manager
 
         // Sale Types
         [ObservableProperty]
+        private bool _isSaleTypesDisplay = false;
+
+        [ObservableProperty]
+        private List<SaleType> _saleTypes = new();
+
+        [ObservableProperty]
         private bool _isAddSaleTypeDisplay = false;
+
         [ObservableProperty]
         private SaleType _newSaleType;
+
         public double PopupSaleTypeWidth => Shell.Current.CurrentPage.Width * 0.4;
         public double PopupSaleTypeHeight => Shell.Current.CurrentPage.Height * 0.6;
 
@@ -546,7 +647,7 @@ namespace GPili.Presentation.Features.Manager
             }
             IsLoading = false;
         }
-        
+
         [RelayCommand]
         private async Task AddSaleType()
         {
@@ -858,4 +959,97 @@ namespace GPili.Presentation.Features.Manager
         }
 
     }
+    public partial class TerminalConfiguration : ObservableValidator
+    {
+        // POS machine details
+        [Required(ErrorMessage = "POS Serial Number is required")]
+        [ObservableProperty]
+        private string _posSerialNumber = string.Empty;
+
+        [Required(ErrorMessage = "MIN Number is required")]
+        [ObservableProperty]
+        private string _minNumber = string.Empty;
+
+        [Required(ErrorMessage = "Accreditation Number is required")]
+        [ObservableProperty]
+        private string _accreditationNumber = string.Empty;
+
+        [Required(ErrorMessage = "PTU Number is required")]
+        [ObservableProperty]
+        private string _ptuNumber = string.Empty;
+
+        [Required(ErrorMessage = "Date Issued is required")]
+        [ObservableProperty]
+        private DateTime _dateIssued;
+
+        [Required(ErrorMessage = "Valid Until date is required")]
+        [ObservableProperty]
+        private DateTime _validUntil;
+
+        // Business details
+        [Required(ErrorMessage = "POS Name is required")]
+        [ObservableProperty]
+        private string _posName = string.Empty;
+
+        [Required(ErrorMessage = "Registered Name is required")]
+        [ObservableProperty]
+        private string _registeredName = string.Empty;
+
+        [Required(ErrorMessage = "Operated By is required")]
+        [ObservableProperty]
+        private string _operatedBy = string.Empty;
+
+        [Required(ErrorMessage = "Address is required")]
+        [ObservableProperty]
+        private string _address = string.Empty;
+
+        [Required(ErrorMessage = "VAT TIN Number is required")]
+        [ObservableProperty]
+        private string _vatTinNumber = string.Empty;
+
+        [Required(ErrorMessage = "VAT percentage is required")]
+        [Range(0, int.MaxValue, ErrorMessage = "VAT must be a non-negative number")]
+        [ObservableProperty]
+        private int _vat;
+
+        [Required(ErrorMessage = "Discount Max is required")]
+        [Range(0, double.MaxValue, ErrorMessage = "Discount Max must be a non-negative value")]
+        [ObservableProperty]
+        private decimal _discountMax;
+
+        // API Flags
+        [Required(ErrorMessage = "Cost Center is required")]
+        [ObservableProperty]
+        private string _costCenter = string.Empty;
+
+        [Required(ErrorMessage = "Branch Center is required")]
+        [ObservableProperty]
+        private string _branchCenter = string.Empty;
+
+        [Required(ErrorMessage = "Use Center is required")]
+        [ObservableProperty]
+        private string _useCenter = string.Empty;
+
+        [Required(ErrorMessage = "Database Name is required")]
+        [ObservableProperty]
+        private string _dbName = string.Empty;
+
+        [Required(ErrorMessage = "Printer Name is required")]
+        [ObservableProperty]
+        private string _printerName = string.Empty;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(PosTypeName))]
+        private bool _isRetailType;
+        public string PosTypeName => IsRetailType ? "Retail POS" : "Restaurant POS";
+
+        /// <summary>
+        /// Call this method to validate all properties.
+        /// </summary>
+        public void ValidateAll()
+        {
+            ValidateAllProperties();
+        }
+    }
+
 }

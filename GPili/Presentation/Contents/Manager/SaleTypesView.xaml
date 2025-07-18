@@ -7,7 +7,6 @@
              xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
              xmlns:validation="clr-namespace:InputKit.Shared.Validations;assembly=InputKit.Maui"
              xmlns:input="clr-namespace:InputKit.Shared.Controls;assembly=InputKit.Maui"
-             xmlns:model="clr-namespace:ServiceLibrary.Models;assembly=ServiceLibrary"
              x:Name="SaleTypeRoot">
     <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Grid.RowSpan="4"
        BackgroundColor="#80000000" 
@@ -41,7 +40,7 @@
                     StrokeShape="RoundRectangle 12,12,0,0"
                     StrokeThickness="0" HeightRequest="50"
                     Background="#383949">
-                    <Grid ColumnDefinitions="*,*,*,*,*" ColumnSpacing="10">
+                    <Grid ColumnDefinitions="0.2*,0.2*,0.15*,0.12*,0.33*" ColumnSpacing="10">
                         <Label Text="Name" Grid.Column="0" 
                        FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"
                        />
@@ -65,10 +64,10 @@
                         ItemsSource="{Binding SaleTypes}"
                         SelectionMode="Single"
                         Margin="0,0,0,5"
-                        ItemSizingStrategy="MeasureAllItems">
+                        >
 
                         <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="model:SaleType">
+                            <DataTemplate>
                                 <Grid ColumnDefinitions="0.2*,0.2*,0.15*,0.12*,0.33*"
                                 ColumnSpacing="20" Padding="10">
                                     <material:TextField Title="{Binding Name}" Text="{Binding Name}"
@@ -88,9 +87,8 @@
                                         <Label Text="{Binding Status}"
                                             VerticalOptions="Center" />
                                     </HorizontalStackLayout>
-                                    <Grid ColumnDefinitions="*,*" Grid.Column="4" Padding="10" ColumnSpacing="10">
+                                    <HorizontalStackLayout HorizontalOptions="Center"  Grid.Column="4" Padding="10" Spacing="10">
                                         <Button Text="Save" FontSize="Small"
-                                            Grid.Column="0"
                                             Command="{Binding BindingContext.UpdateSaleTypeCommand, Source={x:Reference SaleTypeRoot}}"
                                             CommandParameter="{Binding .}">
                                             <Button.ImageSource>
@@ -100,7 +98,7 @@
                                             </Button.ImageSource>
                                         </Button>
                                         <Button Text="Remove" FontSize="Small"
-                                            Grid.Column="1" Style="{StaticResource RedButton}"
+                                            
                                             Command="{Binding BindingContext.RemoveSaleTypeCommand, Source={x:Reference SaleTypeRoot}}"
                                             CommandParameter="{Binding .}">
                                             <Button.ImageSource>
@@ -109,7 +107,7 @@
                                              Color="Red" Size="16"/>
                                             </Button.ImageSource>
                                         </Button>
-                                    </Grid>
+                                    </HorizontalStackLayout>
                                 </Grid>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>

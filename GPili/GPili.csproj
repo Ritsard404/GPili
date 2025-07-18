@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net8.0-android</TargetFrameworks>
+		<!--<TargetFrameworks>net8.0-android</TargetFrameworks>-->
 		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net8.0-windows10.0.19041.0</TargetFrameworks>
 
 		<!-- Note for MacCatalyst:
@@ -11,7 +11,9 @@
 		either BOTH runtimes must be indicated or ONLY macatalyst-x64. -->
 		<!-- For example: <RuntimeIdentifiers>maccatalyst-x64;maccatalyst-arm64</RuntimeIdentifiers> -->
 		<!--<DebugType>none</DebugType>-->
-		
+
+
+		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
 		
 		<OutputType>Exe</OutputType>
 		<RootNamespace>GPili</RootNamespace>
@@ -47,7 +49,19 @@
 		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
 		<PackageCertificateThumbprint>D8539E9624A5BF9D1AEE9CDF08855996DD3BB2C1</PackageCertificateThumbprint>
 		<DefaultLanguage>en</DefaultLanguage>
+		<Company>Arsene Software Solutions</Company>
+		<Product>GPili POS</Product>
 	</PropertyGroup>
+
+	<!--<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-android|AnyCPU'">
+	  <AndroidPackageFormat>apk</AndroidPackageFormat>
+	  <Debugger>Xamarin</Debugger>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-android|AnyCPU'">
+	  <AndroidPackageFormat>apk</AndroidPackageFormat>
+	  <Debugger>Xamarin</Debugger>
+	</PropertyGroup>-->
 
 
 	<ItemGroup>

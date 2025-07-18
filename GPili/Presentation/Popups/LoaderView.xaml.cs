@@ -1,17 +1,13 @@
 namespace GPili.Presentation.Popups;
 
-public partial class LoaderView : Popup
+public partial class LoaderView : ContentView
 {
-    public LoaderView(string message = "Loading…")
+    public LoaderView()
     {
-        PopupState.PopupInfo.OpenPopup("Loading", "Loading");
+        //PopupState.PopupInfo.OpenPopup("Loading", "Loading");
 
         InitializeComponent();
-        BindingContext = new LoaderViewModel(message);
 
-        Closed += (_, _) => PopupState.PopupInfo.ClosePopup();
+        ////PopupState.PopupInfo.ClosePopup();
     }
-
-    public LoaderViewModel ViewModel
-        => (LoaderViewModel)BindingContext;
 }

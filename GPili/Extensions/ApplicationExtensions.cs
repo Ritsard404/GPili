@@ -77,7 +77,7 @@ internal static class ApplicationExtensions
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
         services.AddSingleton<INavigationService, NavigationService>();
-        services.AddSingleton<IPopUpService, PopUpService>();
+        //services.AddSingleton<IPopUpService, PopUpService>();
 
         return services;
     }
@@ -99,7 +99,7 @@ internal static class ApplicationExtensions
     public static IServiceCollection RegisterPopups(this IServiceCollection services)
     {
         // Register your popups here
-        services.AddTransientPopup<LoaderView, LoaderViewModel>();
+        //services.AddTransientPopup<LoaderView, LoaderViewModel>();
         services.AddTransientPopup<ManagerAuthView, ManagerAuthViewModel>();
         services.AddTransientPopup<EditItemView, EditItemViewModel>();
         services.AddTransientPopup<EPaymentView, EPaymentViewModel>();
@@ -107,7 +107,7 @@ internal static class ApplicationExtensions
 
         // Manager
         services.AddTransientPopup<DateSelectionPopup, SelectionOfDateViewModel>();
-        services.AddTransientPopup<TerminalMachinePopup, TerminalMachineViewModel>();
+        //services.AddTransientPopup<TerminalMachinePopup, TerminalMachineViewModel>();
         //services.AddTransientPopup<SaveProduct, SaveProductViewModel>();
         services.AddTransientPopup<CategoriesView, ProductsViewModel>();
 

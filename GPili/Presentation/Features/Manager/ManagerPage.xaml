@@ -7,6 +7,7 @@
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:converter="clr-namespace:GPili.Converters"
              xmlns:content="clr-namespace:GPili.Presentation.Contents.Manager"
+             xmlns:fakePopup="clr-namespace:GPili.Presentation.Popups.Manager"
              Title="ManagerPage"
              x:Name="ManagerPageRoot">
     <ContentPage.Resources>
@@ -41,6 +42,80 @@
                 </Setter>
             </Style>
         </ResourceDictionary>
+        <!--<ResourceDictionary>
+            <Style x:Key="EntryInvalidStyle" TargetType="Entry">
+                <Setter Property="BackgroundColor" Value="#FFEBEE" />
+                --><!-- Light red background --><!--
+                <Setter Property="TextColor" Value="Red" />
+            </Style>
+            <Style x:Key="Save" TargetType="Button" BasedOn="{StaticResource KeypadButton}">
+                <Setter Property="BackgroundColor" Value="Green"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="CornerRadius" Value="8"/>
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="Green"/>
+                                    <Setter Property="TextColor" Value="White"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="DarkGrey"/>
+                                    --><!-- Darker gold or use a different shade --><!--
+                                    <Setter Property="TextColor" Value="White"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Disabled">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="#FFF8DC"/>
+                                    <Setter Property="TextColor" Value="#FFB300"/>
+                                    <Setter Property="Opacity" Value="0.5"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+            <Style x:Key="CancelButton" TargetType="Button" BasedOn="{StaticResource KeypadButton}">
+                <Setter Property="BackgroundColor" Value="Red"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="CornerRadius" Value="8"/>
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="Red"/>
+                                    <Setter Property="TextColor" Value="White"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="DarkGrey"/>
+                                    --><!-- Darker red --><!--
+                                    <Setter Property="TextColor" Value="White"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Disabled">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor" Value="#FFB3B3"/>
+                                    --><!-- Lighter red --><!--
+                                    <Setter Property="TextColor" Value="#B20000"/>
+                                    <Setter Property="Opacity" Value="0.5"/>
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+
+        </ResourceDictionary>-->
+
         <Style x:Key="RedButton" TargetType="Button">
             <Setter Property="BackgroundColor" Value="Red"/>
             <Setter Property="TextColor" Value="White"/>
@@ -237,7 +312,7 @@
                                 ContentLayout="top, 0"
                                 Grid.Row="2" Grid.Column="2" 
                                 IsVisible="{Binding IsDeveloper}" 
-                                Command="{Binding SettingsCommand}"/>
+                                Command="{Binding SettingsDisplayCommand}"/>
                         <Button Text="Sale Types"
                                 ContentLayout="top, 0"
                                 IsVisible="{Binding IsDeveloper, Converter={StaticResource InverseBoolConverter}}" 
@@ -250,7 +325,8 @@
                             </Button.ImageSource>
                         </Button>
                         <Button Text="Sale Types"
-                                ContentLayout="top, 0"
+                                ContentLayout="top, 0" 
+                                Command="{Binding ToggleSalesTypeCommand}"
                                 IsVisible="{Binding IsDeveloper}" 
                                 Grid.Row="3" Grid.Column="0" >
                                 <Button.ImageSource>
@@ -277,12 +353,16 @@
         <content:RefundInvoice Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
                     IsVisible="{Binding IsRefundDisplay}"/>
         
+        <!--Fake Popup Refund Invoice-->
+        <fakePopup:TerminalMachinePopup Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+                    IsVisible="{Binding IsSettingsDisplay}"/>
+        
 
         <!-- Loader Overlay -->
         <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
           BackgroundColor="#80000000" 
             IsVisible="{Binding IsLoading}"
-            ZIndex="1">
+            ZIndex="999">
             <!-- Ensure it's on top -->
 
             <StackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="10"

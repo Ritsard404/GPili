@@ -10,6 +10,7 @@
     <ContentView.Resources>
         <converter:InverseBoolConverter x:Key="InverseBoolConverter" />
         <converter:IsNullOrEmptyConverter x:Key="IsNullOrEmptyConverter" />
+        <converter:PlatformImageSourceConverter x:Key="PlatformImageSourceConverter" />
         <Style x:Key="KeypadButton" TargetType="Button">
             <Setter Property="WidthRequest" Value="90"/>
             <Setter Property="HeightRequest" Value="40"/>
@@ -156,8 +157,9 @@
                 <Button Command="{Binding SearchCommand}" Text="Search"
                         Grid.Column="1"  IsVisible="{Binding IsRetail}"></Button>
                 <Button Text="MANAGER" Grid.Column="3" x:Name="MANAGER"
-                        ImageSource="ctrlm.png" ContentLayout="right"
-                        WidthRequest="165" 
+                        ImageSource="{Binding ctrlm.png, Converter={StaticResource PlatformImageSourceConverter}}" 
+                        ContentLayout="right"
+                        WidthRequest="165"
                         Style="{StaticResource RedButton}" FontAttributes="Bold" 
                         CornerRadius="8" Command="{Binding ManagerCommand}"/>
             </Grid>
@@ -419,14 +421,14 @@
                            ColumnSpacing="5" RowSpacing="5" 
                            VerticalOptions="Center" HorizontalOptions="FillAndExpand">
                             <Button Text="CLR" ContentLayout="right"
-                                 x:Name="CLR" ImageSource="f12.png"
+                                 x:Name="CLR" ImageSource="{Binding f12.png, Converter={StaticResource PlatformImageSourceConverter}}"
                                  Grid.Row="0" Grid.Column="0" 
                                  Style="{StaticResource GoldButton}"
                                  FontAttributes="Bold" 
                                  CornerRadius="8"
                                  Command="{Binding ClearQtyCommand}"/>
                             <Button Text="DISCOUNT" x:Name="DISCOUNT"
-                                 ImageSource="ctrld.png" ContentLayout="right"
+                                 ImageSource="{Binding ctrld.png, Converter={StaticResource PlatformImageSourceConverter}}" ContentLayout="right"
                                  WidthRequest="165"
                                  Grid.Row="0" Grid.Column="1" 
                                  Style="{StaticResource RedButton}" FontAttributes="Bold" 
@@ -434,7 +436,7 @@
                                  Command="{Binding DiscountCommand}"/>
 
                             <Button Text="VOID" x:Name="VOID"
-                                 ImageSource="shiftf10.png" ContentLayout="right"
+                                 ImageSource="{Binding shiftf10.png, Converter={StaticResource PlatformImageSourceConverter}}" ContentLayout="right"
                                  WidthRequest="165"
                                  Grid.Row="1" Grid.Column="1" 
                                  Style="{StaticResource RedButton}" 
@@ -442,7 +444,7 @@
                                  Command="{Binding VoidOrderCommand}"/>
                             <!-- Row 3 -->
                             <Button Text="PLU" x:Name="PLU"
-                                 ImageSource="ctrlu.png" ContentLayout="right"
+                                 ImageSource="{Binding ctrlu.png, Converter={StaticResource PlatformImageSourceConverter}}" ContentLayout="right"
                                  Grid.Row="2" Grid.Column="0"
                                  StyleClass="KeypadButton"
                                  Command="{Binding SelectKeypadActionCommand}"
@@ -460,7 +462,7 @@
                             </Button>
                             <Button Text="EXACT PAY" x:Name="EXACT"
                                  Grid.Row="2" Grid.Column="1" 
-                                 ImageSource="ctrle.png" ContentLayout="right"
+                                 ImageSource="{Binding ctrle.png, Converter={StaticResource PlatformImageSourceConverter}}" ContentLayout="right"
                                  WidthRequest="165"
                                  IsEnabled="{Binding Tenders.IsExactPayEnable}"
                                  Style="{StaticResource RedButton}" 
@@ -470,7 +472,7 @@
                             <!-- Row 4 -->
                             <Button Text="QTY" x:Name="QTY"
                                  Grid.Row="3" Grid.Column="0"
-                                 ImageSource="q.png" ContentLayout="right"
+                                 ImageSource="{Binding q.png, Converter={StaticResource PlatformImageSourceConverter}}" ContentLayout="right"
                                  StyleClass="KeypadButton"
                                  Command="{Binding SelectKeypadActionCommand}"
                                  BackgroundColor="Gold"
@@ -487,7 +489,7 @@
                             </Button>
                             <Button Text="ENTER" x:Name="ENTER"
                                  Grid.Row="3" Grid.Column="1" 
-                                 ImageSource="enter.png" ContentLayout="right"
+                                 ImageSource="{Binding enter.png, Converter={StaticResource PlatformImageSourceConverter}}" ContentLayout="right"
                                  WidthRequest="165"
                                  Style="{StaticResource RedButton}" 
                                  FontAttributes="Bold" CornerRadius="8"
@@ -498,7 +500,7 @@
 
                             <Button Text="PAY" x:Name="PAY"
                                  Grid.Row="4" Grid.Column="0"
-                                 ImageSource="p.png" ContentLayout="right"
+                                 ImageSource="{Binding p.png, Converter={StaticResource PlatformImageSourceConverter}}" ContentLayout="right"
                                  BackgroundColor="Green"
                                  TextColor="White"
                                  FontAttributes="Bold"
