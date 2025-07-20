@@ -1,10 +1,11 @@
-﻿using QuestPDF.Fluent;
-using QuestPDF.Infrastructure;
-using QuestPDF.Helpers;
+﻿#if WINDOWS
 using ServiceLibrary.Services.DTO.Report;
 using ServiceLibrary.Services.Interfaces;
 using System.Globalization;
 using System.Text;
+using QuestPDF.Fluent;
+using QuestPDF.Infrastructure;
+using QuestPDF.Helpers;
 using QColors = QuestPDF.Helpers.Colors;
 using QIContainer = QuestPDF.Infrastructure.IContainer;
 
@@ -189,3 +190,22 @@ namespace ServiceLibrary.Services.PDF
         }
     }
 }
+#else
+using ServiceLibrary.Services.DTO.Report;
+using ServiceLibrary.Services.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace ServiceLibrary.Services.PDF
+{
+    public class VoidedListPDFService
+    {
+        public VoidedListPDFService(IGPiliTerminalMachine _terminalMachine) { }
+        public Task<byte[]> GenerateVoidedListPDF(List<VoidedListDTO> voidedLists, TotalVoidedListDTO totalVoided, DateTime fromDate, DateTime toDate)
+        {
+            throw new NotSupportedException("PDF generation is only supported on Windows.");
+        }
+    }
+}
+#endif

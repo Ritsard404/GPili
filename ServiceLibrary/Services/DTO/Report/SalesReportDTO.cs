@@ -4,7 +4,7 @@
     {
         public DateTime InvoiceDate { get; set; }
         public long InvoiceNumber { get; set; }
-        public string MenuName { get; set; } = string.Empty;
+        public string ItemName { get; set; } = string.Empty;
         public string BaseUnit { get; set; } = string.Empty;
         public decimal Quantity { get; set; }
         public decimal Cost { get; set; }
@@ -22,5 +22,15 @@
 
         // Helper property for display
         public string Status => IsReturned ? $"RETURNED ({ReturnDate:MM/dd/yyyy})" : "SOLD";
+        public string StatusColor => IsReturned ? "Red" : "Black";
+
     }
- }
+    public class TotalSalesReportDTO
+    {
+        public string TotalRevenue { get; set; } = string.Empty;
+        public string TotalCost { get; set; } = string.Empty;
+        public string TotalProfit { get; set; } = string.Empty;
+        public string TotalPrice { get; set; } = string.Empty;
+        public string OverallTotalCost { get; set; } = string.Empty;
+    }
+}

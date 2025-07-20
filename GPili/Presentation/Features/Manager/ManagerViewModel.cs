@@ -8,6 +8,7 @@ using System.ComponentModel.DataAnnotations;
 
 #if WINDOWS
 using WinRT;
+using static ServiceLibrary.Utils.FolderPath;
 #endif
 
 namespace GPili.Presentation.Features.Manager
@@ -756,10 +757,75 @@ namespace GPili.Presentation.Features.Manager
         }
 
         // Reports
+        public double PopupReportWidth => Shell.Current.CurrentPage.Width * 0.95;
+        public double PopupReportHeight => Shell.Current.CurrentPage.Height * 0.9;
+
+        [ObservableProperty]
+        private bool _fakePopupReportDisplay = false;
+        [ObservableProperty]
+        private bool _salesHistoryDisplay = false;
+        [ObservableProperty]
+        private bool _auditTrailDisplay = false;
+        [ObservableProperty]
+        private bool _dailyTranxDisplay = false;
+        [ObservableProperty]
+        private bool _voidedListDisplay = false;
+        [ObservableProperty]
+        private bool _salesBookDisplay = false;
+        [ObservableProperty]
+        private bool _pwdOrScDisplay = false;
+
+        [ObservableProperty]
+        private bool _isBusy = false;
+
+        // Sales Report
+        [ObservableProperty]
+        private List<SalesReportDTO> _salesReports = new();
+
+        [ObservableProperty]
+        private TotalSalesReportDTO _totalSalesReports;
+
+        // Audit Trail
+        [ObservableProperty]
+        private List<AuditTrailDTO> _auditTrail= new();
+
+        // Tranx List
+        [ObservableProperty]
+        private List<TransactionListDTO> _tranxList = new();
+
+        [ObservableProperty]
+        private TotalTransactionListDTO _totalTranxList;
+
+        // Sales Book
+        [ObservableProperty]
+        private List<Reading> _salesBook = new();
+
+        // Voided List
+        [ObservableProperty]
+        private List<VoidedListDTO> _voidedList = new();
+
+        [ObservableProperty]
+        private TotalVoidedListDTO _totalVoidedList;
+
+        // Pwd or Senior List
+        [ObservableProperty]
+        private List<TransactionListDTO> _pwdOrSeniorList = new();
+
+        [ObservableProperty]
+        private TotalTransactionListDTO _totalPwdOrSeniorList;
+
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(SearchReportCommand))]
+        private string _discountType = "PWD";
+
+        // Title
+        [ObservableProperty]
+        private string _reportTitle;
+
         [RelayCommand]
         private async Task ToggleTransaclists()
         {
-            IsLoading = true;
+            IsBusy = true;
             if (!IsDisplayTransactLists)
             {
                 TransactLists = await _report.InvoiceDocuments(From, To);
@@ -772,8 +838,128 @@ namespace GPili.Presentation.Features.Manager
 
 
             IsDisplayTransactLists = !IsDisplayTransactLists;
+            IsBusy = false;
+        }
+        [RelayCommand]
+        private async Task ToggleReport(string reportType)
+        {
+            IsLoading = true;
+
+            From = DateTime.Now;
+            To = DateTime.Now.AddDays(1);
+
+            // Reset all display flags to false
+            SalesHistoryDisplay = false;
+            AuditTrailDisplay = false;
+            SalesBookDisplay = false;
+            DailyTranxDisplay = false;
+            VoidedListDisplay = false;
+            PwdOrScDisplay = false;
+
+            switch (reportType)
+            {
+                case "SalesHistory":
+                    var getSalesReports = await _report.GetSalesReportData(From, To);
+                    TotalSalesReports = getSalesReports.totalSalesReport;
+                    SalesReports = getSalesReports.salesReports;
+                    SalesHistoryDisplay = true;
+                    break;
+
+                case "AuditTrail":
+                    AuditTrail = await _report.GetAuditTrailData(From, To);
+                    AuditTrailDisplay = true;
+                    break;
+
+                case "SalesBook":
+                    SalesBook = await _report.GetSalesBookData(From, To);
+                    SalesBookDisplay = true;
+                    break;
+
+                case "TranxList":
+                    var getTranxList = await _report.GetTransactListData(From, To);
+                    TotalTranxList = getTranxList.Item2;
+                    TranxList = getTranxList.Item1;
+                    DailyTranxDisplay = true;
+                    break;
+
+                case "VoidedList":
+                    var getVoidedList = await _report.GetVoidedListsData(From, To);
+                    TotalVoidedList = getVoidedList.totalVoidedList;
+                    VoidedList = getVoidedList.voidedOrdersLists;
+                    VoidedListDisplay = true;
+                    break;
+
+                case "PwdOrSeniorList":
+                    var getPwdOrSeniorList = await _report.GetPwdOrSeniorData(From, To, DiscountType);
+                    PwdOrSeniorList = getPwdOrSeniorList.Item1;
+                    TotalPwdOrSeniorList = getPwdOrSeniorList.Item2;
+                    PwdOrScDisplay = true;
+                    break;
+            }
+
+            SetReportTitle();
+
+            FakePopupReportDisplay = !FakePopupReportDisplay;
+
             IsLoading = false;
         }
+
+        [RelayCommand]
+        private async Task SearchReport()
+        {
+            IsBusy = true;
+
+            if (SalesHistoryDisplay)
+            {
+                var getSalesReports = await _report.GetSalesReportData(From, To);
+                TotalSalesReports = getSalesReports.totalSalesReport;
+                SalesReports = getSalesReports.salesReports;
+            }
+            else if (AuditTrailDisplay)
+            {
+                AuditTrail = await _report.GetAuditTrailData(From, To);
+            }
+            else if (SalesBookDisplay)
+            {
+                SalesBook = await _report.GetSalesBookData(From, To);
+            }
+            else if (DailyTranxDisplay)
+            {
+                var getTranxList = await _report.GetTransactListData(From, To);
+                TotalTranxList = getTranxList.Item2;
+                TranxList = getTranxList.Item1;
+            }
+            else if (VoidedListDisplay)
+            {
+                var getVoidedList = await _report.GetVoidedListsData(From, To);
+                TotalVoidedList = getVoidedList.totalVoidedList;
+                VoidedList = getVoidedList.voidedOrdersLists;
+            }
+            else if (PwdOrScDisplay)
+            {
+                var getPwdOrSeniorList = await _report.GetPwdOrSeniorData(From, To, DiscountType);
+                PwdOrSeniorList = getPwdOrSeniorList.Item1;
+                TotalPwdOrSeniorList = getPwdOrSeniorList.Item2;
+            }
+
+            IsBusy = false;
+        }
+        private void SetReportTitle()
+        {
+            if (SalesHistoryDisplay)
+                ReportTitle = "Sales History Report";
+            else if (AuditTrailDisplay)
+                ReportTitle = "Audit Trail Report";
+            else if (SalesBookDisplay)
+                ReportTitle = "Sales Book Report";
+            else if (DailyTranxDisplay)
+                ReportTitle = "Daily Transactions Report";
+            else if (VoidedListDisplay)
+                ReportTitle = "Voided Transactions Report";
+            else if (PwdOrScDisplay)
+                ReportTitle = DiscountType == "PWD" ? "PWD Discount Report" : "Senior Citizen Discount Report";
+        }
+
 
         [RelayCommand]
         private async Task SearchInvoices()
@@ -818,21 +1004,21 @@ namespace GPili.Presentation.Features.Manager
         {
             IsLoading = true;
 
-            var vm = new SelectionOfDateViewModel(_popupService, isRangeMode: true);
-            var popup = new DateSelectionPopup(vm);
-            var result = await Shell.Current.ShowPopupAsync(popup);
+            //var vm = new SelectionOfDateViewModel(_popupService, isRangeMode: true);
+            //var popup = new DateSelectionPopup(vm);
+            //var result = await Shell.Current.ShowPopupAsync(popup);
 
-            if (result is ValueTuple<DateTime, DateTime> range)
-            {
-                var fromDate = range.Item1;
-                var toDate = range.Item2;
+            //if (result is ValueTuple<DateTime, DateTime> range)
+            //{
+                //var fromDate = range.Item1;
+                //var toDate = range.Item2;
 
-                var print = await _report.GetTransactList(fromDate, toDate);
+                var print = await _report.GetTransactList(From, To);
 
                 await Shell.Current.DisplayAlert("Transaction List Printed",
                     $"File Path: {print.FilePath}",
                     "OK");
-            }
+            //}
 
             IsLoading = false;
         }
@@ -866,21 +1052,27 @@ namespace GPili.Presentation.Features.Manager
         {
             IsLoading = true;
 
-            var vm = new SelectionOfDateViewModel(_popupService, isRangeMode: true);
-            var popup = new DateSelectionPopup(vm);
-            var result = await Shell.Current.ShowPopupAsync(popup);
+            //var vm = new SelectionOfDateViewModel(_popupService, isRangeMode: true);
+            //var popup = new DateSelectionPopup(vm);
+            //var result = await Shell.Current.ShowPopupAsync(popup);
 
-            if (result is ValueTuple<DateTime, DateTime> range)
-            {
-                var fromDate = range.Item1;
-                var toDate = range.Item2;
+            //if (result is ValueTuple<DateTime, DateTime> range)
+            //{
+            //    var fromDate = range.Item1;
+            //    var toDate = range.Item2;
 
-                var filePath = await _report.GetSalesReport(fromDate, toDate);
+            //    var filePath = await _report.GetSalesReport(fromDate, toDate);
 
-                await Shell.Current.DisplayAlert("Sales Report Printed",
-                    $"File Path: {filePath}",
-                    "OK");
-            }
+            //    await Shell.Current.DisplayAlert("Sales Report Printed",
+            //        $"File Path: {filePath}",
+            //        "OK");
+            //}
+
+            var filePath = await _report.GetSalesReport(From, To);
+
+            await Shell.Current.DisplayAlert("Sales Report Printed",
+                $"File Path: {filePath}",
+                "OK");
 
             IsLoading = false;
         }
@@ -890,21 +1082,21 @@ namespace GPili.Presentation.Features.Manager
         {
             IsLoading = true;
 
-            var vm = new SelectionOfDateViewModel(_popupService, isRangeMode: true);
-            var popup = new DateSelectionPopup(vm);
-            var result = await Shell.Current.ShowPopupAsync(popup);
+            //var vm = new SelectionOfDateViewModel(_popupService, isRangeMode: true);
+            //var popup = new DateSelectionPopup(vm);
+            //var result = await Shell.Current.ShowPopupAsync(popup);
 
-            if (result is ValueTuple<DateTime, DateTime> range)
-            {
-                var fromDate = range.Item1;
-                var toDate = range.Item2;
+            //if (result is ValueTuple<DateTime, DateTime> range)
+            //{
+            //    var fromDate = range.Item1;
+            //    var toDate = range.Item2;
 
-                var filePath = await _report.GetSalesBook(fromDate, toDate);
+                var filePath = await _report.GetSalesBook(From, To);
 
                 await Shell.Current.DisplayAlert("Sales Book Printed",
                     $"File Path: {filePath}",
                     "OK");
-            }
+            //}
 
             IsLoading = false;
         }
@@ -914,21 +1106,21 @@ namespace GPili.Presentation.Features.Manager
         {
             IsLoading = true;
 
-            var vm = new SelectionOfDateViewModel(_popupService, isRangeMode: true);
-            var popup = new DateSelectionPopup(vm);
-            var result = await Shell.Current.ShowPopupAsync(popup);
+            //var vm = new SelectionOfDateViewModel(_popupService, isRangeMode: true);
+            //var popup = new DateSelectionPopup(vm);
+            //var result = await Shell.Current.ShowPopupAsync(popup);
 
-            if (result is ValueTuple<DateTime, DateTime> range)
-            {
-                var fromDate = range.Item1;
-                var toDate = range.Item2;
+            //if (result is ValueTuple<DateTime, DateTime> range)
+            //{
+            //    var fromDate = range.Item1;
+            //    var toDate = range.Item2;
 
-                var filePath = await _report.GetVoidedListsReport(fromDate, toDate);
+                var filePath = await _report.GetVoidedListsReport(From, To);
 
                 await Shell.Current.DisplayAlert("Voided Lists Printed",
                     $"File Path: {filePath}",
                     "OK");
-            }
+            //}
 
             IsLoading = false;
         }

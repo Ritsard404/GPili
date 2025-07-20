@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using Microsoft.Maui.Devices;
-
+﻿
 namespace ServiceLibrary.Utils
 {
     public static class FolderPath
@@ -11,29 +8,14 @@ namespace ServiceLibrary.Utils
         {
             get
             {
-                string rootPath;
-
-                if (DeviceInfo.Platform == DevicePlatform.Android)
-                {
 #if ANDROID
-                    rootPath = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "GPili");
+                var path = Application.Context.GetExternalFilesDir(null).AbsoluteFile.Path;
+                return Path.Combine(path, "GPili");
+#elif WINDOWS
+            return @"C:\GPili";
 #else
-                    rootPath = "/storage/emulated/0/GPili";
+                throw new NotSupportedException("Platform not supported");
 #endif
-                }
-                else if (DeviceInfo.Platform == DevicePlatform.WinUI)
-                {
-                    rootPath = @"C:\GPili";
-                }
-                else
-                {
-                    throw new NotSupportedException($"Platform {DeviceInfo.Platform} is not supported for GPili storage.");
-                }
-
-                if (!Directory.Exists(rootPath))
-                    Directory.CreateDirectory(rootPath);
-
-                return rootPath;
             }
         }
 

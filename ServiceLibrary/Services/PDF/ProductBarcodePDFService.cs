@@ -1,3 +1,4 @@
+#if WINDOWS
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using ZXing;
@@ -202,3 +203,20 @@ namespace ServiceLibrary.Services.PDF
         }
     }
 }
+#else
+using ServiceLibrary.Models;
+using System;
+using System.Collections.Generic;
+
+namespace ServiceLibrary.Services.PDF
+{
+    public class ProductBarcodePDFService
+    {
+        public ProductBarcodePDFService() { }
+        public byte[] GenerateProductBarcodeLabels(List<Product> products)
+        {
+            throw new NotSupportedException("PDF generation is only supported on Windows.");
+        }
+    }
+}
+#endif

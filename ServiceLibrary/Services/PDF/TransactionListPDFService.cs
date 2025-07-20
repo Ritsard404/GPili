@@ -1,12 +1,13 @@
-using QuestPDF.Fluent;
-using QuestPDF.Infrastructure;
-using QuestPDF.Helpers;
+#if WINDOWS
 using ServiceLibrary.Services.DTO.Report;
 using System.Globalization;
 using System.Text;
+using ServiceLibrary.Utils;
+using QuestPDF.Fluent;
+using QuestPDF.Infrastructure;
+using QuestPDF.Helpers;
 using QColors = QuestPDF.Helpers.Colors;
 using QIContainer = QuestPDF.Infrastructure.IContainer;
-using ServiceLibrary.Utils;
 
 namespace EBISX_POS.API.Services.PDF
 {
@@ -51,8 +52,7 @@ namespace EBISX_POS.API.Services.PDF
             {
                 container.Page(page =>
                 {
-                    page.Size(PageSizes.Legal.Landscape()); // 13 x 8.5 inches, landscape (long bond)
-                    //page.Size(936, 612); // 13 x 8.5 inches, landscape (long bond)
+                    page.Size(PageSizes.Legal.Landscape());
                     page.Margin(30);
 
                     // HEADER
@@ -171,7 +171,7 @@ namespace EBISX_POS.API.Services.PDF
             {
                 container.Page(page =>
                 {
-                    page.Size(PageSizes.Legal.Landscape()); // 13 x 8.5 inches, landscape (long bond)
+                    page.Size(PageSizes.Legal.Landscape());
                     page.Margin(30);
 
                     // HEADER
@@ -273,3 +273,25 @@ namespace EBISX_POS.API.Services.PDF
         }
     }
 }
+#else
+using ServiceLibrary.Services.DTO.Report;
+using System;
+using System.Collections.Generic;
+
+namespace EBISX_POS.API.Services.PDF
+{
+    public class TransactionListPDFService
+    {
+        public TransactionListPDFService() { }
+        public void UpdateBusinessInfo(string businessName, string address, string tin) { }
+        public byte[] GenerateTransactionListPDF(List<TransactionListDTO> transactions, DateTime fromDate, DateTime toDate)
+        {
+            throw new NotSupportedException("PDF generation is only supported on Windows.");
+        }
+        public byte[] GeneratePwdOrSeniorListPDF(List<TransactionListDTO> transactions, DateTime fromDate, DateTime toDate, string type)
+        {
+            throw new NotSupportedException("PDF generation is only supported on Windows.");
+        }
+    }
+}
+#endif

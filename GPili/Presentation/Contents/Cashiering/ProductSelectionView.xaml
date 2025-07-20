@@ -157,14 +157,14 @@
                 <Button Command="{Binding SearchCommand}" Text="Search"
                         Grid.Column="1"  IsVisible="{Binding IsRetail}"></Button>
                 <Button Text="MANAGER" Grid.Column="3" x:Name="MANAGER"
-                        ImageSource="{Binding ctrlm.png, Converter={StaticResource PlatformImageSourceConverter}}" 
+                        ImageSource="{Binding ., Converter={StaticResource PlatformImageSourceConverter}, ConverterParameter=ctrlm.png}" 
                         ContentLayout="right"
                         WidthRequest="165"
                         Style="{StaticResource RedButton}" FontAttributes="Bold" 
                         CornerRadius="8" Command="{Binding ManagerCommand}"/>
             </Grid>
         </Grid>
-        <Grid RowDefinitions="Auto,Auto,*" Grid.Row="1" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+        <Grid RowDefinitions="Auto,*,Auto" Grid.Row="1" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
 
             <!-- FIXED HEADER ROW -->
             <Border Grid.Row="0"
@@ -191,7 +191,6 @@
                 <CollectionView
                     ItemsSource="{Binding Products}"
                     SelectionMode="Single"
-                    HeightRequest="325"
                     Margin="0,0,0,5"
                     ItemSizingStrategy="MeasureAllItems">
 
@@ -225,7 +224,7 @@
 
             <!--Restaurant Selection Type-->
             <Border Grid.Row="0" Grid.RowSpan="2"
-                Stroke="Transparent" HeightRequest="350"
+                Stroke="Transparent"
                 StrokeThickness="0" IsVisible="{Binding IsRetail, Converter={StaticResource InverseBoolConverter}}"
                 StrokeShape="RoundRectangle 12"
                 Background="#121125" Margin="0,0,0,5">
@@ -274,7 +273,7 @@
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="model:Product">
                                 <Border Padding="5" StrokeShape="RoundRectangle 10" BackgroundColor="#23233a"
-                                        Stroke="#FFD700" MaximumWidthRequest="220" HorizontalOptions="Center">
+                                        Stroke="#FFD700" HorizontalOptions="Center">
                                     <VerticalStackLayout Spacing="5">
                                         <Grid BackgroundColor="#2d2d44" HeightRequest="100">
                                             <Image Source="{Binding ImageSourcePath}"
@@ -315,7 +314,7 @@
 
 
             <!-- KEYPADS -->
-            <Grid  Grid.Row="2" VerticalOptions="Fill" HorizontalOptions="Fill">
+            <Grid Grid.Row="2" VerticalOptions="Fill" HorizontalOptions="Fill" HeightRequest="250">
                 <!-- KEYPADS -->
                 <Border Grid.Column="0"
                        BackgroundColor="#F5F5F5"
@@ -421,14 +420,15 @@
                            ColumnSpacing="5" RowSpacing="5" 
                            VerticalOptions="Center" HorizontalOptions="FillAndExpand">
                             <Button Text="CLR" ContentLayout="right"
-                                 x:Name="CLR" ImageSource="{Binding f12.png, Converter={StaticResource PlatformImageSourceConverter}}"
+                                 x:Name="CLR" ImageSource="{Binding ., Converter={StaticResource PlatformImageSourceConverter}, ConverterParameter=f12.png}"
                                  Grid.Row="0" Grid.Column="0" 
                                  Style="{StaticResource GoldButton}"
                                  FontAttributes="Bold" 
                                  CornerRadius="8"
                                  Command="{Binding ClearQtyCommand}"/>
                             <Button Text="DISCOUNT" x:Name="DISCOUNT"
-                                 ImageSource="{Binding ctrld.png, Converter={StaticResource PlatformImageSourceConverter}}" ContentLayout="right"
+                                 ImageSource="{Binding ., Converter={StaticResource PlatformImageSourceConverter}, ConverterParameter=ctrld.png}" 
+                                 ContentLayout="right"
                                  WidthRequest="165"
                                  Grid.Row="0" Grid.Column="1" 
                                  Style="{StaticResource RedButton}" FontAttributes="Bold" 
@@ -436,7 +436,7 @@
                                  Command="{Binding DiscountCommand}"/>
 
                             <Button Text="VOID" x:Name="VOID"
-                                 ImageSource="{Binding shiftf10.png, Converter={StaticResource PlatformImageSourceConverter}}" ContentLayout="right"
+                                 ImageSource="{Binding ., Converter={StaticResource PlatformImageSourceConverter}, ConverterParameter=shiftf10.png}" ContentLayout="right"
                                  WidthRequest="165"
                                  Grid.Row="1" Grid.Column="1" 
                                  Style="{StaticResource RedButton}" 
@@ -444,7 +444,7 @@
                                  Command="{Binding VoidOrderCommand}"/>
                             <!-- Row 3 -->
                             <Button Text="PLU" x:Name="PLU"
-                                 ImageSource="{Binding ctrlu.png, Converter={StaticResource PlatformImageSourceConverter}}" ContentLayout="right"
+                                 ImageSource="{Binding ., Converter={StaticResource PlatformImageSourceConverter}, ConverterParameter=ctrlu.png}" ContentLayout="right"
                                  Grid.Row="2" Grid.Column="0"
                                  StyleClass="KeypadButton"
                                  Command="{Binding SelectKeypadActionCommand}"
@@ -462,7 +462,7 @@
                             </Button>
                             <Button Text="EXACT PAY" x:Name="EXACT"
                                  Grid.Row="2" Grid.Column="1" 
-                                 ImageSource="{Binding ctrle.png, Converter={StaticResource PlatformImageSourceConverter}}" ContentLayout="right"
+                                 ImageSource="{Binding ., Converter={StaticResource PlatformImageSourceConverter}, ConverterParameter=ctrle.png}" ContentLayout="right"
                                  WidthRequest="165"
                                  IsEnabled="{Binding Tenders.IsExactPayEnable}"
                                  Style="{StaticResource RedButton}" 
@@ -472,7 +472,7 @@
                             <!-- Row 4 -->
                             <Button Text="QTY" x:Name="QTY"
                                  Grid.Row="3" Grid.Column="0"
-                                 ImageSource="{Binding q.png, Converter={StaticResource PlatformImageSourceConverter}}" ContentLayout="right"
+                                 ImageSource="{Binding ., Converter={StaticResource PlatformImageSourceConverter}, ConverterParameter=q.png}" ContentLayout="right"
                                  StyleClass="KeypadButton"
                                  Command="{Binding SelectKeypadActionCommand}"
                                  BackgroundColor="Gold"
@@ -489,7 +489,7 @@
                             </Button>
                             <Button Text="ENTER" x:Name="ENTER"
                                  Grid.Row="3" Grid.Column="1" 
-                                 ImageSource="{Binding enter.png, Converter={StaticResource PlatformImageSourceConverter}}" ContentLayout="right"
+                                 ImageSource="{Binding ., Converter={StaticResource PlatformImageSourceConverter}, ConverterParameter=enter.png}" ContentLayout="right"
                                  WidthRequest="165"
                                  Style="{StaticResource RedButton}" 
                                  FontAttributes="Bold" CornerRadius="8"
@@ -500,7 +500,7 @@
 
                             <Button Text="PAY" x:Name="PAY"
                                  Grid.Row="4" Grid.Column="0"
-                                 ImageSource="{Binding p.png, Converter={StaticResource PlatformImageSourceConverter}}" ContentLayout="right"
+                                 ImageSource="{Binding ., Converter={StaticResource PlatformImageSourceConverter}, ConverterParameter=p.png}" ContentLayout="right"
                                  BackgroundColor="Green"
                                  TextColor="White"
                                  FontAttributes="Bold"

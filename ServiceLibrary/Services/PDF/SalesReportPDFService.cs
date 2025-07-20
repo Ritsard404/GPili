@@ -1,3 +1,4 @@
+#if WINDOWS
 using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
 using QuestPDF.Helpers;
@@ -87,7 +88,7 @@ namespace EBISX_POS.API.Services.PDF
                             {
                                 table.Cell().Element(CellStyle).Text(sale.InvoiceDate.DateFormat()).FontSize(11);
                                 table.Cell().Element(CellStyle).Text(sale.InvoiceNumber.ToString()).FontSize(11).AlignCenter();
-                                table.Cell().Element(CellStyle).Text(TruncateWithEllipsis(sale.MenuName, 30)).FontSize(11);
+                                table.Cell().Element(CellStyle).Text(TruncateWithEllipsis(sale.ItemName, 30)).FontSize(11);
                                 table.Cell().Element(CellStyle).Text(sale.BaseUnit).FontSize(11);
                                 table.Cell().Element(CellStyle).Text(sale.Quantity.ToString()).FontSize(11);
                                 table.Cell().Element(CellStyle).Text(sale.Cost.PesoFormat()).FontSize(11);
@@ -237,3 +238,26 @@ namespace EBISX_POS.API.Services.PDF
         }
     }
 }
+#else
+using ServiceLibrary.Models;
+using ServiceLibrary.Services.DTO.Report;
+using System;
+using System.Collections.Generic;
+
+namespace EBISX_POS.API.Services.PDF
+{
+    public class SalesReportPDFService
+    {
+        public SalesReportPDFService() { }
+        public void UpdateBusinessInfo(string businessName, string address, string tin) { }
+        public byte[] GenerateSalesReportPDF(List<SalesReportDTO> sales, DateTime fromDate, DateTime toDate)
+        {
+            throw new NotSupportedException("PDF generation is only supported on Windows.");
+        }
+        public byte[] GenerateSalesBookPDF(List<Reading> readings, DateTime fromDate, DateTime toDate)
+        {
+            throw new NotSupportedException("PDF generation is only supported on Windows.");
+        }
+    }
+}
+#endif

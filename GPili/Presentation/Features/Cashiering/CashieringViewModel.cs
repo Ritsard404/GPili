@@ -409,8 +409,27 @@ namespace GPili.Presentation.Features.Cashiering
 
                 IsLoading = true;
 
+                var payOrder = new PayOrderDTO
+                {
+                    CashierEmail = CashierState.Info.CashierEmail!,
+                    CashTendered = Tenders.CashTenderAmount,
+                    OtherPayment = Tenders.HasOtherPayments ? Tenders.OtherPayments.ToList() : new(),
+                    ChangeAmount = Tenders.ChangeAmount,
+                    DueAmount = Tenders.AmountDue,
+                    TotalAmount = Tenders.TotalAmount,
+                    SubTotal = Tenders.SubTotal,
+                    DiscountAmount = Tenders.DiscountAmount,
+                    VatExempt = Tenders.VatExemptSales,
+                    VatSales = Tenders.VatSales,
+                    VatAmount = Tenders.VatAmount,
+                    VatZero = Tenders.VatZero,
+                    TotalTendered = Tenders.TenderAmount,
+                    GrossAmount = Tenders.GrossTotal,
+                    Discount = Tenders.Discount
+                };
+
                 var (isSuccess, message) = await _order.VoidOrder(cashierEmail: CashierState.Info.CashierEmail!,
-                    managerEmail: managerEmail, reason: reason);
+                    managerEmail: managerEmail, reason: reason, pay: payOrder);
                 if (isSuccess)
                 {
                     await Snackbar.Make(message,
@@ -492,11 +511,8 @@ namespace GPili.Presentation.Features.Cashiering
         {
             if (Items.Any())
             {
-                var cts = new CancellationTokenSource();
-                _ = Task.Delay(1000).ContinueWith(_ => cts.Cancel());
 
-                await Snackbar.Make("Cashier has pending item/s. Action denied.",
-                    duration: TimeSpan.FromSeconds(1)).Show();
+                await Shell.Current.DisplayAlert("Action Denied!", "Cashier has pending item/s.","OK");
                 return;
             }
 

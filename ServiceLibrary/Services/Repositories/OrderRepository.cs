@@ -334,7 +334,7 @@ namespace ServiceLibrary.Services.Repositories
             return (true, "Item voided successfully!");
         }
 
-        public async Task<(bool isSuccess, string message)> VoidOrder(string cashierEmail, string managerEmail, string reason)
+        public async Task<(bool isSuccess, string message)> VoidOrder(string cashierEmail, string managerEmail, string reason, PayOrderDTO pay)
         {
             var cashierResult = await _auth.IsCashierValid(cashierEmail);
             if (!cashierResult.isSuccess || cashierResult.cashier == null)
@@ -379,6 +379,22 @@ namespace ServiceLibrary.Services.Repositories
             pendingOrder.Status = InvoiceStatusType.Void;
             pendingOrder.StatusChangeDate = DateTime.Now;
             pendingOrder.Reason = reason;
+            pendingOrder.VoidedBy = managerResult.manager;
+
+            pendingOrder.TotalAmount = pay.TotalAmount;
+            pendingOrder.GrossAmount = pay.GrossAmount;
+            pendingOrder.SubTotal = pay.SubTotal;
+            pendingOrder.Cashier = cashierResult.cashier;
+            pendingOrder.CashTendered = pay.CashTendered;
+            pendingOrder.DueAmount = pay.DueAmount;
+            pendingOrder.TotalTendered = pay.TotalTendered;
+            pendingOrder.ChangeAmount = pay.ChangeAmount;
+            pendingOrder.DiscountAmount = pay.DiscountAmount;
+            pendingOrder.VatSales = pay.VatSales;
+            pendingOrder.VatExempt = pay.VatExempt;
+            pendingOrder.VatAmount = pay.VatAmount;
+            pendingOrder.VatZero = pay.VatZero;
+
             _dataContext.Invoice.Update(pendingOrder);
 
             // Log the void action

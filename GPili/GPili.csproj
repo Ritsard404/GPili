@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<!--<TargetFrameworks>net8.0-android</TargetFrameworks>-->
+		<TargetFrameworks>net8.0-android</TargetFrameworks>
 		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net8.0-windows10.0.19041.0</TargetFrameworks>
 
 		<!-- Note for MacCatalyst:
@@ -11,9 +11,8 @@
 		either BOTH runtimes must be indicated or ONLY macatalyst-x64. -->
 		<!-- For example: <RuntimeIdentifiers>maccatalyst-x64;maccatalyst-arm64</RuntimeIdentifiers> -->
 		<!--<DebugType>none</DebugType>-->
-
-
-		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+		<!--<RuntimeIdentifier Condition="'$(TargetFramework)' == 'net8.0-windows10.0.19041.0'">win-x64</RuntimeIdentifier>-->
+		<!--<RuntimeIdentifier>win-x64</RuntimeIdentifier>-->
 		
 		<OutputType>Exe</OutputType>
 		<RootNamespace>GPili</RootNamespace>
@@ -53,7 +52,18 @@
 		<Product>GPili POS</Product>
 	</PropertyGroup>
 
-	<!--<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-android|AnyCPU'">
+	<!-- Android‑only RIDs -->
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net8.0-android'">
+		<RuntimeIdentifiers>android-x64</RuntimeIdentifiers>
+	</PropertyGroup>
+
+	<!-- Windows‑only RID -->
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net8.0-windows10.0.19041.0'">
+		<!-- singular is fine, unless you really need to build multiple Windows archs -->
+		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-android|AnyCPU'">
 	  <AndroidPackageFormat>apk</AndroidPackageFormat>
 	  <Debugger>Xamarin</Debugger>
 	</PropertyGroup>
@@ -61,7 +71,7 @@
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-android|AnyCPU'">
 	  <AndroidPackageFormat>apk</AndroidPackageFormat>
 	  <Debugger>Xamarin</Debugger>
-	</PropertyGroup>-->
+	</PropertyGroup>
 
 
 	<ItemGroup>
@@ -158,6 +168,9 @@
 		</MauiXaml>
 		<MauiXaml Update="Presentation\Contents\Manager\RefundInvoice.xaml">
 			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Presentation\Contents\Manager\ReportsView.xaml">
+		  <Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
 		<MauiXaml Update="Presentation\Contents\Manager\SaleTypesView.xaml">
 			<Generator>MSBuild:Compile</Generator>

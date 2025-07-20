@@ -555,7 +555,7 @@ namespace ServiceLibrary.Services.Repositories
         }
 
 
-        private async Task<(List<TransactionListDTO>, TotalTransactionListDTO)> GetTransactListData(DateTime fromDate, DateTime toDate)
+        public async Task<(List<TransactionListDTO>, TotalTransactionListDTO)> GetTransactListData(DateTime fromDate, DateTime toDate)
         {
             // Set start date to beginning of day and end date to end of day
             var startDate = fromDate.Date;
@@ -746,7 +746,7 @@ namespace ServiceLibrary.Services.Repositories
                 throw new Exception($"Error generating transaction list report: {ex.Message}", ex);
             }
         }
-        private async Task<List<AuditTrailDTO>> GetAuditTrailData(DateTime fromDate, DateTime toDate)
+        public async Task<List<AuditTrailDTO>> GetAuditTrailData(DateTime fromDate, DateTime toDate)
         {
             var auditTrail = new List<AuditTrailDTO>();
             var startDate = fromDate.Date;
@@ -843,8 +843,6 @@ namespace ServiceLibrary.Services.Repositories
         {
             try
             {
-                // Enable debugging mode for QuestPDF during dev
-                QuestPDF.Settings.EnableDebugging = true;
 
                 var posInfo = await _terminalMachine.GetTerminalInfo();
 
@@ -892,7 +890,7 @@ namespace ServiceLibrary.Services.Repositories
             }
         }
 
-        private async Task<List<SalesReportDTO>> GetSalesReportData(DateTime fromDate, DateTime toDate)
+        public async Task<(List<SalesReportDTO> salesReports, TotalSalesReportDTO totalSalesReport)> GetSalesReportData(DateTime fromDate, DateTime toDate)
         {
             // Convert DateTime to DateTimeOffset for proper comparison
             var startDate = new DateTimeOffset(fromDate.Date);
@@ -943,7 +941,7 @@ namespace ServiceLibrary.Services.Repositories
                             order.StatusChangeDate.Value :
                             order.CreatedAt, // Use return date if refunded
                         InvoiceNumber = order.InvoiceNumber,
-                        MenuName = item.Product.Name,
+                        ItemName = item.Product.Name,
                         BaseUnit = item.Product.BaseUnit ?? "",
                         Quantity = item.Qty,
                         Cost = item.Product.Cost, // Cost remains the same whether sold or returned
@@ -957,7 +955,17 @@ namespace ServiceLibrary.Services.Repositories
                 }
             }
 
-            return salesReport;
+            var totalSalesReport = new TotalSalesReportDTO
+            {
+                TotalCost = salesReport.Where(s => !s.IsReturned).Sum(s => s.Cost).ToString(),
+                TotalPrice = salesReport.Where(s => !s.IsReturned).Sum(s => s.Price).ToString(),
+                OverallTotalCost = salesReport.Where(s => !s.IsReturned).Sum(s => s.TotalCost).ToString(),
+                TotalRevenue = salesReport.Where(s => !s.IsReturned).Sum(s => s.Revenue).ToString(),
+                TotalProfit = salesReport.Where(s => !s.IsReturned).Sum(s => s.Profit).ToString()
+
+            };
+
+            return (salesReport, totalSalesReport);
         }
         public async Task<string> GetSalesReport(DateTime fromDate, DateTime toDate)
         {
@@ -974,7 +982,7 @@ namespace ServiceLibrary.Services.Repositories
                 var salesData = await GetSalesReportData(fromDate, toDate);
 
                 // Generate PDF
-                var pdfBytes = _salesReportPDFService.GenerateSalesReportPDF(salesData, fromDate, toDate);
+                var pdfBytes = _salesReportPDFService.GenerateSalesReportPDF(salesData.salesReports, fromDate, toDate);
 
                 // BASE name (no suffix):
                 var baseName = $"SalesReport_{fromDate:yyyyMMdd}_to_{toDate:yyyyMMdd}";
@@ -1044,8 +1052,17 @@ namespace ServiceLibrary.Services.Repositories
                 throw new Exception($"Error generating sales report: {ex.Message}", ex);
             }
         }
+        public async Task<List<Reading>> GetSalesBookData(DateTime fromDate, DateTime toDate)
+        {
+                var posInfo = await _terminalMachine.GetTerminalInfo();
+                // Get the sales report data
+                return await _dataContext.Reading
+                    .Where(r => r.IsTrainMode == posInfo.IsTrainMode &&
+                        r.CreatedAt.Date >= fromDate.Date && r.CreatedAt.Date <= toDate.Date)
+                    .ToListAsync();
+        }
 
-        private async Task<(List<VoidedListDTO> voidedOrdersLists, TotalVoidedListDTO totalVoidedList)> GetVoidedListsData(DateTime fromDate, DateTime toDate)
+        public async Task<(List<VoidedListDTO> voidedOrdersLists, TotalVoidedListDTO totalVoidedList)> GetVoidedListsData(DateTime fromDate, DateTime toDate)
         {
             // Set start date to beginning of day and end date to end of day
             var startDate = fromDate.Date;
@@ -1172,7 +1189,7 @@ namespace ServiceLibrary.Services.Repositories
             }
         }
 
-        private async Task<(List<TransactionListDTO>, TotalTransactionListDTO)> GetPwdOrSeniorData(DateTime fromDate, DateTime toDate, string type)
+        public async Task<(List<TransactionListDTO>, TotalTransactionListDTO)> GetPwdOrSeniorData(DateTime fromDate, DateTime toDate, string type)
         {
             // Set start date to beginning of day and end date to end of day
             var startDate = fromDate.Date;

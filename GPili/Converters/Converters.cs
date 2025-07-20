@@ -91,10 +91,22 @@ namespace GPili.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (DeviceInfo.Platform == DevicePlatform.WinUI)
-                return value;
+            if (DeviceInfo.Platform == DevicePlatform.WinUI && parameter is string imagePath)
+            {
+                return ImageSource.FromFile(imagePath);
+            }
 
             return null; 
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            => throw new NotImplementedException();
+    }
+    public class IsWindowsPlatformConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return DeviceInfo.Platform == DevicePlatform.WinUI;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

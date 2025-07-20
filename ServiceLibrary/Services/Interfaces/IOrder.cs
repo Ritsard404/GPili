@@ -11,7 +11,7 @@ namespace ServiceLibrary.Services.Interfaces
         Task<(bool isSuccess, string message)> EditQtyTotalPriceItem(long itemId, decimal qty, decimal subtotal);
         Task<(bool isSuccess, string message)> VoidItem(string mgrEmail, string cashrEmail, long itemId);
         Task<(bool isSuccess, string message, InvoiceDTO? invoiceInfo)> PayOrder(PayOrderDTO pay);
-        Task<(bool isSuccess, string message)> VoidOrder(string cashierEmail, string managerEmail, string reason);
+        Task<(bool isSuccess, string message)> VoidOrder(string cashierEmail, string managerEmail, string reason, PayOrderDTO pay);
 
 
         Task<List<Item>> GetToRefundItems(long invNum);

@@ -1,0 +1,652 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+             xmlns:validation="clr-namespace:InputKit.Shared.Validations;assembly=InputKit.Maui"
+             xmlns:converter="clr-namespace:GPili.Converters"
+             xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
+             x:Class="GPili.Presentation.Contents.Manager.ReportsView"
+             x:Name="ReportsViewRoot">
+    <ContentView.Resources>
+        <converter:IsWindowsPlatformConverter x:Key="IsWindowsPlatformConverter" />
+    </ContentView.Resources>
+    <!-- Fake Popup -->
+    <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Grid.RowSpan="4"
+       BackgroundColor="#80000000" 
+       ZIndex="1">
+        <BoxView BackgroundColor="Transparent">
+            <BoxView.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding ToggleReportCommand}"/>
+            </BoxView.GestureRecognizers>
+        </BoxView>
+        <Border 
+         Stroke="Black"
+         StrokeShape="RoundRectangle 15"
+         StrokeThickness="3"
+         WidthRequest="{Binding PopupReportWidth}"
+         MaximumHeightRequest="{Binding PopupReportHeight}">
+            <Grid RowDefinitions="Auto,Auto, *" Background="Black"
+                   HorizontalOptions="Fill" VerticalOptions="Fill"
+                   Padding="5">
+                <Label Grid.Row="0" HorizontalOptions="Center"
+                    VerticalOptions="Center" TextColor="White"
+                    FontSize="Medium" FontAttributes="Bold"
+                    Text="{Binding ReportTitle}" />
+                <Grid Grid.Row="1" ColumnDefinitions="*,*,*" ColumnSpacing="20">
+                    <material:DatePickerField Title="From:" Date="{Binding From}"
+                            HorizontalOptions="FillAndExpand" 
+                            BackgroundColor="Black"
+                            MinimumWidthRequest="200"
+                            Grid.Column="0"/>
+
+                    <material:DatePickerField Title="To:" Date="{Binding To}" 
+                                 HorizontalOptions="FillAndExpand"
+                                 BackgroundColor="Black"
+                                 MinimumWidthRequest="200"
+                                 Grid.Column="1"/>
+
+                    <Button Text="Search" Grid.Column="2" Command="{Binding SearchReportCommand}">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="FASolid"
+                                     Glyph="{x:Static fa:Solid.MagnifyingGlass}"
+                                     Color="Black" Size="16"/>
+                        </Button.ImageSource>
+                    </Button>
+                </Grid>
+
+                <!--Sales History Popup-->
+                <Grid Grid.Row="2" Margin="0,20,0,0" RowSpacing="10" IsVisible="{Binding SalesHistoryDisplay}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <material:PickerField Grid.Column="0" Grid.Row="0"
+                                          Title="Type" SelectedItem="{Binding DiscType}"
+                                          IsVisible="{Binding IsPwdOrSenior}"
+                                          Margin="0,0,0,5">
+                        <validation:RequiredValidation />
+                        <material:PickerField.ItemsSource>
+                            <x:Array Type="{x:Type x:String}">
+                                <x:String></x:String>
+                                <x:String>PWD</x:String>
+                                <x:String>Senior Citizen</x:String>
+                            </x:Array>
+                        </material:PickerField.ItemsSource>
+                    </material:PickerField>
+
+                    <Grid Grid.Row="1" ColumnDefinitions="0.1*, 0.8*" ColumnSpacing="5">
+                        <Border Grid.Column="0" BackgroundColor="#383949" StrokeShape="RoundRectangle 10">
+                            <VerticalStackLayout Margin="5" Spacing="10">
+                                <Label Text="TOTALS" HorizontalTextAlignment="Center"
+                                       FontSize="20" FontAttributes="Bold"/>
+                                <Label Margin="0,20,0,0" HorizontalOptions="StartAndExpand" VerticalOptions="Center">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="COST: " />
+                                            <Span Text="{Binding TotalSalesReports.TotalRevenue}" TextColor="#00BCD4" FontAttributes="Bold" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Label HorizontalOptions="StartAndExpand" VerticalOptions="Center">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="PRICE: " />
+                                            <Span Text="{Binding TotalSalesReports.TotalPrice}" TextColor="#00BCD4" FontAttributes="Bold" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Label HorizontalOptions="StartAndExpand" VerticalOptions="Center">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="OVERALL COST: " />
+                                            <Span Text="{Binding TotalSalesReports.OverallTotalCost}" TextColor="#00BCD4" FontAttributes="Bold" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Label HorizontalOptions="StartAndExpand" VerticalOptions="Center">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="REVENUE: " />
+                                            <Span Text="{Binding TotalSalesReports.TotalRevenue}" TextColor="#00BCD4" FontAttributes="Bold" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Label HorizontalOptions="StartAndExpand" VerticalOptions="Center">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="PROFIT: " />
+                                            <Span Text="{Binding TotalSalesReports.TotalProfit}" TextColor="#00BCD4" FontAttributes="Bold" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                            </VerticalStackLayout>
+                        </Border>
+                        <ScrollView Orientation="Horizontal" Grid.Column="1">
+                            <material:DataGrid StrokeShape="RoundRectangle 10" Background="#383949" Grid.Row="0" ItemsSource="{Binding SalesReports}" HorizontalOptions="Center" Margin="5">
+                                <ActivityIndicator IsRunning="{Binding IsBusy}" Margin="10" />
+
+                                <material:DataGrid.Columns>
+                                    <material:DataGridColumn ValueBinding="{Binding InvoiceDate, StringFormat='{}{0:yyyy-MM-dd}'}" Title="DATE" />
+                                    <material:DataGridColumn ValueBinding="{Binding InvoiceNumber}" Title="INVOICE" />
+                                    <material:DataGridColumn ValueBinding="{Binding ItemName}" Title="ITEM NAME" />
+                                    <material:DataGridColumn ValueBinding="{Binding BaseUnit}" Title="UNIT" />
+                                    <material:DataGridColumn ValueBinding="{Binding Quantity}" Title="QTY" />
+                                    <material:DataGridColumn ValueBinding="{Binding Cost}" Title="COST" />
+                                    <material:DataGridColumn ValueBinding="{Binding Price}" Title="PRICE" />
+                                    <material:DataGridColumn ValueBinding="{Binding ItemGroup}" Title="GROUP" />
+                                    <material:DataGridColumn ValueBinding="{Binding Barcode}" Title="BARCODE" />
+                                    <material:DataGridColumn ValueBinding="{Binding Status}" Title="STATUS" />
+                                    <material:DataGridColumn ValueBinding="{Binding TotalCost}" Title="TOTAL COST" />
+                                    <material:DataGridColumn ValueBinding="{Binding Revenue}" Title="REVENUE" />
+                                    <material:DataGridColumn ValueBinding="{Binding Profit}" Title="PROFIT" />
+                                </material:DataGrid.Columns>
+                            </material:DataGrid>
+                        </ScrollView>
+                    </Grid>
+
+                    <Button Text="Print Sales History"
+                    Grid.Row="2" WidthRequest="250"
+                    FontSize="Medium"
+                    HorizontalOptions="End"
+                    ContentLayout="Left" Command="{Binding PrintSalesHistoryCommand}"
+                    IsVisible="{Binding ., Converter={StaticResource IsWindowsPlatformConverter}}"
+                    >
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="FASolid"
+                         Glyph="{x:Static fa:Solid.Print}"
+                         Color="Black" Size="16"/>
+                        </Button.ImageSource>
+                    </Button>
+                </Grid>
+
+
+                <!--Audit Trail Popup-->
+                <Grid Grid.Row="2" Margin="0,20,0,0" RowSpacing="10" IsVisible="{Binding AuditTrailDisplay}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <ScrollView Grid.Row="0" >
+                        <material:DataGrid StrokeShape="RoundRectangle 10" Background="#383949" Grid.Row="0" ItemsSource="{Binding AuditTrail}" HorizontalOptions="Center" Margin="5">
+                            <ActivityIndicator IsRunning="{Binding IsBusy}" Margin="10" />
+                            <material:DataGrid.Columns>
+                                <material:DataGridColumn ValueBinding="{Binding Date}" Title="DATE" />
+                                <material:DataGridColumn ValueBinding="{Binding Time}" Title="TIME" />
+                                <material:DataGridColumn ValueBinding="{Binding UserName}" Title="USER" />
+                                <material:DataGridColumn ValueBinding="{Binding Action}" Title="ACTION" />
+                                <material:DataGridColumn ValueBinding="{Binding Amount}" Title="AMOUNT" />
+                            </material:DataGrid.Columns>
+                        </material:DataGrid>
+                    </ScrollView>
+
+                    <Button Text="Print Audit Trail"
+                    Grid.Row="1" WidthRequest="250"
+                    FontSize="Medium"
+                    HorizontalOptions="End"
+                    IsVisible="{Binding ., Converter={StaticResource IsWindowsPlatformConverter}}"       
+                    ContentLayout="Left" Command="{Binding PrintAuditTrailCommand}"
+                    >
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="FASolid"
+                         Glyph="{x:Static fa:Solid.Print}"
+                         Color="Black" Size="16"/>
+                        </Button.ImageSource>
+                    </Button>
+                </Grid>
+
+
+                <!--Sales Book Popup-->
+                <Grid Grid.Row="2" Margin="0,20,0,0" RowSpacing="10" IsVisible="{Binding SalesBookDisplay}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <ScrollView Grid.Row="0" >
+                        <material:DataGrid StrokeShape="RoundRectangle 10" Background="#383949" Grid.Row="0" ItemsSource="{Binding SalesBook}" HorizontalOptions="Center" Margin="5">
+                            <ActivityIndicator IsRunning="{Binding IsBusy}" Margin="10" />
+                            <material:DataGrid.Columns>
+                                <material:DataGridColumn ValueBinding="{Binding CreatedAt, StringFormat='{}{0:yyyy-MM-dd}'}" Title="DATE" />
+                                <material:DataGridColumn ValueBinding="{Binding LastInvoice}" Title="INVOICE" />
+                                <material:DataGridColumn ValueBinding="{Binding Previous}" Title="PREVIOUS" />
+                                <material:DataGridColumn ValueBinding="{Binding Present}" Title="PRESENT" />
+                                <material:DataGridColumn ValueBinding="{Binding Sales}" Title="SALES" />
+                                <material:DataGridColumn ValueBinding="{Binding Id}" Title="Z-COUNTER" />
+                            </material:DataGrid.Columns>
+                        </material:DataGrid>
+                    </ScrollView>
+
+                    <Button Text="Print Sales Book"
+                    Grid.Row="1" WidthRequest="250"
+                    FontSize="Medium"
+                    HorizontalOptions="End"
+                    IsVisible="{Binding ., Converter={StaticResource IsWindowsPlatformConverter}}"
+                    ContentLayout="Left" Command="{Binding PrintSalesBookCommand}"
+                    >
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="FASolid"
+                         Glyph="{x:Static fa:Solid.Print}"
+                         Color="Black" Size="16"/>
+                        </Button.ImageSource>
+                    </Button>
+                </Grid>
+
+
+                <!--Daily Tranx Popup-->
+                <Grid Grid.Row="2" Margin="0,20,0,0" RowSpacing="10" IsVisible="{Binding VoidedListDisplay}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" ColumnDefinitions="0.1*, 0.8*" ColumnSpacing="5">
+                        <Border Grid.Column="0" BackgroundColor="#383949" StrokeShape="RoundRectangle 10">
+                            <VerticalStackLayout Margin="5" Spacing="10">
+                                <Label Text="TOTALS" HorizontalTextAlignment="Center"
+                                       FontSize="20" FontAttributes="Bold"/>
+                                <Label Margin="0,20,0,0" HorizontalOptions="StartAndExpand" VerticalOptions="Center">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="GROSS: " />
+                                            <Span Text="{Binding TotalVoidedList.TotalGross}" TextColor="#00BCD4" FontAttributes="Bold" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Label HorizontalOptions="StartAndExpand" VerticalOptions="Center">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="DISCOUNT: " />
+                                            <Span Text="{Binding TotalVoidedList.TotalDiscount}" TextColor="#00BCD4" FontAttributes="Bold" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Label HorizontalOptions="StartAndExpand" VerticalOptions="Center">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="AMOUNT DUE: " />
+                                            <Span Text="{Binding TotalVoidedList.TotalAmountDue}" TextColor="#00BCD4" FontAttributes="Bold" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Label HorizontalOptions="StartAndExpand" VerticalOptions="Center">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="VATABLE: " />
+                                            <Span Text="{Binding TotalVoidedList.TotalVatable, StringFormat='{}{0:N2}'}" TextColor="#00BCD4" FontAttributes="Bold" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Label HorizontalOptions="StartAndExpand" VerticalOptions="Center">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="VAT ZERO: " />
+                                            <Span Text="{Binding TotalVoidedList.TotalVatZero}" TextColor="#00BCD4" FontAttributes="Bold" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Label HorizontalOptions="StartAndExpand" VerticalOptions="Center">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="EXEMPT: " />
+                                            <Span Text="{Binding TotalVoidedList.TotalExempt}" TextColor="#00BCD4" FontAttributes="Bold" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Label HorizontalOptions="StartAndExpand" VerticalOptions="Center">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="VAT: " />
+                                            <Span Text="{Binding TotalVoidedList.TotalVat, StringFormat='{}{0:N2}'}" TextColor="#00BCD4" FontAttributes="Bold" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                            </VerticalStackLayout>
+                        </Border>
+                        <ScrollView Orientation="Horizontal" Grid.Column="1">
+                            <Border StrokeShape="RoundRectangle 12">
+                                <Grid RowDefinitions="Auto, *">
+                                    <Grid ColumnSpacing="2" Padding="5"
+                                      ColumnDefinitions="100,120,100,50,100,100,100,100,100,100,100,200,150,100,100,100">
+                                        <Label Grid.Column="0" Text="DATE" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                        <Label Grid.Column="1" Text="OR NO" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                        <Label Grid.Column="2" Text="DISC TYPE" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                        <Label Grid.Column="3" Text="%" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                        <Label Grid.Column="4" Text="GROSS SALES" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                        <Label Grid.Column="5" Text="DISCOUNT" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                        <Label Grid.Column="6" Text="AMOUNT DUE" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                        <Label Grid.Column="7" Text="NET OF SALES" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                        <Label Grid.Column="8" Text="VATABLE" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                        <Label Grid.Column="9" Text="ZERO RATED" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                        <Label Grid.Column="10" Text="EXEMPT" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                        <Label Grid.Column="11" Text="REASON" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                        <Label Grid.Column="12" Text="USER" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                        <Label Grid.Column="13" Text="CANCELLED BY" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                        <Label Grid.Column="14" Text="CANCELLED DATE" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                        <Label Grid.Column="15" Text="CANCELLED TIME" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                                    </Grid>
+                                    <CollectionView Grid.Row="1" ItemsSource="{Binding VoidedList}" BackgroundColor="#383949">
+                                        <CollectionView.ItemTemplate>
+                                            <DataTemplate>
+                                                <toolkit:Expander>
+                                                    <toolkit:Expander.Header>
+                                                        <Grid ColumnSpacing="5" Padding="5" HorizontalOptions="Center"
+                                                        ColumnDefinitions="100,120,100,50,100,100,100,100,100,100,100,200,150,100,100,100">
+                                                            <Label Grid.Column="0" Text="{Binding Date}"/>
+                                                            <Label Grid.Column="1" Text="{Binding InvoiceNum}"/>
+                                                            <Label Grid.Column="2" Text="{Binding DiscType}"/>
+                                                            <Label Grid.Column="3" Text="{Binding Percent}"/>
+                                                            <Label Grid.Column="4" Text="{Binding GrossSales, StringFormat='{}{0:N2}'}"/>
+                                                            <Label Grid.Column="5" Text="{Binding Discount, StringFormat='{}{0:N2}'}"/>
+                                                            <Label Grid.Column="6" Text="{Binding AmountDue, StringFormat='{}{0:N2}'}"/>
+                                                            <Label Grid.Column="7" Text="{Binding NetAmount, StringFormat='{}{0:N2}'}"/>
+                                                            <Label Grid.Column="8" Text="{Binding Vatable, StringFormat='{}{0:N2}'}"/>
+                                                            <Label Grid.Column="9" Text="{Binding ZeroRated, StringFormat='{}{0:N2}'}"/>
+                                                            <Label Grid.Column="10" Text="{Binding Exempt, StringFormat='{}{0:N2}'}"/>
+                                                            <Label Grid.Column="11" Text="{Binding Reason}"/>
+                                                            <Label Grid.Column="12" Text="{Binding User}"/>
+                                                            <Label Grid.Column="13" Text="{Binding CancelledBy}"/>
+                                                            <Label Grid.Column="14" Text="{Binding CancelledDate}"/>
+                                                            <Label Grid.Column="15" Text="{Binding CancelledTime}"/>
+                                                        </Grid>
+                                                    </toolkit:Expander.Header>
+                                                    <toolkit:Expander.Content>
+                                                        <material:DataGrid StrokeShape="RoundRectangle 10" Background="Black" Grid.Row="0" ItemsSource="{Binding VoidedItemList}" HorizontalOptions="Center" Margin="5">
+                                                            <material:DataGrid.Columns>
+                                                                <material:DataGridColumn ValueBinding="{Binding No}" Title="No" />
+                                                                <material:DataGridColumn ValueBinding="{Binding Barcode}" Title="Barcode" />
+                                                                <material:DataGridColumn ValueBinding="{Binding ItemName}" Title="Item Name" />
+                                                                <material:DataGridColumn ValueBinding="{Binding Quantity}" Title="Qty" />
+                                                                <material:DataGridColumn ValueBinding="{Binding Price}" Title="Price" />
+                                                                <material:DataGridColumn ValueBinding="{Binding Amount}" Title="Amount" />
+                                                                <material:DataGridColumn ValueBinding="{Binding Return}" Title="Return" />
+                                                                <material:DataGridColumn ValueBinding="{Binding Reason}" Title="Reason" />
+                                                            </material:DataGrid.Columns>
+                                                        </material:DataGrid>
+                                                    </toolkit:Expander.Content>
+                                                </toolkit:Expander>
+                                            </DataTemplate>
+                                        </CollectionView.ItemTemplate>
+
+                                    </CollectionView>
+                                </Grid>
+                            </Border>
+                           
+                        </ScrollView>
+                    </Grid>
+
+                    <Button Text="Print Voided Lists"
+                    Grid.Row="1" WidthRequest="250"
+                    FontSize="Medium"
+                    HorizontalOptions="End"
+                    IsVisible="{Binding ., Converter={StaticResource IsWindowsPlatformConverter}}"
+                    ContentLayout="Left" Command="{Binding PrintVoidedListsCommand}"
+                    >
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="FASolid"
+                         Glyph="{x:Static fa:Solid.Print}"
+                         Color="Black" Size="16"/>
+                        </Button.ImageSource>
+                    </Button>
+                </Grid>
+
+                <!--Daily Tranx Popup-->
+                <Grid Grid.Row="2" Margin="0,20,0,0" RowSpacing="10" IsVisible="{Binding DailyTranxDisplay}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" ColumnDefinitions="0.1*, 0.8*" ColumnSpacing="5">
+                        <Border Grid.Column="0" BackgroundColor="#383949" StrokeShape="RoundRectangle 10">
+                            <VerticalStackLayout Margin="5" Spacing="10">
+                                <Label Text="TOTALS" HorizontalTextAlignment="Center"
+                                       FontSize="20" FontAttributes="Bold"/>
+                                <Label Margin="0,20,0,0" HorizontalOptions="StartAndExpand" VerticalOptions="Center">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="GROSS SALES: " />
+                                            <Span Text="{Binding TotalTranxList.TotalGrossSales}" TextColor="#00BCD4" FontAttributes="Bold" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Label HorizontalOptions="StartAndExpand" VerticalOptions="Center">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="RETURNS: " />
+                                            <Span Text="{Binding TotalTranxList.TotalReturns}" TextColor="#00BCD4" FontAttributes="Bold" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Label HorizontalOptions="StartAndExpand" VerticalOptions="Center">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="NET OF RETURNS: " />
+                                            <Span Text="{Binding TotalTranxList.TotalNetOfReturns}" TextColor="#00BCD4" FontAttributes="Bold" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Label HorizontalOptions="StartAndExpand" VerticalOptions="Center">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="LESS DISCOUNT: " />
+                                            <Span Text="{Binding TotalTranxList.TotalLessDiscount}" TextColor="#00BCD4" FontAttributes="Bold" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Label HorizontalOptions="StartAndExpand" VerticalOptions="Center">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="NET OF SALES: " />
+                                            <Span Text="{Binding TotalTranxList.TotalNetOfSales}" TextColor="#00BCD4" FontAttributes="Bold" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Label HorizontalOptions="StartAndExpand" VerticalOptions="Center">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="VATABLE: " />
+                                            <Span Text="{Binding TotalTranxList.TotalVatable}" TextColor="#00BCD4" FontAttributes="Bold" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Label HorizontalOptions="StartAndExpand" VerticalOptions="Center">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="EXEMPT: " />
+                                            <Span Text="{Binding TotalTranxList.TotalExempt}" TextColor="#00BCD4" FontAttributes="Bold" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Label HorizontalOptions="StartAndExpand" VerticalOptions="Center">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="VAT: " />
+                                            <Span Text="{Binding TotalTranxList.TotalVat}" TextColor="#00BCD4" FontAttributes="Bold" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                            </VerticalStackLayout>
+                        </Border>
+                        <ScrollView Orientation="Horizontal" Grid.Column="1">
+                            <material:DataGrid StrokeShape="RoundRectangle 10" Background="#383949" Grid.Row="0" ItemsSource="{Binding TranxList}" HorizontalOptions="Center" Margin="5">
+                                <ActivityIndicator IsRunning="{Binding IsBusy}" Margin="10" />
+
+                                <material:DataGrid.Columns>
+                                    <material:DataGridColumn ValueBinding="{Binding Date}" Title="DATE" />
+                                    <material:DataGridColumn ValueBinding="{Binding InvoiceNum}" Title="OR NO" />
+                                    <material:DataGridColumn ValueBinding="{Binding Src}" Title="SRC" />
+                                    <material:DataGridColumn ValueBinding="{Binding DiscType}" Title="DISC TYPE" />
+                                    <material:DataGridColumn ValueBinding="{Binding Percent}" Title="%" />
+                                    <material:DataGridColumn ValueBinding="{Binding SubTotal}" Title="SUB TOTAL" />
+                                    <material:DataGridColumn ValueBinding="{Binding AmountDue}" Title="AMOUNT DUE" />
+                                    <material:DataGridColumn ValueBinding="{Binding GrossSales}" Title="GROSS SALES" />
+                                    <material:DataGridColumn ValueBinding="{Binding Returns}" Title="RETURNS" />
+                                    <material:DataGridColumn ValueBinding="{Binding NetOfReturns}" Title="NET OF RETURNS" />
+                                    <material:DataGridColumn ValueBinding="{Binding LessDiscount}" Title="LESS DISCOUNT" />
+                                    <material:DataGridColumn ValueBinding="{Binding NetOfSales}" Title="NET OF SALES" />
+                                    <material:DataGridColumn ValueBinding="{Binding Vatable}" Title="VATABLE" />
+                                    <material:DataGridColumn ValueBinding="{Binding ZeroRated}" Title="ZERO RATED" />
+                                    <material:DataGridColumn ValueBinding="{Binding Exempt}" Title="EXEMPT" />
+                                    <material:DataGridColumn ValueBinding="{Binding Vat}" Title="VAT" />
+                                </material:DataGrid.Columns>
+                            </material:DataGrid>
+                        </ScrollView>
+                    </Grid>
+
+                    <Button Text="Print Daily Transaction Lists"
+                    Grid.Row="1" WidthRequest="250"
+                    FontSize="Medium"
+                    HorizontalOptions="End"
+                    IsVisible="{Binding ., Converter={StaticResource IsWindowsPlatformConverter}}"
+                    ContentLayout="Left" Command="{Binding PrintTransactionListsCommand}"
+                    >
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="FASolid"
+                         Glyph="{x:Static fa:Solid.Print}"
+                         Color="Black" Size="16"/>
+                        </Button.ImageSource>
+                    </Button>
+                </Grid>
+
+                <!--Pwd or Senior Popup-->
+                <Grid Grid.Row="2" Margin="0,20,0,0" RowSpacing="10" IsVisible="{Binding PwdOrScDisplay}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" RowDefinitions="Auto, *" ColumnDefinitions="0.1*, 0.8*" ColumnSpacing="5">
+
+
+                        <material:PickerField Grid.Column="0" Grid.Row="0"
+                                          Title="Type" SelectedItem="{Binding DiscountType}"
+                                          Margin="0,0,0,5">
+                            <validation:RequiredValidation />
+                            <material:PickerField.ItemsSource>
+                                <x:Array Type="{x:Type x:String}">
+                                    <x:String></x:String>
+                                    <x:String>PWD</x:String>
+                                    <x:String>Senior Citizen</x:String>
+                                </x:Array>
+                            </material:PickerField.ItemsSource>
+                        </material:PickerField>
+
+                        <Border Grid.Column="0" Grid.Row="1" BackgroundColor="#383949" StrokeShape="RoundRectangle 10">
+                            <VerticalStackLayout Margin="5" Spacing="10">
+                                <Label Text="TOTALS" HorizontalTextAlignment="Center"
+                                       FontSize="20" FontAttributes="Bold"/>
+                                <Label Margin="0,20,0,0" HorizontalOptions="StartAndExpand" VerticalOptions="Center">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="GROSS SALES: " />
+                                            <Span Text="{Binding TotalPwdOrSeniorList.TotalGrossSales}" TextColor="#00BCD4" FontAttributes="Bold" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Label HorizontalOptions="StartAndExpand" VerticalOptions="Center">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="RETURNS: " />
+                                            <Span Text="{Binding TotalPwdOrSeniorList.TotalReturns}" TextColor="#00BCD4" FontAttributes="Bold" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Label HorizontalOptions="StartAndExpand" VerticalOptions="Center">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="NET OF RETURNS: " />
+                                            <Span Text="{Binding TotalPwdOrSeniorList.TotalNetOfReturns}" TextColor="#00BCD4" FontAttributes="Bold" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Label HorizontalOptions="StartAndExpand" VerticalOptions="Center">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="LESS DISCOUNT: " />
+                                            <Span Text="{Binding TotalPwdOrSeniorList.TotalLessDiscount}" TextColor="#00BCD4" FontAttributes="Bold" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Label HorizontalOptions="StartAndExpand" VerticalOptions="Center">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="NET OF SALES: " />
+                                            <Span Text="{Binding TotalPwdOrSeniorList.TotalNetOfSales}" TextColor="#00BCD4" FontAttributes="Bold" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Label HorizontalOptions="StartAndExpand" VerticalOptions="Center">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="VATABLE: " />
+                                            <Span Text="{Binding TotalPwdOrSeniorList.TotalVatable}" TextColor="#00BCD4" FontAttributes="Bold" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Label HorizontalOptions="StartAndExpand" VerticalOptions="Center">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="EXEMPT: " />
+                                            <Span Text="{Binding TotalPwdOrSeniorList.TotalExempt}" TextColor="#00BCD4" FontAttributes="Bold" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Label HorizontalOptions="StartAndExpand" VerticalOptions="Center">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="VAT: " />
+                                            <Span Text="{Binding TotalPwdOrSeniorList.TotalVat}" TextColor="#00BCD4" FontAttributes="Bold" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                            </VerticalStackLayout>
+                        </Border>
+                        <ScrollView Orientation="Horizontal" Grid.Row="0" Grid.RowSpan="2" Grid.Column="1">
+                            <material:DataGrid StrokeShape="RoundRectangle 10" Background="#383949" Grid.Row="0" ItemsSource="{Binding PwdOrSeniorList}" HorizontalOptions="Center" Margin="5">
+                                <ActivityIndicator IsRunning="{Binding IsBusy}" Margin="10" />
+
+                                <material:DataGrid.Columns>
+                                    <material:DataGridColumn ValueBinding="{Binding Date}" Title="DATE" />
+                                    <material:DataGridColumn ValueBinding="{Binding InvoiceNum}" Title="OR NO" />
+                                    <material:DataGridColumn ValueBinding="{Binding Src}" Title="SRC" />
+                                    <material:DataGridColumn ValueBinding="{Binding DiscType}" Title="DISC TYPE" />
+                                    <material:DataGridColumn ValueBinding="{Binding Percent}" Title="%" />
+                                    <material:DataGridColumn ValueBinding="{Binding SubTotal}" Title="SUB TOTAL" />
+                                    <material:DataGridColumn ValueBinding="{Binding AmountDue}" Title="AMOUNT DUE" />
+                                    <material:DataGridColumn ValueBinding="{Binding GrossSales}" Title="GROSS SALES" />
+                                    <material:DataGridColumn ValueBinding="{Binding Returns}" Title="RETURNS" />
+                                    <material:DataGridColumn ValueBinding="{Binding NetOfReturns}" Title="NET OF RETURNS" />
+                                    <material:DataGridColumn ValueBinding="{Binding LessDiscount}" Title="LESS DISCOUNT" />
+                                    <material:DataGridColumn ValueBinding="{Binding NetOfSales}" Title="NET OF SALES" />
+                                    <material:DataGridColumn ValueBinding="{Binding Vatable}" Title="VATABLE" />
+                                    <material:DataGridColumn ValueBinding="{Binding ZeroRated}" Title="ZERO RATED" />
+                                    <material:DataGridColumn ValueBinding="{Binding Exempt}" Title="EXEMPT" />
+                                    <material:DataGridColumn ValueBinding="{Binding Vat}" Title="VAT" />
+                                </material:DataGrid.Columns>
+                            </material:DataGrid>
+                        </ScrollView>
+                    </Grid>
+
+                    <Button Text="Print PWD or Senior Lists"
+                            Grid.Row="1"
+                            FontSize="Medium"
+                            HorizontalOptions="End"
+                            IsVisible="{Binding ., Converter={StaticResource IsWindowsPlatformConverter}}"
+                            ContentLayout="Left" Command="{Binding PrintTransactionListsCommand}"
+                    >
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="FASolid"
+                         Glyph="{x:Static fa:Solid.Print}"
+                         Color="Black" Size="16"/>
+                        </Button.ImageSource>
+                    </Button>
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+
+</ContentView>

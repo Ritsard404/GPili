@@ -244,7 +244,8 @@
                         <Button Text="Sales History"
                                 ContentLayout="top, 0"
                                 Grid.Row="1" Grid.Column="0"
-                                Command="{Binding PrintSalesHistoryCommand}">
+                                Command="{Binding ToggleReportCommand}"
+                                CommandParameter="SalesHistory">
                             <Button.ImageSource>
                                 <FontImageSource FontFamily="FASolid"
                                      Glyph="{x:Static fa:Solid.MoneyBillTrendUp}"
@@ -253,21 +254,26 @@
                         </Button>
                         <Button Text="Audit Trail" Grid.Row="1" Grid.Column="1" 
                                 ContentLayout="top, 0" ImageSource="audit_trail.png"
-                                Command="{Binding PrintAuditTrailCommand}"/>
+                                Command="{Binding ToggleReportCommand}"
+                                CommandParameter="AuditTrail"/>
                         <Button Text="Daily Tranx" Grid.Row="1" Grid.Column="3" 
                                 ContentLayout="top, 0" ImageSource="subway_calendar.png"
-                                Command="{Binding PrintTransactionListsCommand}"/>
+                                Command="{Binding ToggleReportCommand}"
+                                CommandParameter="TranxList"/>
 
                         <Button Text="Voided List" ImageSource="trash_icon.png"
                                 ContentLayout="top, 0"
                                 Grid.Row="2" Grid.Column="0"
-                                Command="{Binding PrintVoidedListsCommand}"/>
+                                Command="{Binding ToggleReportCommand}"
+                                CommandParameter="VoidedList"/>
                         <Button Text="Sales Book" Grid.Row="2" Grid.Column="1" 
                                 ContentLayout="top, 0" ImageSource="sales_book.png"
-                                Command="{Binding PrintSalesBookCommand}"/>
+                                Command="{Binding ToggleReportCommand}"
+                                CommandParameter="SalesBook"/>
                         <Button Text="PWD/SC List" Grid.Row="2" Grid.Column="3" 
                                 ContentLayout="top, 0" ImageSource="pwd_list.png"
-                                Command="{Binding PrintPwdOrSeniorListsCommand}"/>
+                                Command="{Binding ToggleReportCommand}"
+                                CommandParameter="PwdOrSeniorList"/>
 
                     </Grid>
                 </Grid>
@@ -341,6 +347,9 @@
             </Border>
         </Grid>
 
+        <!--Fake Popup Report-->
+        <content:ReportsView Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+                    IsVisible="{Binding FakePopupReportDisplay}"/>
         <!--Fake Popup Sale Types-->
         <content:SaleTypesView Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
                     IsVisible="{Binding IsSaleTypesDisplay}"/>

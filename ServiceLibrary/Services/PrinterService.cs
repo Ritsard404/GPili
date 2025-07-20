@@ -237,20 +237,20 @@ namespace ServiceLibrary.Services
 
                     var outPath = Path.Combine(folderPath, outName);
 
-                    File.WriteAllText(outPath, contentWithLabel.ToString());
-                    Process.Start(new ProcessStartInfo(filePath) { UseShellExecute = true });
+                    //File.WriteAllText(outPath, contentWithLabel.ToString());
+                    //Process.Start(new ProcessStartInfo(filePath) { UseShellExecute = true });
 
                     // Print to thermal printer
-                    //PrintToPrinter(contentWithLabel);
+                    PrintToPrinter(contentWithLabel);
                 }
             }
             else
             {
-                File.WriteAllText(filePath, content.ToString());
-                Process.Start(new ProcessStartInfo(filePath) { UseShellExecute = true });
+                //File.WriteAllText(filePath, content.ToString());
+                //Process.Start(new ProcessStartInfo(filePath) { UseShellExecute = true });
 
                 // Print to thermal printer
-                //PrintToPrinter(content);
+                PrintToPrinter(content);
             }
 
 
@@ -381,12 +381,12 @@ namespace ServiceLibrary.Services
             await _dataContext.SaveChangesAsync();
 
             // Save to file
-            File.WriteAllText(filePath, content.ToString());
+            //File.WriteAllText(filePath, content.ToString());
 
             // Print to thermal printer
-            //PrintToPrinter(content);
+            PrintToPrinter(content);
 
-            Process.Start(new ProcessStartInfo(filePath) { UseShellExecute = true });
+            //Process.Start(new ProcessStartInfo(filePath) { UseShellExecute = true });
         }
 
         public async Task PrintZReading()
@@ -518,12 +518,12 @@ namespace ServiceLibrary.Services
             await _dataContext.SaveChangesAsync();
 
             // Save to file
-            File.WriteAllText(filePath, content.ToString());
+            //File.WriteAllText(filePath, content.ToString());
 
             // Print to thermal printer
-            //PrintToPrinter(content);
+            PrintToPrinter(content);
 
-            Process.Start(new ProcessStartInfo(filePath) { UseShellExecute = true });
+            //Process.Start(new ProcessStartInfo(filePath) { UseShellExecute = true });
         }
 
         public async Task<(bool isSuccess, string message)> ReprintInvoice(long id)
@@ -556,10 +556,10 @@ namespace ServiceLibrary.Services
             await _dataContext.SaveChangesAsync();
 
             // Print to thermal printer
-            //PrintToPrinter(finalContent);
+            PrintToPrinter(sb);
 
-            File.WriteAllText(tempPath, finalContent);
-            Process.Start(new ProcessStartInfo(tempPath) { UseShellExecute = true });
+            //File.WriteAllText(tempPath, finalContent);
+            //Process.Start(new ProcessStartInfo(tempPath) { UseShellExecute = true });
 
 
             return (true, "Invoice reprinted successfully.");
@@ -596,10 +596,10 @@ namespace ServiceLibrary.Services
             await _dataContext.SaveChangesAsync();
 
             // Print to thermal printer
-            //PrintToPrinter(finalContent);
+            PrintToPrinter(sb);
 
-            File.WriteAllText(tempPath, finalContent);
-            Process.Start(new ProcessStartInfo(tempPath) { UseShellExecute = true });
+            //File.WriteAllText(tempPath, finalContent);
+            //Process.Start(new ProcessStartInfo(tempPath) { UseShellExecute = true });
 
             return (true, "X-Reading report reprinted successfully.");
         }
@@ -626,7 +626,8 @@ namespace ServiceLibrary.Services
               .AppendLine(new string('=', ReceiptWidth));
 
             // When you need the final string:
-            var finalContent = sb.ToString();
+            //var finalContent = sb.ToString();
+            var finalContent = sb;
 
             // Create a temporary file path
             var tempPath = Path.Combine(Path.GetTempPath(), $"ZReport_{invoiceDocument.CreatedAt:yyyyMMddHHmmss}.txt");
@@ -635,10 +636,10 @@ namespace ServiceLibrary.Services
             await _dataContext.SaveChangesAsync();
 
             // Print to thermal printer
-            //PrintToPrinter(finalContent);
+            PrintToPrinter(finalContent);
 
-            File.WriteAllText(tempPath, finalContent);
-            Process.Start(new ProcessStartInfo(tempPath) { UseShellExecute = true });
+            //File.WriteAllText(tempPath, finalContent);
+            //Process.Start(new ProcessStartInfo(tempPath) { UseShellExecute = true });
 
             return (true, "Z-Reading report reprinted successfully.");
         }
@@ -665,7 +666,7 @@ namespace ServiceLibrary.Services
 
                 string fileName = $"Cash-Track-{cashierName}-{DateTime.UtcNow:yyyy-MM-dd-HH-mm-ss}.txt";
                 string filePath = Path.Combine(cashTracksPath, fileName);
-                File.WriteAllText(filePath, reportContent);
+                //File.WriteAllText(filePath, reportContent);
             }
 
             // Prepare print content (add line feeds for paper cutting)
@@ -673,8 +674,8 @@ namespace ServiceLibrary.Services
 
             // Print to default text viewer (or send to printer)
             var tempPrintPath = Path.Combine(Path.GetTempPath(), $"CashTrack_{cashierName}_{DateTime.Now:yyyyMMddHHmmss}.txt");
-            File.WriteAllText(tempPrintPath, printContent);
-            Process.Start(new ProcessStartInfo(tempPrintPath) { UseShellExecute = true });
+            //File.WriteAllText(tempPrintPath, printContent);
+            //Process.Start(new ProcessStartInfo(tempPrintPath) { UseShellExecute = true });
 
             // Optionally, print to thermal printer
             PrintToPrinter(new StringBuilder(printContent));
