@@ -157,7 +157,7 @@
 
         <!-- Left Panel -->
         <Grid Grid.Column="0" Grid.Row="0">
-            <Border BackgroundColor="#121125" StrokeThickness="0"
+            <Border BackgroundColor="#121125" StrokeThickness="1"
                     StrokeShape="RoundRectangle 12">
                 <Grid RowDefinitions="Auto, *"
                       RowSpacing="10">
@@ -234,116 +234,120 @@
                            Text="REPORT" Background="#383949"
                            HeightRequest="30" VerticalTextAlignment="Center"
                            HorizontalTextAlignment="Center" FontAttributes="Bold"
-                           FontSize="Medium"/>
+                           FontSize="Medium" TextColor="White"/>
 
                     <!--Second Row-->
-                    <Grid Grid.Row="1"  RowDefinitions="Auto, Auto, Auto"
-                          ColumnDefinitions="*, *, *" 
-                          ColumnSpacing="18" RowSpacing="18" Padding="5,0,5,5">
+                    <ScrollView Grid.Row="1" Orientation="Vertical">
+                        <Grid RowDefinitions="Auto, Auto, Auto"
+        ColumnDefinitions="*, *, *" 
+        ColumnSpacing="18" RowSpacing="18" Padding="5,0,5,5">
 
-                        <Button Text="Sales History"
-                                ContentLayout="top, 0"
-                                Grid.Row="1" Grid.Column="0"
-                                Command="{Binding ToggleReportCommand}"
-                                CommandParameter="SalesHistory">
-                            <Button.ImageSource>
-                                <FontImageSource FontFamily="FASolid"
-                                     Glyph="{x:Static fa:Solid.MoneyBillTrendUp}"
-                                     Color="Black" Size="40"/>
-                            </Button.ImageSource>
-                        </Button>
-                        <Button Text="Audit Trail" Grid.Row="1" Grid.Column="1" 
-                                ContentLayout="top, 0" ImageSource="audit_trail.png"
-                                Command="{Binding ToggleReportCommand}"
-                                CommandParameter="AuditTrail"/>
-                        <Button Text="Daily Tranx" Grid.Row="1" Grid.Column="3" 
-                                ContentLayout="top, 0" ImageSource="subway_calendar.png"
-                                Command="{Binding ToggleReportCommand}"
-                                CommandParameter="TranxList"/>
+                            <Button Text="Sales History"
+              ContentLayout="top, 0"
+              Grid.Row="1" Grid.Column="0"
+              Command="{Binding ToggleReportCommand}"
+              CommandParameter="SalesHistory">
+                                <Button.ImageSource>
+                                    <FontImageSource FontFamily="FASolid"
+                   Glyph="{x:Static fa:Solid.MoneyBillTrendUp}"
+                   Color="Black" Size="40"/>
+                                </Button.ImageSource>
+                            </Button>
+                            <Button Text="Audit Trail" Grid.Row="1" Grid.Column="1" 
+              ContentLayout="top, 0" ImageSource="audit_trail.png"
+              Command="{Binding ToggleReportCommand}"
+              CommandParameter="AuditTrail"/>
+                            <Button Text="Daily Tranx" Grid.Row="1" Grid.Column="3" 
+              ContentLayout="top, 0" ImageSource="subway_calendar.png"
+              Command="{Binding ToggleReportCommand}"
+              CommandParameter="TranxList"/>
 
-                        <Button Text="Voided List" ImageSource="trash_icon.png"
-                                ContentLayout="top, 0"
-                                Grid.Row="2" Grid.Column="0"
-                                Command="{Binding ToggleReportCommand}"
-                                CommandParameter="VoidedList"/>
-                        <Button Text="Sales Book" Grid.Row="2" Grid.Column="1" 
-                                ContentLayout="top, 0" ImageSource="sales_book.png"
-                                Command="{Binding ToggleReportCommand}"
-                                CommandParameter="SalesBook"/>
-                        <Button Text="PWD/SC List" Grid.Row="2" Grid.Column="3" 
-                                ContentLayout="top, 0" ImageSource="pwd_list.png"
-                                Command="{Binding ToggleReportCommand}"
-                                CommandParameter="PwdOrSeniorList"/>
+                            <Button Text="Voided List" ImageSource="trash_icon.png"
+              ContentLayout="top, 0"
+              Grid.Row="2" Grid.Column="0"
+              Command="{Binding ToggleReportCommand}"
+              CommandParameter="VoidedList"/>
+                            <Button Text="Sales Book" Grid.Row="2" Grid.Column="1" 
+              ContentLayout="top, 0" ImageSource="sales_book.png"
+              Command="{Binding ToggleReportCommand}"
+              CommandParameter="SalesBook"/>
+                            <Button Text="PWD/SC List" Grid.Row="2" Grid.Column="3" 
+              ContentLayout="top, 0" ImageSource="pwd_list.png"
+              Command="{Binding ToggleReportCommand}"
+              CommandParameter="PwdOrSeniorList"/>
 
-                    </Grid>
-                </Grid>
+                        </Grid>
+                    </ScrollView>
+                  </Grid>
             </Border>
             <Border Grid.Row="1"
                     StrokeThickness="0" StrokeShape="RoundRectangle 12"
                     Background="#272635">
                 <Grid RowDefinitions="Auto, *"
                       RowSpacing="5">
-                    <Label Grid.Row="0"
+                    <Label Grid.Row="0" TextColor="White"
                            Text="DATA" Background="#383949"
                            HeightRequest="30" VerticalTextAlignment="Center"
                            HorizontalTextAlignment="Center" FontAttributes="Bold"
                            FontSize="Medium"/>
                     
                     <!--Second Row-->
-                    <Grid Grid.Row="1"  RowDefinitions="Auto, Auto, Auto, Auto"
-                          ColumnDefinitions="*, *, *" RowSpacing="18"
-                          ColumnSpacing="18" Padding="5,0,5,5">
-                        
-                        <Button Text="Load Products" ImageSource="icons_load.png"
-                                ContentLayout="top, 0"
-                                Grid.Row="1" Grid.Column="0"
-                                Command="{Binding LoadDataCommand}"/>
-                        <Button Text="Push Journal" Grid.Row="1" Grid.Column="1" 
-                                ContentLayout="top, 0" ImageSource="symbols_upload.png"
-                                Command="{Binding PushJournalCommand}"/>
-                        <Button Text="Users" Grid.Row="1" Grid.Column="3" 
-                                ContentLayout="top, 0" ImageSource="users.png"
-                                Command="{Binding UsersCommand}"/>
+                    <ScrollView Grid.Row="1" Orientation="Vertical">
+                        <Grid RowDefinitions="Auto, Auto, Auto, Auto"
+      ColumnDefinitions="*, *, *" RowSpacing="18"
+      ColumnSpacing="18" Padding="5,0,5,5">
+
+                            <Button Text="Load Products" ImageSource="icons_load.png"
+            ContentLayout="top, 0"
+            Grid.Row="1" Grid.Column="0"
+            Command="{Binding LoadDataCommand}"/>
+                            <Button Text="Push Journal" Grid.Row="1" Grid.Column="1" 
+            ContentLayout="top, 0" ImageSource="symbols_upload.png"
+            Command="{Binding PushJournalCommand}"/>
+                            <Button Text="Users" Grid.Row="1" Grid.Column="3" 
+            ContentLayout="top, 0" ImageSource="users.png"
+            Command="{Binding UsersCommand}"/>
 
 
-                        <Button Text="Categories" ImageSource="category.png"
-                                ContentLayout="top, 0"
-                                Grid.Row="2" Grid.Column="0"
-                                Command="{Binding CategoriesCommand}"/>
-                        <Button Text="Products" ImageSource="product_management.png"
-                                ContentLayout="top, 0"
-                                Grid.Row="2" Grid.Column="1"
-                                Command="{Binding ProductsCommand}"/>
-                        <Button Text="Settings" ImageSource="settings.png"
-                                ContentLayout="top, 0"
-                                Grid.Row="2" Grid.Column="2" 
-                                IsVisible="{Binding IsDeveloper}" 
-                                Command="{Binding SettingsDisplayCommand}"/>
-                        <Button Text="Sale Types"
-                                ContentLayout="top, 0"
-                                IsVisible="{Binding IsDeveloper, Converter={StaticResource InverseBoolConverter}}" 
-                                Grid.Row="2" Grid.Column="2" 
-                                Command="{Binding ToggleSalesTypeCommand}">
+                            <Button Text="Categories" ImageSource="category.png"
+            ContentLayout="top, 0"
+            Grid.Row="2" Grid.Column="0"
+            Command="{Binding CategoriesCommand}"/>
+                            <Button Text="Products" ImageSource="product_management.png"
+            ContentLayout="top, 0"
+            Grid.Row="2" Grid.Column="1"
+            Command="{Binding ProductsCommand}"/>
+                            <Button Text="Settings" ImageSource="settings.png"
+            ContentLayout="top, 0"
+            Grid.Row="2" Grid.Column="2" 
+            IsVisible="{Binding IsDeveloper}" 
+            Command="{Binding SettingsDisplayCommand}"/>
+                            <Button Text="Sale Types"
+            ContentLayout="top, 0"
+            IsVisible="{Binding IsDeveloper, Converter={StaticResource InverseBoolConverter}}" 
+            Grid.Row="2" Grid.Column="2" 
+            Command="{Binding ToggleSalesTypeCommand}">
                                 <Button.ImageSource>
                                     <FontImageSource FontFamily="FASolid"
-                                        Glyph="{x:Static fa:Solid.MoneyBillWave}"
-                                        Color="Black" Size="35"/>
-                            </Button.ImageSource>
-                        </Button>
-                        <Button Text="Sale Types"
-                                ContentLayout="top, 0" 
-                                Command="{Binding ToggleSalesTypeCommand}"
-                                IsVisible="{Binding IsDeveloper}" 
-                                Grid.Row="3" Grid.Column="0" >
+                    Glyph="{x:Static fa:Solid.MoneyBillWave}"
+                    Color="Black" Size="35"/>
+                                </Button.ImageSource>
+                            </Button>
+                            <Button Text="Sale Types"
+            ContentLayout="top, 0" 
+            Command="{Binding ToggleSalesTypeCommand}"
+            IsVisible="{Binding IsDeveloper}" 
+            Grid.Row="3" Grid.Column="0" >
                                 <Button.ImageSource>
                                     <FontImageSource FontFamily="FASolid"
-                                        Glyph="{x:Static fa:Solid.MoneyBillWave}"
-                                        Color="Black" Size="40"/>
-                            </Button.ImageSource>
-                        </Button>
+                    Glyph="{x:Static fa:Solid.MoneyBillWave}"
+                    Color="Black" Size="40"/>
+                                </Button.ImageSource>
+                            </Button>
 
+                        </Grid>
+                    </ScrollView>
                     </Grid>
-                </Grid>
             </Border>
         </Grid>
 

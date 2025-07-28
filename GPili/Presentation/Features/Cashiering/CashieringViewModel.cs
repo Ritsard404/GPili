@@ -201,7 +201,7 @@ namespace GPili.Presentation.Features.Cashiering
             Products = await _inventory.GetProductsByCategory(category.Id);
             OnPropertyChanged(nameof(Products));
 
-            IsLoading = false   ;
+            IsLoading = false;
         }
 
         [RelayCommand]
@@ -212,17 +212,18 @@ namespace GPili.Presentation.Features.Cashiering
 
             try
             {
-                var popup = new EditItemView(item);
-                var result = await Shell.Current.ShowPopupAsync(popup);
-                if (result is bool b && b)
+                var result = await _popupService.ShowPopupAsync<EditItemViewModel>(
+                     vm => vm.Initialize(item)
+                 );
+
+                if (result is true)
                 {
                     await LoadItems();
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex);
-                await Snackbar.Make("An error occurred while selecting the item.", duration: TimeSpan.FromSeconds(1)).Show();
+                await Shell.Current.DisplayAlert("Error", ex.ToString(), "OK");
             }
         }
 
@@ -512,7 +513,7 @@ namespace GPili.Presentation.Features.Cashiering
             if (Items.Any())
             {
 
-                await Shell.Current.DisplayAlert("Action Denied!", "Cashier has pending item/s.","OK");
+                await Shell.Current.DisplayAlert("Action Denied!", "Cashier has pending item/s.", "OK");
                 return;
             }
 

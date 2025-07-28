@@ -50,7 +50,7 @@ internal static class ApplicationExtensions
         {
             DataSource = dbPath,
             Mode = SqliteOpenMode.ReadWriteCreate,
-            Password = FolderPath.Database.Password 
+            Password = FolderPath.Database.Password
         }.ToString();
 
         services.AddDbContext<DataContext>(options =>
@@ -61,8 +61,13 @@ internal static class ApplicationExtensions
     private static string GetPersistentDatabasePath()
     {
 #if ANDROID
-            // External public path (survives uninstall with permission)
-               var basePath = Path.Combine(FileSystem.AppDataDirectory, "GPili");
+        // External public path (survives uninstall with permission)
+        //var basePath = Path.Combine(FileSystem.AppDataDirectory, "GPili");
+
+        var basePath = Path.Combine(
+            Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDocuments).AbsolutePath,
+            "GPili"
+        );
 #elif WINDOWS || MACCATALYST
         // App-scoped local data
         var basePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "GPili");

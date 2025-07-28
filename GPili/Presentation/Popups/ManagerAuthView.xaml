@@ -21,7 +21,7 @@
             <Entry x:Name="AuthEntry" 
                    Placeholder="Manager Auth" Text="{Binding ManagerEmail, Mode=TwoWay}" 
                    Grid.Row="1"
-                   HeightRequest="50"
+                   HeightRequest="50" TextColor="White"
                    BackgroundColor="Black"
                    ClearButtonVisibility="WhileEditing"
                    IsPassword="True">

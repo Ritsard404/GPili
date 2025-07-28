@@ -7,7 +7,13 @@ namespace GPili.Presentation.Popups
     public partial class EditItemViewModel(IPopupService _popupService,
         IOrder _order) : ObservableValidator
     {
-        public EditItemView _popup;
+        
+        public void Initialize(Item item)
+        {
+            Item = item;
+            Qty = item.Qty;
+            SubTotal = item.SubTotal;
+        }
 
         [ObservableProperty]
         private Item _item;
@@ -47,7 +53,7 @@ namespace GPili.Presentation.Popups
 
             if (Item.Qty == Qty && Item.SubTotal == SubTotal)
             {
-                _popup.CloseWithResult(false);
+                _popupService.ClosePopup(false);
                 return;
             }
 
@@ -55,7 +61,7 @@ namespace GPili.Presentation.Popups
 
             if (isSuccess)
             {
-                _popup.CloseWithResult(true);
+                _popupService.ClosePopup(true);
             }
             else
             {
@@ -79,14 +85,14 @@ namespace GPili.Presentation.Popups
             {
                 await Snackbar.Make(message,
                     duration: TimeSpan.FromSeconds(1)).Show();
-                _popup.CloseWithResult(true);
+                _popupService.ClosePopup(true);
             }
             else
             {
                 await Snackbar.Make(message,
                     duration: TimeSpan.FromSeconds(1)).Show();
 
-                _popup.CloseWithResult(false);
+                _popupService.ClosePopup(false);
             }
         }
     }

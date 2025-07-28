@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿#if WINDOWS
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace ServiceLibrary.Utils
@@ -168,4 +169,89 @@ namespace ServiceLibrary.Utils
         }
     }
 }
+#endif
+
+#if ANDROID
+using System;
+using System.Text;
+using System.Threading.Tasks;
+using Plugin.BLE;
+using Plugin.BLE.Abstractions.Contracts;
+using Plugin.BLE.Abstractions.Exceptions;
+
+namespace ServiceLibrary.Utils
+{
+    public static class RawPrinterHelper
+    {
+        // Synchronous wrapper for compatibility with your interface
+        public static bool PrintText(string printerName, string text)
+        {
+            var bytes = Encoding.UTF8.GetBytes(text);
+            return PrintRawBytes(printerName, bytes);
+        }
+
+        public static bool PrintRawBytes(string printerName, byte[] bytes)
+        {
+            try
+            {
+                // Run async BLE logic synchronously (not ideal, but matches your static API)
+                return PrintRawBytesAsync(printerName, bytes).GetAwaiter().GetResult();
+            }
+            catch (Exception ex)
+            {
+                // Log or handle error
+                return false;
+            }
+        }
+
+        private static async Task<bool> PrintRawBytesAsync(string printerName, byte[] bytes)
+        {
+            var ble = CrossBluetoothLE.Current;
+            var adapter = CrossBluetoothLE.Current.Adapter;
+
+            IDevice foundDevice = null;
+            var tcs = new TaskCompletionSource<IDevice>();
+
+            adapter.DeviceDiscovered += (s, a) =>
+            {
+                if (!string.IsNullOrEmpty(a.Device.Name) && a.Device.Name.Contains(printerName, StringComparison.OrdinalIgnoreCase))
+                {
+                    foundDevice = a.Device;
+                    tcs.TrySetResult(a.Device);
+                }
+            };
+
+            await adapter.StartScanningForDevicesAsync();
+            // Wait for device or timeout (10 seconds)
+            var completedTask = await Task.WhenAny(tcs.Task, Task.Delay(10000));
+            await adapter.StopScanningForDevicesAsync();
+
+            if (foundDevice == null)
+                return false;
+
+            // 2. Connect to device
+            await adapter.ConnectToDeviceAsync(foundDevice);
+
+            // 3. Find the correct service and characteristic
+            // You may need to adjust these UUIDs for your printer
+            var services = await foundDevice.GetServicesAsync();
+            foreach (var service in services)
+            {
+                var characteristics = await service.GetCharacteristicsAsync();
+                foreach (var characteristic in characteristics)
+                {
+                    if (characteristic.CanWrite)
+                    {
+                        // 4. Write data
+                        await characteristic.WriteAsync(bytes);
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+    }
+}
+#endif
 

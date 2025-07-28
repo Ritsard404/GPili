@@ -15,19 +15,6 @@ namespace ServiceLibrary.Services
         ILogger<DatabaseInitializerService> _logger,
         DataSeedingService _seeder) : IDatabaseInitializerService
     {
-        //private readonly DataContext _context;
-        //private readonly ILogger<DatabaseInitializerService> _logger;
-        //private readonly DataSeedingService _seeder;
-
-        //public DatabaseInitializerService(
-        //    DataContext context,
-        //    ILogger<DatabaseInitializerService> logger,
-        //    DataSeedingService seeder)
-        //{
-        //    _context = context;
-        //    _logger = logger;
-        //    _seeder = seeder;
-        //}
 
         public async Task InitializeAsync()
         {

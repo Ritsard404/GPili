@@ -36,25 +36,20 @@
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
-		<PackageIcon>GPili Icon.png</PackageIcon>
+		<PackageIcon>gpili_logo.png</PackageIcon>
 		<AndroidRoundIcon>gpiliicon.svg</AndroidRoundIcon>
-		<GenerateAppInstallerFile>False</GenerateAppInstallerFile>
+		<GenerateAppInstallerFile>True</GenerateAppInstallerFile>
 		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
 		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
 		<AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
 		<AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
 		<GenerateTestArtifacts>True</GenerateTestArtifacts>
-		<AppInstallerUri>C:\Users\Acer\Documents</AppInstallerUri>
+		<AppInstallerUri>C:\Users\Acer\Documents\GPili Deploy</AppInstallerUri>
 		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
 		<PackageCertificateThumbprint>D8539E9624A5BF9D1AEE9CDF08855996DD3BB2C1</PackageCertificateThumbprint>
 		<DefaultLanguage>en</DefaultLanguage>
 		<Company>Arsene Software Solutions</Company>
 		<Product>GPili POS</Product>
-	</PropertyGroup>
-
-	<!-- Android‑only RIDs -->
-	<PropertyGroup Condition="'$(TargetFramework)' == 'net8.0-android'">
-		<RuntimeIdentifiers>android-x64</RuntimeIdentifiers>
 	</PropertyGroup>
 
 	<!-- Windows‑only RID -->
@@ -76,7 +71,6 @@
 
 	<ItemGroup>
 		<!-- App Icon -->
-		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
 		<!--<MauiIcon Include="Resources\AppIcon\gpiliicon.svg" ForegroundFile="Resources\AppIcon\gpiliicon.svg" Color="#512BD4"  />-->
 		<!-- Splash Screen -->
 		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
@@ -96,8 +90,18 @@
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
 	</ItemGroup>
 
+
 	<ItemGroup>
-		<None Include="..\..\..\Downloads\GPili Icon.png">
+	  <None Remove="Resources\AppIcon\gpiliicon.svg" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+	  <MauiIcon Include="Resources\AppIcon\gpiliicon.svg" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\..\..\Downloads\gpili_logo.png">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
@@ -220,6 +224,10 @@
 		<MauiXaml Update="Presentation\Features\Manager\UsersPage.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
 	</ItemGroup>
 
 	<Target Name="ExcludeServiceLibraryPdb" BeforeTargets="CollectFilesForMsixPackaging">

@@ -11,7 +11,7 @@
                 <!-- Light red background -->
                 <Setter Property="TextColor" Value="Red" />
             </Style>
-            <Style x:Key="Save" TargetType="Button" BasedOn="{StaticResource KeypadButton}">
+            <Style x:Key="Save" TargetType="Button">
                 <Setter Property="BackgroundColor" Value="Green"/>
                 <Setter Property="TextColor" Value="White"/>
                 <Setter Property="FontAttributes" Value="Bold"/>
@@ -43,7 +43,7 @@
                     </VisualStateGroupList>
                 </Setter>
             </Style>
-            <Style x:Key="Void" TargetType="Button" BasedOn="{StaticResource KeypadButton}">
+            <Style x:Key="Void" TargetType="Button">
                 <Setter Property="BackgroundColor" Value="Red"/>
                 <Setter Property="TextColor" Value="White"/>
                 <Setter Property="FontAttributes" Value="Bold"/>

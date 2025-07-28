@@ -70,18 +70,18 @@
                    Aspect="AspectFit" />
                 <Label 
                     Text="Welcome to GPili!"
-                    FontSize="32"
+                    FontSize="32" TextColor="White"
                     HorizontalOptions="Center" />
 
                 <VerticalStackLayout Spacing="4" WidthRequest="300">
                     <Label 
-                        Text="Select Cashier"
+                        Text="Select Cashier" TextColor="White"
                         FontAttributes="Bold"
                         FontSize="14"/>
 
                     <Picker
                         FontAttributes="Bold"
-                        WidthRequest="300"
+                        WidthRequest="300" 
                         ItemsSource="{Binding Cashiers}"
                         ItemDisplayBinding="{Binding FullName}"
                         SelectedItem="{Binding SelectedCashier}"/>
@@ -89,7 +89,7 @@
 
                 <VerticalStackLayout Spacing="4" WidthRequest="300">
                     <Label 
-                        Text="Admin Authorize"
+                        Text="Admin Authorize" TextColor="White"
                         FontAttributes="Bold"
                         FontSize="14"/>
 
