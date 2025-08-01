@@ -8,8 +8,8 @@ namespace ServiceLibrary.Utils
         {
             get
             {
-#if ANDROID
-                var path = Application.Context.GetExternalFilesDir(null).AbsoluteFile.Path;
+#if ANDROID            
+                var path = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDocuments).AbsolutePath;
                 return Path.Combine(path, "GPili");
 #elif WINDOWS
             return @"C:\GPili";

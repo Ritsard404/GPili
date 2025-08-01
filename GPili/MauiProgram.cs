@@ -2,6 +2,8 @@
 using InputKit.Handlers;
 using Microsoft.Extensions.Logging;
 using UraniumUI;
+using Microsoft.Data.Sqlite;
+
 
 #if WINDOWS
 using Microsoft.Maui.LifecycleEvents;
@@ -15,7 +17,9 @@ namespace GPili
     {
         public static MauiApp CreateMauiApp()
         {
+#if WINDOWS
             SQLitePCL.Batteries_V2.Init();
+#endif
 
             var builder = MauiApp.CreateBuilder();
             builder

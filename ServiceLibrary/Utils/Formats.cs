@@ -34,11 +34,21 @@
 
         public static string PesoFormat(this decimal value)
         {
+#if ANDROID
+            return $"P{value:N2}";
+#else
             return $"₱{value:N2}";
+
+#endif
         }
         public static string PesoFormat(this decimal? value)
         {
+#if ANDROID
+            return $"P{(value ?? 0):N2}";
+#else
             return $"₱{(value ?? 0):N2}";
+
+#endif
         }
 
         public static string Capitalize(this string value)

@@ -71,29 +71,31 @@ namespace ServiceLibrary.Services
             return string.Empty;
         }
 
-        private async void PrintToPrinter(StringBuilder content)
+        private async Task PrintToPrinter(StringBuilder content)
         {
-            // fetch terminal preference
-            string printerName = null;
             try
             {
+                // fetch terminal preference
+                string printerName = "";
+
                 var info = await _terminalMachine.GetTerminalInfo();
                 printerName = info?.PrinterName;
-            }
-            catch
-            {
-                // ignore and fall back
-            }
 
-            if (string.IsNullOrWhiteSpace(printerName))
-            {
-                // reliable fallback
-                printerName = GetDefaultPrinterName();
-            }
+                if (string.IsNullOrWhiteSpace(printerName))
+                {
+                    // reliable fallback
+                    printerName = GetDefaultPrinterName();
+                }
 
-            // Add line feeds for paper cutting
-            content.AppendLine("\n\n\n");
-            RawPrinterHelper.PrintText(printerName, content.ToString());
+                // Add line feeds for paper cutting
+                content.AppendLine("\n\n\n");
+                await Task.Run(() => RawPrinterHelper.PrintText(printerName, content.ToString()));
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Printing error: {ex.Message}");
+                throw; // Rethrow to be handled by caller
+            }
         }
 
         private async Task<bool> isAcknowledgementInvoice()
@@ -107,167 +109,176 @@ namespace ServiceLibrary.Services
 
         public async Task PrintInvoice(InvoiceDTO invoiceInfo)
         {
-            var folderPath = FolderPath.SalesReport.Invoices;
-            var filePath = Path.Combine(folderPath, $"{invoiceInfo.InvoiceNum}_{DateTime.Now.ToString("yyyy-dd-MM")}.txt");
-            var isTrainMode = invoiceInfo.BusinesDetails.IsTrainMode;
-
-            EnsureDirectoryExists(folderPath);
-
-            var content = new StringBuilder();
-
-            if (isTrainMode)
+            try
             {
-                content.AppendLine(CenterText("TRAIN MODE"))
-                    .AppendLine();
-            }
+                var folderPath = FolderPath.SalesReport.Invoices;
+                var filePath = Path.Combine(folderPath, $"{invoiceInfo.InvoiceNum}_{DateTime.Now.ToString("yyyy-dd-MM")}.txt");
+                var isTrainMode = invoiceInfo.BusinesDetails.IsTrainMode;
 
-            if (await isAcknowledgementInvoice())
-            {
-                content.AppendLine(new string('=', ReceiptWidth))
-                    .AppendLine(CenterText(invoiceInfo.IsReturned ? "RETURN Acknowledgment Receipt" : "Acknowledgment Receipt"))
-                    .AppendLine(new string('=', ReceiptWidth));
-            }
-            else
-            {
-                content.AppendLine(new string('=', ReceiptWidth))
-                    .AppendLine(CenterText(invoiceInfo.IsReturned ? "RETURNED INVOICE" : "INVOICE"))
-                    .AppendLine(new string('=', ReceiptWidth))
-                    .AppendLine(CenterText(invoiceInfo.BusinesDetails.RegisteredName))
-                    .AppendLine(CenterText(invoiceInfo.BusinesDetails.Address))
-                    .AppendLine(CenterText($"TIN: {invoiceInfo.BusinesDetails.VatTinNumber}"))
-                    .AppendLine(CenterText($"MIN: {invoiceInfo.BusinesDetails.MinNumber}"))
-                    .AppendLine(new string('-', ReceiptWidth));
-            }
+                EnsureDirectoryExists(folderPath);
 
+                var content = new StringBuilder();
 
-            // Invoice details
-            content.AppendLine()
-                .AppendLine($"INV: {invoiceInfo.InvoiceNum}".PadRight(ReceiptWidth))
-                .AppendLine()
-                .AppendLine($"Date: {invoiceInfo.InvoiceDate:d}".PadRight(ReceiptWidth))
-                .AppendLine($"Cashier: {invoiceInfo.CashierName}".PadRight(ReceiptWidth))
-                .AppendLine(new string('-', ReceiptWidth))
-
-            // Items header
-                .AppendLine(FormatItemLine("Qty", "Description", "Amount"))
-                .AppendLine(new string('-', ReceiptWidth))
-                .AppendLine();
-
-            // Invoice Items
-            foreach (var item in invoiceInfo.Items)
-            {
-                content.AppendLine(FormatItemLine(
-                    item.Qty,
-                    item.Description.Length > DescWidth
-                        ? item.Description.Substring(0, DescWidth)
-                        : item.Description,
-                    item.Amount));
-            }
-            content.AppendLine(new string('-', ReceiptWidth));
-
-            // Totals
-            content.AppendLine(CenterText($"{"Total:",-15}{invoiceInfo.TotalAmount,17}"));
-            // #TODO To Add Discount
-            //.AppendLine(CenterText($"{"Sub Total:",-15}{invoiceInfo.SubTotal,17}"))
-            if (!string.IsNullOrEmpty(invoiceInfo.ElligiblePersonDiscount) || invoiceInfo.OtherPayments.Count > 0)
-                content.AppendLine(AlignLabelAmount($"Discount({invoiceInfo.DiscountType}):", invoiceInfo.DiscountAmount, ReceiptWidth));
-            content.AppendLine(CenterText($"{"Due Amount:",-15}{invoiceInfo.DueAmount,17}"));
-
-            // Other Payments
-            if (invoiceInfo.OtherPayments.Count > 0)
-            {
-                foreach (var payment in invoiceInfo.OtherPayments)
+                if (isTrainMode)
                 {
-                    content.AppendLine(CenterText($"{$"{payment.SaleTypeName}:",-15}{payment.Amount,17}"));
+                    content.AppendLine(CenterText("TRAIN MODE"))
+                        .AppendLine();
                 }
-            }
 
-            content.AppendLine(CenterText($"{"Cash:",-15}{invoiceInfo.CashTenderAmount,17}"))
-                .AppendLine(CenterText($"{"Total Tender:",-15}{invoiceInfo.TotalTenderAmount,17}"))
-                .AppendLine(CenterText($"{"Change:",-15}{invoiceInfo.ChangeAmount,17}"))
-                .AppendLine()
-                .AppendLine(CenterText($"{"Vat Zero:",-15}{invoiceInfo.VatZero,17}"))
-                .AppendLine(CenterText($"{"Vat Exempt:",-15}{invoiceInfo.VatExemptSales,17}"))
-                .AppendLine(CenterText($"{"Vat Sales:",-15}{invoiceInfo.VatSales,17}"))
-                .AppendLine(CenterText($"{"Vat Amount:",-15}{invoiceInfo.VatAmount,17}"))
-                .AppendLine();
-
-            if (string.IsNullOrEmpty(invoiceInfo.ElligiblePersonDiscount))
-            {
-                content.AppendLine("Name:_________________")
-                    .AppendLine("Address:______________")
-                    .AppendLine("TIN: _________________")
-                    .AppendLine("Signature: ___________")
-                    .AppendLine();
-            }
-            else
-            {
-                content.AppendLine($"Name: {invoiceInfo.ElligiblePersonDiscount}")
-                    .AppendLine("Address:______________")
-                    .AppendLine("TIN: _________________")
-                    .AppendLine("Signature: ___________")
-                    .AppendLine();
-            }
-
-            // Print Copies
-            if (!string.IsNullOrEmpty(invoiceInfo.ElligiblePersonDiscount) || invoiceInfo.OtherPayments.Count > 0)
-            {
-                // Store original content once
-                string baseContent = content.ToString();
-
-                foreach (var label in new[] { "", "COPY" })
+                if (await isAcknowledgementInvoice())
                 {
-                    // Create a fresh builder for each output
-                    var contentWithLabel = new StringBuilder();
+                    content.AppendLine(new string('=', ReceiptWidth))
+                        .AppendLine(CenterText(invoiceInfo.IsReturned ? "RETURN Acknowledgment Receipt" : "Acknowledgment Receipt"))
+                        .AppendLine(new string('=', ReceiptWidth));
+                }
+                else
+                {
+                    content.AppendLine(new string('=', ReceiptWidth))
+                        .AppendLine(CenterText(invoiceInfo.IsReturned ? "RETURNED INVOICE" : "INVOICE"))
+                        .AppendLine(new string('=', ReceiptWidth))
+                        .AppendLine(CenterText(invoiceInfo.BusinesDetails.RegisteredName))
+                        .AppendLine(CenterText(invoiceInfo.BusinesDetails.Address))
+                        .AppendLine(CenterText($"TIN: {invoiceInfo.BusinesDetails.VatTinNumber}"))
+                        .AppendLine(CenterText($"MIN: {invoiceInfo.BusinesDetails.MinNumber}"))
+                        .AppendLine(new string('-', ReceiptWidth));
+                }
 
-                    // Add label if not empty
-                    if (!string.IsNullOrWhiteSpace(label))
+
+                // Invoice details
+                content.AppendLine()
+                    .AppendLine($"INV: {invoiceInfo.InvoiceNum}".PadRight(ReceiptWidth))
+                    .AppendLine()
+                    .AppendLine($"Date: {invoiceInfo.InvoiceDate:d}".PadRight(ReceiptWidth))
+                    .AppendLine($"Cashier: {invoiceInfo.CashierName}".PadRight(ReceiptWidth))
+                    .AppendLine(new string('-', ReceiptWidth))
+
+                    // Items header
+                    .AppendLine(FormatItemLine("Qty", "Description", "Amount"))
+                    .AppendLine(new string('-', ReceiptWidth))
+                    .AppendLine();
+
+                // Invoice Items
+                foreach (var item in invoiceInfo.Items)
+                {
+                    content.AppendLine(FormatItemLine(
+                        item.Qty,
+                        item.Description.Length > DescWidth
+                            ? item.Description.Substring(0, DescWidth)
+                            : item.Description,
+                        item.Amount));
+                }
+                content.AppendLine(new string('-', ReceiptWidth));
+
+                // Totals
+                content.AppendLine(CenterText($"{"Total:",-15}{invoiceInfo.TotalAmount,17}"));
+                // #TODO To Add Discount
+                //.AppendLine(CenterText($"{"Sub Total:",-15}{invoiceInfo.SubTotal,17}"))
+                if (!string.IsNullOrEmpty(invoiceInfo.ElligiblePersonDiscount) || invoiceInfo.OtherPayments.Count > 0)
+                    content.AppendLine(AlignLabelAmount($"Discount({invoiceInfo.DiscountType}):", invoiceInfo.DiscountAmount, ReceiptWidth));
+                content.AppendLine(CenterText($"{"Due Amount:",-15}{invoiceInfo.DueAmount,17}"));
+
+                // Other Payments
+                if (invoiceInfo.OtherPayments.Count > 0)
+                {
+                    foreach (var payment in invoiceInfo.OtherPayments)
                     {
-                        contentWithLabel.AppendLine(CenterText($"*** {label} ***"));
+                        content.AppendLine(CenterText($"{$"{payment.SaleTypeName}:",-15}{payment.Amount,17}"));
                     }
+                }
 
-                    contentWithLabel.Append(baseContent);
+                content.AppendLine(CenterText($"{"Cash:",-15}{invoiceInfo.CashTenderAmount,17}"))
+                    .AppendLine(CenterText($"{"Total Tender:",-15}{invoiceInfo.TotalTenderAmount,17}"))
+                    .AppendLine(CenterText($"{"Change:",-15}{invoiceInfo.ChangeAmount,17}"))
+                    .AppendLine()
+                    .AppendLine(CenterText($"{"Vat Zero:",-15}{invoiceInfo.VatZero,17}"))
+                    .AppendLine(CenterText($"{"Vat Exempt:",-15}{invoiceInfo.VatExemptSales,17}"))
+                    .AppendLine(CenterText($"{"Vat Sales:",-15}{invoiceInfo.VatSales,17}"))
+                    .AppendLine(CenterText($"{"Vat Amount:",-15}{invoiceInfo.VatAmount,17}"))
+                    .AppendLine();
 
-                    var baseName = Path.GetFileNameWithoutExtension(filePath);
-                    var ext = Path.GetExtension(filePath);
+                if (string.IsNullOrEmpty(invoiceInfo.ElligiblePersonDiscount))
+                {
+                    content.AppendLine("Name:_________________")
+                        .AppendLine("Address:______________")
+                        .AppendLine("TIN: _________________")
+                        .AppendLine("Signature: ___________")
+                        .AppendLine();
+                }
+                else
+                {
+                    content.AppendLine($"Name: {invoiceInfo.ElligiblePersonDiscount}")
+                        .AppendLine("Address:______________")
+                        .AppendLine("TIN: _________________")
+                        .AppendLine("Signature: ___________")
+                        .AppendLine();
+                }
 
-                    var outName = string.IsNullOrWhiteSpace(label)
-                        ? $"{baseName}{ext}"
-                        : $"{baseName}_{label}{ext}";
+                // Print Copies
+                if (!string.IsNullOrEmpty(invoiceInfo.ElligiblePersonDiscount) || invoiceInfo.OtherPayments.Count > 0)
+                {
+                    // Store original content once
+                    string baseContent = content.ToString();
 
-                    var outPath = Path.Combine(folderPath, outName);
+                    foreach (var label in new[] { "", "COPY" })
+                    {
+                        // Create a fresh builder for each output
+                        var contentWithLabel = new StringBuilder();
 
-                    //File.WriteAllText(outPath, contentWithLabel.ToString());
+                        // Add label if not empty
+                        if (!string.IsNullOrWhiteSpace(label))
+                        {
+                            contentWithLabel.AppendLine(CenterText($"*** {label} ***"));
+                        }
+
+                        contentWithLabel.Append(baseContent);
+
+                        var baseName = Path.GetFileNameWithoutExtension(filePath);
+                        var ext = Path.GetExtension(filePath);
+
+                        var outName = string.IsNullOrWhiteSpace(label)
+                            ? $"{baseName}{ext}"
+                            : $"{baseName}_{label}{ext}";
+
+                        var outPath = Path.Combine(folderPath, outName);
+
+                        //File.WriteAllText(outPath, contentWithLabel.ToString());
+                        //Process.Start(new ProcessStartInfo(filePath) { UseShellExecute = true });
+
+                        // Print to thermal printer
+                        await PrintToPrinter(contentWithLabel);
+                    }
+                }
+                else
+                {
+                    //File.WriteAllText(filePath, content.ToString());
                     //Process.Start(new ProcessStartInfo(filePath) { UseShellExecute = true });
 
                     // Print to thermal printer
-                    PrintToPrinter(contentWithLabel);
+                    await PrintToPrinter(content);
                 }
+
+
+                var receiptBytes = Encoding.UTF8.GetBytes(content.ToString());
+                var invoiceNumber = long.Parse(invoiceInfo.InvoiceNum);
+                var invoice = await _dataContext.Invoice.FirstOrDefaultAsync(i => i.InvoiceNumber == invoiceNumber);
+
+                var invoiceDocument = new InvoiceDocument
+                {
+                    InvoiceBlob = receiptBytes,
+                    Type = InvoiceDocumentType.Invoice, // or "X", "Y", etc. as needed
+                    Invoice = invoice,
+                    IsTrainMode = isTrainMode
+                };
+
+                _dataContext.InvoiceDocument.Add(invoiceDocument);
+                await _dataContext.SaveChangesAsync();
             }
-            else
+            catch (Exception ex)
             {
-                //File.WriteAllText(filePath, content.ToString());
-                //Process.Start(new ProcessStartInfo(filePath) { UseShellExecute = true });
-
-                // Print to thermal printer
-                PrintToPrinter(content);
+                // **this** catch will trap any error—printer or DB—and keep your app alive
+                Debug.WriteLine($"⚠️ PrintInvoice FAILED: {ex}");
+                // optionally: await Shell.Current.DisplayAlert("Print error", ex.Message, "OK");
             }
-
-
-            var receiptBytes = Encoding.UTF8.GetBytes(content.ToString());
-            var invoiceNumber = long.Parse(invoiceInfo.InvoiceNum);
-            var invoice = await _dataContext.Invoice.FirstOrDefaultAsync(i => i.InvoiceNumber == invoiceNumber);
-
-            var invoiceDocument = new InvoiceDocument
-            {
-                InvoiceBlob = receiptBytes,
-                Type = InvoiceDocumentType.Invoice, // or "X", "Y", etc. as needed
-                Invoice = invoice,
-                IsTrainMode = isTrainMode
-            };
-
-            _dataContext.InvoiceDocument.Add(invoiceDocument);
-            await _dataContext.SaveChangesAsync();
         }
 
         public async Task PrintXReading()
@@ -384,9 +395,7 @@ namespace ServiceLibrary.Services
             //File.WriteAllText(filePath, content.ToString());
 
             // Print to thermal printer
-            PrintToPrinter(content);
-
-            //Process.Start(new ProcessStartInfo(filePath) { UseShellExecute = true });
+            await PrintToPrinter(content);
         }
 
         public async Task PrintZReading()

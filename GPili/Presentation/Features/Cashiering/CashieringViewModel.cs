@@ -281,65 +281,67 @@ namespace GPili.Presentation.Features.Cashiering
         [RelayCommand]
         private async Task PayOrder(string payContent)
         {
-
             IsLoading = true;
 
-            if (payContent == KeypadActions.EXACT_PAY)
-                Tenders.SetExactCashAmount();
-
-            if (payContent == KeypadActions.ENTER && Tenders.ChangeAmount < 0)
+            try
             {
-                await Snackbar.Make("Please enter a valid amount to pay.", duration: TimeSpan.FromSeconds(1)).Show();
-                IsLoading = false;
-                return;
-            }
+                if (payContent == KeypadActions.EXACT_PAY)
+                    Tenders.SetExactCashAmount();
 
-            var payOrder = new PayOrderDTO
-            {
-                CashierEmail = CashierState.Info.CashierEmail!,
-                CashTendered = Tenders.CashTenderAmount,
-                OtherPayment = Tenders.HasOtherPayments ? Tenders.OtherPayments.ToList() : new(),
-                ChangeAmount = Tenders.ChangeAmount,
-                DueAmount = Tenders.AmountDue,
-                TotalAmount = Tenders.TotalAmount,
-                SubTotal = Tenders.SubTotal,
-                DiscountAmount = Tenders.DiscountAmount,
-                VatExempt = Tenders.VatExemptSales,
-                VatSales = Tenders.VatSales,
-                VatAmount = Tenders.VatAmount,
-                VatZero = Tenders.VatZero,
-                TotalTendered = Tenders.TenderAmount,
-                GrossAmount = Tenders.GrossTotal,
-                Discount = Tenders.Discount
-            };
-
-            var result = await _order.PayOrder(payOrder);
-            if (result.isSuccess)
-            {
-                await Snackbar.Make("Order paid successfully!",
-                    duration: TimeSpan.FromSeconds(1)).Show();
-
-                if (IsRetail)
+                if (payContent == KeypadActions.ENTER && Tenders.ChangeAmount < 0)
                 {
-                    Products = await _inventory.GetProducts();
+                    await Snackbar.Make("Please enter a valid amount to pay.", duration: TimeSpan.FromSeconds(1)).Show();
+                    return;
+                }
+
+                var payOrder = new PayOrderDTO
+                {
+                    CashierEmail = CashierState.Info.CashierEmail!,
+                    CashTendered = Tenders.CashTenderAmount,
+                    OtherPayment = Tenders.HasOtherPayments ? Tenders.OtherPayments.ToList() : new(),
+                    ChangeAmount = Tenders.ChangeAmount,
+                    DueAmount = Tenders.AmountDue,
+                    TotalAmount = Tenders.TotalAmount,
+                    SubTotal = Tenders.SubTotal,
+                    DiscountAmount = Tenders.DiscountAmount,
+                    VatExempt = Tenders.VatExemptSales,
+                    VatSales = Tenders.VatSales,
+                    VatAmount = Tenders.VatAmount,
+                    VatZero = Tenders.VatZero,
+                    TotalTendered = Tenders.TenderAmount,
+                    GrossAmount = Tenders.GrossTotal,
+                    Discount = Tenders.Discount
+                };
+
+                var result = await _order.PayOrder(payOrder);
+                if (result.isSuccess)
+                {
+                    await Snackbar.Make("Order paid successfully!", duration: TimeSpan.FromSeconds(1)).Show();
+
+                    Products = IsRetail
+                        ? await _inventory.GetProducts()
+                        : await _inventory.GetProductsByCategory(SelectedCategory.Id);
+
+                    await LoadItems();
+                    ClearQty();
+                    SelectedKeypadAction = KeypadActions.QTY;
+                    Tenders.Discount = null;
                 }
                 else
                 {
-                    Products = await _inventory.GetProductsByCategory(SelectedCategory.Id);
+                    await Snackbar.Make(result.message, duration: TimeSpan.FromSeconds(1)).Show();
                 }
-                await LoadItems();
-
-                ClearQty();
-                SelectedKeypadAction = KeypadActions.QTY;
-                Tenders.Discount = null;
             }
-            else
+            catch (Exception ex)
             {
-                await Snackbar.Make(result.message, duration: TimeSpan.FromSeconds(1)).Show();
+                // Optional: Log the exception or report it to your error tracking system
+                await Shell.Current.DisplayAlert("Error", $"An error occurred while processing the payment: {ex.Message}", "OK");
 
             }
-
-            IsLoading = false;
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
         [RelayCommand]

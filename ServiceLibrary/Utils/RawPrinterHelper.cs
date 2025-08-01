@@ -172,17 +172,93 @@ namespace ServiceLibrary.Utils
 #endif
 
 #if ANDROID
+using Android.Bluetooth;
+using Android.Content;
+using Android.OS;
+using Java.Nio;
+using Java.Util;
 using System;
+using System.Diagnostics;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using Plugin.BLE;
-using Plugin.BLE.Abstractions.Contracts;
-using Plugin.BLE.Abstractions.Exceptions;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ServiceLibrary.Utils
 {
     public static class RawPrinterHelper
     {
+        private static readonly object _logLock = new object();
+        private static string _logFilePath;
+
+        static RawPrinterHelper()
+        {
+            // Initialize log file path - use the app's internal files directory
+            var documentsPath = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDocuments).AbsolutePath;
+            if (!Directory.Exists(documentsPath))
+                Directory.CreateDirectory(documentsPath);
+
+            _logFilePath = Path.Combine(documentsPath, "bluetooth_print_log.txt");
+        }
+
+        //public static string GetLogFilePath()
+        //{
+        //    return _logFilePath;
+        //}
+
+        //public static string ReadLogFile()
+        //{
+        //    try
+        //    {
+        //        if (File.Exists(_logFilePath))
+        //        {
+        //            return File.ReadAllText(_logFilePath);
+        //        }
+        //        return "Log file not found.";
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return $"Error reading log file: {ex.Message}";
+        //    }
+        //}
+
+        //public static void ClearLogFile()
+        //{
+        //    try
+        //    {
+        //        if (File.Exists(_logFilePath))
+        //        {
+        //            File.Delete(_logFilePath);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        System.Diagnostics.Debug.WriteLine($"Error clearing log file: {ex.Message}");
+        //    }
+        //}
+
+        private static void LogMessage(string message)
+        {
+            var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+            var logEntry = $"[{timestamp}] {message}";
+
+            lock (_logLock)
+            {
+                try
+                {
+                    // Append to file
+                    File.AppendAllText(_logFilePath, logEntry + System.Environment.NewLine);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error writing to log file: {ex.Message}");
+                }
+            }
+
+            // Also write to debug console for development
+            System.Diagnostics.Debug.WriteLine(logEntry);
+        }
+
         // Synchronous wrapper for compatibility with your interface
         public static bool PrintText(string printerName, string text)
         {
@@ -194,62 +270,107 @@ namespace ServiceLibrary.Utils
         {
             try
             {
-                // Run async BLE logic synchronously (not ideal, but matches your static API)
+
+                // Check permissions before proceeding
+                if (!CheckBluetoothPermissions())
+                {
+                    LogMessage("ERROR: Required Bluetooth permissions not granted");
+                    return false;
+                }
+
                 return PrintRawBytesAsync(printerName, bytes).GetAwaiter().GetResult();
             }
             catch (Exception ex)
             {
-                // Log or handle error
+                LogMessage($"ERROR in PrintRawBytes: {ex.Message}");
                 return false;
             }
         }
-
         private static async Task<bool> PrintRawBytesAsync(string printerName, byte[] bytes)
         {
-            var ble = CrossBluetoothLE.Current;
-            var adapter = CrossBluetoothLE.Current.Adapter;
-
-            IDevice foundDevice = null;
-            var tcs = new TaskCompletionSource<IDevice>();
-
-            adapter.DeviceDiscovered += (s, a) =>
+            var adapter = BluetoothAdapter.DefaultAdapter;
+            if (adapter == null || !adapter.IsEnabled)
             {
-                if (!string.IsNullOrEmpty(a.Device.Name) && a.Device.Name.Contains(printerName, StringComparison.OrdinalIgnoreCase))
-                {
-                    foundDevice = a.Device;
-                    tcs.TrySetResult(a.Device);
-                }
-            };
-
-            await adapter.StartScanningForDevicesAsync();
-            // Wait for device or timeout (10 seconds)
-            var completedTask = await Task.WhenAny(tcs.Task, Task.Delay(10000));
-            await adapter.StopScanningForDevicesAsync();
-
-            if (foundDevice == null)
+                LogMessage("Bluetooth is not enabled or not supported.");
                 return false;
-
-            // 2. Connect to device
-            await adapter.ConnectToDeviceAsync(foundDevice);
-
-            // 3. Find the correct service and characteristic
-            // You may need to adjust these UUIDs for your printer
-            var services = await foundDevice.GetServicesAsync();
-            foreach (var service in services)
-            {
-                var characteristics = await service.GetCharacteristicsAsync();
-                foreach (var characteristic in characteristics)
-                {
-                    if (characteristic.CanWrite)
-                    {
-                        // 4. Write data
-                        await characteristic.WriteAsync(bytes);
-                        return true;
-                    }
-                }
             }
 
-            return false;
+            var device = adapter.BondedDevices.FirstOrDefault(d => d.Name == printerName);
+            if (device == null)
+            {
+                LogMessage("Bluetooth device not found.");
+                return false;
+            }
+
+            var uuid = UUID.FromString("00001101-0000-1000-8000-00805f9b34fb"); // SPP UUID
+            using var socket = device.CreateRfcommSocketToServiceRecord(uuid);
+            adapter.CancelDiscovery();
+
+            try
+            {
+                // Offload the blocking connect + write to a background thread:
+                await Task.Run(async () =>
+                {
+                    socket.Connect();                                 // blocking
+                    await socket.OutputStream.WriteAsync(bytes, 0, bytes.Length);
+                    // optional flush delay:
+                    await Task.Delay(200);
+                });
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogMessage($"[PrintRawBytesAsync] Error: {ex}");
+                return false;
+            }
+            finally
+            {
+                if (socket.IsConnected)
+                    socket.Close();
+            }
+        }
+
+
+
+        private static bool CheckBluetoothPermissions()
+        {
+            try
+            {
+                var context = Android.App.Application.Context;
+                
+                // Check location permissions (required for Bluetooth scanning on all Android versions)
+                var locationPermission = Android.Manifest.Permission.AccessFineLocation;
+                var coarseLocationPermission = Android.Manifest.Permission.AccessCoarseLocation;
+                
+                if (context.CheckSelfPermission(locationPermission) != Android.Content.PM.Permission.Granted ||
+                    context.CheckSelfPermission(coarseLocationPermission) != Android.Content.PM.Permission.Granted)
+                {
+                    LogMessage("ERROR: Location permissions not granted (required for Bluetooth scanning)");
+                    return false;
+                }
+
+                // Check Bluetooth permissions for Android 12+ (API 31+)
+                if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.S)
+                {
+                    var bluetoothScanPermission = Android.Manifest.Permission.BluetoothScan;
+                    var bluetoothConnectPermission = Android.Manifest.Permission.BluetoothConnect;
+                    
+                    if (context.CheckSelfPermission(bluetoothScanPermission) != Android.Content.PM.Permission.Granted ||
+                        context.CheckSelfPermission(bluetoothConnectPermission) != Android.Content.PM.Permission.Granted)
+                    {
+                        LogMessage("ERROR: Bluetooth permissions not granted (required for Android 12+)");
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogMessage($"ERROR checking permissions: {ex.Message}");
+                return false;
+            }
         }
     }
 }

@@ -393,7 +393,7 @@ namespace ServiceLibrary.Services.Repositories
 
                 int total = response.Products.Count;
                 int processed = 0;
-                int batchSize = 100;
+                //int batchSize = 100;
                 int batchCounter = 0;
 
                 // 1. Categories

@@ -535,11 +535,12 @@ namespace ServiceLibrary.Services.Repositories
                 _dataContext.Invoice.Update(pendingOrder);
                 await _dataContext.SaveChangesAsync();
 
+                await transaction.CommitAsync();
+
                 // Print the invoice
                 invoice = await _report.GetInvoiceById(pendingOrder.Id);
                 await _printer.PrintInvoice(invoice!);
 
-                await transaction.CommitAsync();
                 return (true, "Order paid successfully!", invoice);
             }
             catch (Exception ex)

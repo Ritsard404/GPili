@@ -41,17 +41,23 @@ internal static class ApplicationExtensions
         // Ensure directory exists
         var dbDirectory = Path.GetDirectoryName(dbPath);
         if (!Directory.Exists(dbDirectory))
-            Directory.CreateDirectory(dbDirectory); 
-        
-        //var connectionString = $"Data Source={dbPath}";
+            Directory.CreateDirectory(dbDirectory);
+
+        string connectionString;
+
+#if ANDROID
+
+         connectionString = $"Data Source={dbPath}";
+#else
 
         // Added Database Security
-        var connectionString = new SqliteConnectionStringBuilder
+        connectionString = new SqliteConnectionStringBuilder
         {
             DataSource = dbPath,
             Mode = SqliteOpenMode.ReadWriteCreate,
             Password = FolderPath.Database.Password
         }.ToString();
+#endif
 
         services.AddDbContext<DataContext>(options =>
             options.UseSqlite(connectionString, x => x.MigrationsAssembly(nameof(ServiceLibrary))));

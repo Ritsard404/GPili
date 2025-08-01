@@ -69,7 +69,7 @@ namespace ServiceLibrary.Services
                 BranchCenter = "BC001",
                 DbName = "arseneso_barandog",
                 UseCenter = "MAIN",
-                PrinterName = "POSPrinter",
+                PrinterName = "POS58D9724",
                 Vat = 12,
                 DiscountMax = 250.00m, // Example VAT max value
             };
