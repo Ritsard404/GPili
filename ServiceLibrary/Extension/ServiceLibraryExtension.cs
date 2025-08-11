@@ -26,7 +26,7 @@ namespace ServiceLibrary.Extension
             services.AddScoped<VoidedListPDFService>();
 
 
-            services.AddScoped<IDatabaseInitializerService, DatabaseInitializerService>();
+            services.AddScoped<IDatabaseService, DatabaseService>();
             services.AddScoped<DataSeedingService>();
             services.AddScoped<IPrinterService, PrinterService>();
 

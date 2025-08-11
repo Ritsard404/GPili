@@ -99,6 +99,8 @@ namespace ServiceLibrary.Services.Repositories
                 IsTrainMode = terminalInfo.IsTrainMode,
             };
 
+            var isAcknowledgement = terminalInfo.Vat <= 0;
+
             var items = order.Items
             .Where(item => item.Status != InvoiceStatusType.Void)
             .Select(item => new ItemInfo
@@ -107,7 +109,7 @@ namespace ServiceLibrary.Services.Repositories
                 Description = item.DisplayNameWithPrice.Length > 20
                     ? item.DisplayNameWithPrice.Substring(0, 20)
                     : item.DisplayNameWithPrice,
-                Amount = item.DisplaySubtotalVat,
+                Amount = isAcknowledgement ? item.SubTotal.PesoFormat() : item.DisplaySubtotalVat,
             })
             .ToList();
 
@@ -221,7 +223,8 @@ namespace ServiceLibrary.Services.Repositories
             var summary = new TransactionSummary
             {
                 CashInDrawer = (ts?.CashOutDrawerAmount ?? defaultDecimal).PesoFormat(),
-                OtherPayments = payments.OtherPayments
+                OtherPayments = payments.OtherPayments,
+                PaymentsReceived = (payments.OtherPayments.Sum(n => n.Amount) + payments.Cash).PesoFormat()
             };
 
             // Build DTO with safe values
@@ -287,8 +290,10 @@ namespace ServiceLibrary.Services.Repositories
             var orders = await _dataContext.Invoice
                 .Where(o => o.IsTrainMode == isTrainMode)
                 .Include(o => o.Items)
+                .AsNoTracking()
                 .Include(o => o.EPayments)
                     .ThenInclude(ap => ap.SaleType)
+                .AsNoTracking()
                 .ToListAsync();
 
             // Initialize empty collections to prevent null references
@@ -350,7 +355,9 @@ namespace ServiceLibrary.Services.Repositories
                 (o?.VatExempt ?? defaultDecimal) *
                 (1 - ((o?.ReturnedAmount ?? defaultDecimal) / (o?.TotalAmount ?? 1m))));
 
-            decimal zeroRated = 0m;
+            decimal zeroRated = regularOrders.Sum(o =>
+                (o?.VatZero ?? defaultDecimal) *
+                (1 - ((o?.ReturnedAmount ?? defaultDecimal) / (o?.TotalAmount ?? 1m))));
 
             // Cash in Drawer
             decimal cashInDrawer = allTimestamps
@@ -529,7 +536,6 @@ namespace ServiceLibrary.Services.Repositories
             return dto;
         }
 
-
         public async Task<List<GetInvoiceDocumentDTO>> InvoiceDocuments(DateTime fromDate, DateTime toDate)
         {
             var isTrainMode = await _terminalMachine.IsTrainMode();
@@ -544,7 +550,7 @@ namespace ServiceLibrary.Services.Repositories
                     Type = d.Type,
                     TypeDisplay = d.Type == InvoiceDocumentType.Invoice ? d.Type + $" #{d.Invoice!.InvoiceNumber}" : d.Type,
                     Status = d.Type == InvoiceDocumentType.Invoice ? d.Invoice!.Status : "",
-                    CreatedAt = d.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd hh:mm:ss")
+                    CreatedAt = d.CreatedAt.ToString("yyyy-MM-dd hh:mm:ss")
                 })
                 .ToListAsync();
         }
@@ -1054,12 +1060,12 @@ namespace ServiceLibrary.Services.Repositories
         }
         public async Task<List<Reading>> GetSalesBookData(DateTime fromDate, DateTime toDate)
         {
-                var posInfo = await _terminalMachine.GetTerminalInfo();
-                // Get the sales report data
-                return await _dataContext.Reading
-                    .Where(r => r.IsTrainMode == posInfo.IsTrainMode &&
-                        r.CreatedAt.Date >= fromDate.Date && r.CreatedAt.Date <= toDate.Date)
-                    .ToListAsync();
+            var posInfo = await _terminalMachine.GetTerminalInfo();
+            // Get the sales report data
+            return await _dataContext.Reading
+                .Where(r => r.IsTrainMode == posInfo.IsTrainMode &&
+                    r.CreatedAt.Date >= fromDate.Date && r.CreatedAt.Date <= toDate.Date)
+                .ToListAsync();
         }
 
         public async Task<(List<VoidedListDTO> voidedOrdersLists, TotalVoidedListDTO totalVoidedList)> GetVoidedListsData(DateTime fromDate, DateTime toDate)

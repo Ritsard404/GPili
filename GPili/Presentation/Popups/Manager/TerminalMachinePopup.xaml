@@ -162,7 +162,6 @@
                             input:FormView.IsSubmitButton="True" Grid.Column="1"/>
                         </Grid>
                     </input:FormView>
-
                 </ScrollView>
 
             </Grid>

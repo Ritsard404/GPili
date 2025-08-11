@@ -16,7 +16,7 @@ namespace GPili.Presentation.Features.Manager
     [QueryProperty(nameof(ManagerEmail), nameof(ManagerEmail))]
     [QueryProperty(nameof(IsDeveloper), nameof(IsDeveloper))]
     public partial class ManagerViewModel(IInventory _inventory,
-        IAuditLog _auditLog,
+        IAuditLog _auditLog, IDatabaseService _databaseService,
         IAuth _auth,
         IGPiliTerminalMachine _terminalMachine,
         IEPayment _ePayment,
@@ -1149,6 +1149,38 @@ namespace GPili.Presentation.Features.Manager
 
             IsLoading = false;
         }
+
+        [RelayCommand]
+        private async Task ResetDatabase()
+        {
+            bool confirmed = await Shell.Current.DisplayAlert(
+                "Confirm Reset",
+                "This will delete all data and reset the database to its initial state. Are you sure you want to proceed?",
+                "Reset",
+                "Cancel"
+            );
+
+            if (!confirmed)
+                return;
+
+            IsLoading = true;
+
+            try
+            {
+                // Inject and call your database reset service here
+                await _databaseService.ResetDatabaseAsync(); // For example
+                await Shell.Current.DisplayAlert("Success", "Database has been reset successfully.", "OK");
+            }
+            catch (Exception ex)
+            {
+                await Shell.Current.DisplayAlert("Error", $"Failed to reset database:\n{ex.Message}", "OK");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
 
     }
     public partial class TerminalConfiguration : ObservableValidator

@@ -11,6 +11,6 @@ test developer: ebisx@gpili.com
 
 publishing
 dotnet publish Gpili/GPili.csproj -f net8.0-windows10.0.19041.0 -c Release -r win10-x64 /p:ArchiveOnBuild=true
-dotnet publish GPili/GPili.csproj -f net8.0-windows10.0.19041.0 -c Release -r win-x64 /p:ArchiveOnBuild=true
+dotnet publish GPili/GPili.csproj -f net8.0-windows10.0.19041.0 -c Release -r win-x64 /p:ArchiveOnBuild=true 
 
 dotnet publish -f:net8.0-android -c:Release /p:AndroidSigningKeyPass=200303 /p:AndroidSigningKeyStorePass=200303

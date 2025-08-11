@@ -278,6 +278,46 @@ namespace GPili.Presentation.Features.Cashiering
         }
 
 
+#if ANDROID
+        private async Task<bool> RequestBluetoothAndLocationPermissions()
+        {
+            var permissionsToRequest = new List<string>();
+
+            if (OperatingSystem.IsAndroidVersionAtLeast(12))
+            {
+                if (AndroidX.Core.Content.ContextCompat.CheckSelfPermission(Platform.CurrentActivity!, Android.Manifest.Permission.BluetoothConnect) != Android.Content.PM.Permission.Granted)
+                    permissionsToRequest.Add(Android.Manifest.Permission.BluetoothConnect);
+
+                if (AndroidX.Core.Content.ContextCompat.CheckSelfPermission(Platform.CurrentActivity!, Android.Manifest.Permission.BluetoothScan) != Android.Content.PM.Permission.Granted)
+                    permissionsToRequest.Add(Android.Manifest.Permission.BluetoothScan);
+            }
+
+            // Location is required for scanning Bluetooth devices
+            if (AndroidX.Core.Content.ContextCompat.CheckSelfPermission(Platform.CurrentActivity!, Android.Manifest.Permission.AccessFineLocation) != Android.Content.PM.Permission.Granted)
+                permissionsToRequest.Add(Android.Manifest.Permission.AccessFineLocation);
+
+            if (permissionsToRequest.Count > 0)
+            {
+                AndroidX.Core.App.ActivityCompat.RequestPermissions(
+                    Platform.CurrentActivity!,
+                    permissionsToRequest.ToArray(),
+                    2001
+                );
+
+                await Task.Delay(500); // Give time for user response
+
+                // Verify again
+                foreach (var perm in permissionsToRequest)
+                {
+                    if (AndroidX.Core.Content.ContextCompat.CheckSelfPermission(Platform.CurrentActivity!, perm) != Android.Content.PM.Permission.Granted)
+                        return false; // Permission denied
+                }
+            }
+
+            return true;
+        }
+#endif
+
         [RelayCommand]
         private async Task PayOrder(string payContent)
         {
@@ -285,6 +325,54 @@ namespace GPili.Presentation.Features.Cashiering
 
             try
             {
+#if ANDROID
+                bool permissionsGranted = await RequestBluetoothAndLocationPermissions();
+
+                // 2️⃣ If denied, guide user to Settings
+                if (!permissionsGranted)
+                {
+                    bool openSettings = await Shell.Current.DisplayAlert(
+                        "Permissions Required",
+                        "Bluetooth and Location permissions are required for printing receipts. Please allow them to continue.",
+                        "Open Settings", "Cancel");
+
+                    if (openSettings)
+                    {
+                        var intent = new Android.Content.Intent(Android.Provider.Settings.ActionApplicationDetailsSettings);
+                        intent.SetData(Android.Net.Uri.Parse($"package:{Platform.CurrentActivity!.PackageName}"));
+                        Platform.CurrentActivity!.StartActivity(intent);
+
+                        await Snackbar.Make("Please enable Bluetooth and Location permissions in settings.", duration: TimeSpan.FromSeconds(3)).Show();
+                    }
+                }
+
+                var bluetoothAdapter = Android.Bluetooth.BluetoothAdapter.DefaultAdapter;
+                if (bluetoothAdapter != null && !bluetoothAdapter.IsEnabled)
+                {
+                    var enableBluetooth = await Shell.Current.DisplayAlert(
+                        "Bluetooth Offline",
+                        "Bluetooth is required for printing receipts. Would you like to enable Bluetooth?",
+                        "Enable", "Cancel");
+
+                    if (enableBluetooth)
+                    {
+                        if (await RequestBluetoothAndLocationPermissions())
+                        {
+                            var intent = new Android.Content.Intent(Android.Bluetooth.BluetoothAdapter.ActionRequestEnable);
+                            Platform.CurrentActivity!.StartActivityForResult(intent, 1001);
+                            await Snackbar.Make("Please enable Bluetooth in the prompt...", duration: TimeSpan.FromSeconds(2)).Show();
+                            await Task.Delay(2000);
+                        }
+                    }
+                    else
+                    {
+                        await Snackbar.Make("Payment completed. Receipt was not printed.", duration: TimeSpan.FromSeconds(2)).Show();
+                    }
+                }
+#endif
+
+
+
                 if (payContent == KeypadActions.EXACT_PAY)
                     Tenders.SetExactCashAmount();
 

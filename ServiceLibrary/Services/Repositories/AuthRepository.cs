@@ -66,8 +66,8 @@ namespace ServiceLibrary.Services.Repositories
                 string.IsNullOrWhiteSpace(user.Role))
                 return (false, "All user fields are required.");
 
-            if (!new EmailAddressAttribute().IsValid(user.Email))
-                return (false, "Invalid email format.");
+            //if (!new EmailAddressAttribute().IsValid(user.Email))
+            //    return (false, "Invalid email format.");
 
             var isExisting = await _dataContext.User.AnyAsync(u => u.Email.ToLower() == user.Email.ToLower());
             if (isExisting)

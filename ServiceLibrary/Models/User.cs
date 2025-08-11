@@ -8,7 +8,7 @@ namespace ServiceLibrary.Models
     {
         [Key]
         [Required(ErrorMessage = "Email is required")]
-        [EmailAddress(ErrorMessage = "Invalid email format")]
+        //[EmailAddress(ErrorMessage = "Invalid email format")]
         public required string Email { get; set; }
 
         [Required(ErrorMessage = "First name is required")]

@@ -46,6 +46,7 @@ namespace ServiceLibrary.Utils
             public static string Test => CreateIfMissing(Path.Combine(Root, "Database"));
             public const string Password = "Ritsard200303";  // leave as const if truly constant
             public static string TestPush => CreateIfMissing(Path.Combine(Root, "TestPush"));
+            public static string BackUp => CreateIfMissing(Path.Combine(Root, "BackUp"));
         }
 
         public static class JournalLink

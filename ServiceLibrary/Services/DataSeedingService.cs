@@ -6,14 +6,8 @@ using System.Diagnostics;
 
 namespace ServiceLibrary.Services
 {
-    public class DataSeedingService
+    public class DataSeedingService(DataContext _context)
     {
-        private readonly DataContext _context;
-
-        public DataSeedingService(DataContext context)
-        {
-            _context = context;
-        }
 
         public async Task SeedDataAsync()
         {
@@ -21,8 +15,8 @@ namespace ServiceLibrary.Services
             {
                 await SeedUsersAsync();
                 await SeedPosTerminalInfoAsync();
-                await SeedCategoriesAndProductsAsync();
                 await SeedSaleTypesAsync();
+                await SeedCategoriesAndProductsAsync();
             }
             catch(Exception ex)
             {
@@ -40,7 +34,7 @@ namespace ServiceLibrary.Services
 
             var users = new List<User>
             {
-                new() { Email = "ebisx@gpili.com", FName = "Admin", LName = "User", Role = RoleType.Developer },
+                new() { Email = "ebisx@gpili.com", FName = "Admin", LName = "Ko", Role = RoleType.Developer },
                 new() { Email = "demo@ebisx.com", FName = "John", LName = "Cashier", Role = RoleType.Cashier },
                 new() { Email = "manager@gpili.com", FName = "Jane", LName = "Manager", Role = RoleType.Manager }
             };
@@ -59,7 +53,7 @@ namespace ServiceLibrary.Services
                 AccreditationNumber = "ACC987654321",
                 PtuNumber = "PTU456789123",
                 DateIssued = DateTime.Now,
-                ValidUntil = DateTime.Now.AddYears(5),
+                ValidUntil = DateTime.Now.AddYears(2),
                 PosName = "1",
                 RegisteredName = "GPili Store",
                 OperatedBy = "GPili Corporation",

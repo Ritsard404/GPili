@@ -3,6 +3,8 @@ using InputKit.Handlers;
 using Microsoft.Extensions.Logging;
 using UraniumUI;
 using Microsoft.Data.Sqlite;
+using System;
+using System.IO;
 
 
 #if WINDOWS
@@ -17,34 +19,47 @@ namespace GPili
     {
         public static MauiApp CreateMauiApp()
         {
+            try
+            {
+                LogToFile("MauiProgram.CreateMauiApp started");
+
 #if WINDOWS
-            SQLitePCL.Batteries_V2.Init();
+                LogToFile("Initializing SQLite for Windows");
+                SQLitePCL.Batteries_V2.Init();
+                LogToFile("SQLite initialization completed");
 #endif
 
-            var builder = MauiApp.CreateBuilder();
-            builder
-                .UseMauiApp<App>()
-                .ConfigureMauiHandlers(handlers =>
-                {
-                    handlers.AddInputKitHandlers();
-                })
-                .UseMauiCommunityToolkit(option =>
-                {
-                    option.SetShouldEnableSnackbarOnWindows(true);
-                })
-                .ConfigureApplication()
-                .ConfigureFonts(fonts =>
-                {
-                    fonts.AddFont("Nunito-Regular.ttf", "NunitoRegular");
-                    fonts.AddFont("Nunito-Semibold.ttf", "NunitoSemibold");
-                    fonts.AddFont("Nunito-Bold.ttf", "NunitoBold");
-                    fonts.AddFont("Nunito-ExtraBold.ttf", "NunitoExtrabold");
-                    fonts.AddFont("Nunito-Black.ttf", "NunitoBlack");
-                    fonts.AddFontAwesomeIconFonts();
-                })
-                .UseUraniumUI()
-                .UseUraniumUIMaterial();
+                LogToFile("Creating MauiApp builder");
+                var builder = MauiApp.CreateBuilder();
+                
+                LogToFile("Configuring MAUI app");
+                builder
+                    .UseMauiApp<App>()
+                    .ConfigureMauiHandlers(handlers =>
+                    {
+                        LogToFile("Adding InputKit handlers");
+                        handlers.AddInputKitHandlers();
+                    })
+                    .UseMauiCommunityToolkit(option =>
+                    {
+                        LogToFile("Configuring Community Toolkit");
+                        option.SetShouldEnableSnackbarOnWindows(true);
+                    })
+                    .ConfigureApplication()
+                    .ConfigureFonts(fonts =>
+                    {
+                        LogToFile("Configuring fonts");
+                        fonts.AddFont("Nunito-Regular.ttf", "NunitoRegular");
+                        fonts.AddFont("Nunito-Semibold.ttf", "NunitoSemibold");
+                        fonts.AddFont("Nunito-Bold.ttf", "NunitoBold");
+                        fonts.AddFont("Nunito-ExtraBold.ttf", "NunitoExtrabold");
+                        fonts.AddFont("Nunito-Black.ttf", "NunitoBlack");
+                        fonts.AddFontAwesomeIconFonts();
+                    })
+                    .UseUraniumUI()
+                    .UseUraniumUIMaterial();
 
+                LogToFile("MAUI configuration completed");
 
 
 #if WINDOWS
@@ -79,20 +94,47 @@ namespace GPili
 #endif
 
 #if DEBUG
-            builder.Logging.AddDebug();
+                LogToFile("Adding debug logging");
+                builder.Logging.AddDebug();
 #endif
 
-            // Build the app first
-            var app = builder.Build();
+                LogToFile("Building MauiApp");
+                // Build the app first
+                var app = builder.Build();
+                LogToFile("MauiApp built successfully");
 
-            // Now safely resolve the database initializer
-            using (var scope = app.Services.CreateScope())
-            {
-                var dbInitializer = scope.ServiceProvider.GetRequiredService<IDatabaseInitializerService>();
-                dbInitializer.InitializeAsync().GetAwaiter().GetResult();
+                // Now safely resolve the database initializer
+                LogToFile("Initializing database");
+                using (var scope = app.Services.CreateScope())
+                {
+                    var dbInitializer = scope.ServiceProvider.GetRequiredService<IDatabaseService>();
+                    dbInitializer.InitializeAsync().GetAwaiter().GetResult();
+                }
+                LogToFile("Database initialization completed");
+
+                LogToFile("MauiProgram.CreateMauiApp completed successfully");
+                return app;
             }
+            catch (Exception ex)
+            {
+                LogToFile($"MauiProgram.CreateMauiApp error: {ex}");
+                throw;
+            }
+        }
 
-            return app;
+        private static void LogToFile(string message)
+        {
+            try
+            {
+                var logDir = @"C:\GPili";
+                if (!Directory.Exists(logDir))
+                    Directory.CreateDirectory(logDir);
+                
+                var logFile = Path.Combine(logDir, "maui-startup.log");
+                var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+                File.AppendAllText(logFile, $"[{timestamp}] {message}{Environment.NewLine}");
+            }
+            catch { /* Ignore logging errors */ }
         }
     }
 }

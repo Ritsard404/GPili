@@ -62,6 +62,9 @@ namespace ServiceLibrary.Services.DTO.Report
 
         // Match payments in summary (e.g., cheque, credit card, etc.)
         public List<PaymentDetail> OtherPayments { get; set; } = new List<PaymentDetail>();
+
+
+        public string PaymentsReceived { get; set; } = string.Empty;
     }
 
 }

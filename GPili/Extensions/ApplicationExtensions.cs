@@ -74,9 +74,11 @@ internal static class ApplicationExtensions
             Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDocuments).AbsolutePath,
             "GPili"
         );
-#elif WINDOWS || MACCATALYST
+#elif WINDOWS
         // App-scoped local data
-        var basePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "GPili");
+        //var basePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "GPili");
+
+        var basePath = Path.Combine(FolderPath.Database.Test, "GPili.db");
 #else
             // Default MAUI internal storage
             var basePath = Path.Combine(FileSystem.AppDataDirectory, "Database");

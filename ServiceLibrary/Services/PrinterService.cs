@@ -189,12 +189,16 @@ namespace ServiceLibrary.Services
                 content.AppendLine(CenterText($"{"Cash:",-15}{invoiceInfo.CashTenderAmount,17}"))
                     .AppendLine(CenterText($"{"Total Tender:",-15}{invoiceInfo.TotalTenderAmount,17}"))
                     .AppendLine(CenterText($"{"Change:",-15}{invoiceInfo.ChangeAmount,17}"))
-                    .AppendLine()
-                    .AppendLine(CenterText($"{"Vat Zero:",-15}{invoiceInfo.VatZero,17}"))
+                    .AppendLine();
+
+                if (!await isAcknowledgementInvoice())
+                {
+                    content.AppendLine(CenterText($"{"Vat Zero:",-15}{invoiceInfo.VatZero,17}"))
                     .AppendLine(CenterText($"{"Vat Exempt:",-15}{invoiceInfo.VatExemptSales,17}"))
                     .AppendLine(CenterText($"{"Vat Sales:",-15}{invoiceInfo.VatSales,17}"))
                     .AppendLine(CenterText($"{"Vat Amount:",-15}{invoiceInfo.VatAmount,17}"))
                     .AppendLine();
+                }
 
                 if (string.IsNullOrEmpty(invoiceInfo.ElligiblePersonDiscount))
                 {
@@ -241,20 +245,20 @@ namespace ServiceLibrary.Services
 
                         var outPath = Path.Combine(folderPath, outName);
 
-                        //File.WriteAllText(outPath, contentWithLabel.ToString());
-                        //Process.Start(new ProcessStartInfo(filePath) { UseShellExecute = true });
+                        File.WriteAllText(outPath, contentWithLabel.ToString());
+                        Process.Start(new ProcessStartInfo(filePath) { UseShellExecute = true });
 
                         // Print to thermal printer
-                        await PrintToPrinter(contentWithLabel);
+                        //await PrintToPrinter(contentWithLabel);
                     }
                 }
                 else
                 {
-                    //File.WriteAllText(filePath, content.ToString());
-                    //Process.Start(new ProcessStartInfo(filePath) { UseShellExecute = true });
+                    File.WriteAllText(filePath, content.ToString());
+                    Process.Start(new ProcessStartInfo(filePath) { UseShellExecute = true });
 
                     // Print to thermal printer
-                    await PrintToPrinter(content);
+                    //await PrintToPrinter(content);
                 }
 
 
@@ -373,6 +377,9 @@ namespace ServiceLibrary.Services
             {
                 content.AppendLine(AlignText(p.Name.ToUpper(), p.AmountString));
             }
+            content.AppendLine(AlignText("Opening Fund:", xInvoice.OpeningFund))
+                .AppendLine(AlignText("Less Withdrawal:", xInvoice.Withdrawal))
+                .AppendLine(AlignText("Payments Received:", xInvoice.TransactionSummary.PaymentsReceived));
             content.AppendLine(new string('=', ReceiptWidth));
 
             // Short/Over
@@ -392,10 +399,11 @@ namespace ServiceLibrary.Services
             await _dataContext.SaveChangesAsync();
 
             // Save to file
-            //File.WriteAllText(filePath, content.ToString());
+            File.WriteAllText(filePath, content.ToString());
+            Process.Start(new ProcessStartInfo(filePath) { UseShellExecute = true });
 
             // Print to thermal printer
-            await PrintToPrinter(content);
+            //await PrintToPrinter(content);
         }
 
         public async Task PrintZReading()
@@ -411,6 +419,12 @@ namespace ServiceLibrary.Services
             var filePath = Path.Combine(reportPath, fileName);
 
             var content = new StringBuilder();
+
+            if (isTrainMode)
+            {
+                content.AppendLine(CenterText("TRAIN MODE"))
+                    .AppendLine();
+            }
 
             if (!await isAcknowledgementInvoice())
             {
@@ -478,7 +492,7 @@ namespace ServiceLibrary.Services
             // Discounts
             content.AppendLine(CenterText("DISCOUNT SUMMARY"))
                 .AppendLine(AlignText($"SC Disc. ({zInvoice.DiscountSummary.SeniorCitizenCount}):", zInvoice.DiscountSummary.SeniorCitizen))
-                .AppendLine(AlignText($"PWD Disc. ({zInvoice.DiscountSummary.PWDCount}):", zInvoice.DiscountSummary.PWDCount))
+                .AppendLine(AlignText($"PWD Disc. ({zInvoice.DiscountSummary.PWDCount}):", zInvoice.DiscountSummary.PWD))
                 .AppendLine(AlignText($"Other Disc. ({zInvoice.DiscountSummary.OtherCount}):", zInvoice.DiscountSummary.Other))
                 .AppendLine(new string('-', ReceiptWidth));
 
@@ -491,11 +505,16 @@ namespace ServiceLibrary.Services
             content.AppendLine(CenterText("VAT ADJUSTMENT"))
                 .AppendLine(AlignText("SC TRANS. :", zInvoice.VatAdjustment.SCTrans))
                 .AppendLine(AlignText("PWD TRANS :", zInvoice.VatAdjustment.PWDTrans))
-                .AppendLine(AlignText("REG.Disc. TRANS :", zInvoice.VatAdjustment.RegDiscTrans))
-                .AppendLine(AlignText("ZERO-RATED TRANS.:", zInvoice.VatAdjustment.ZeroRatedTrans))
+                .AppendLine(AlignText("REG.Disc. TRANS :", zInvoice.VatAdjustment.RegDiscTrans));
+
+
+            if (!await isAcknowledgementInvoice())
+            {
+                content.AppendLine(AlignText("ZERO-RATED TRANS.:", zInvoice.VatAdjustment.ZeroRatedTrans))
                 .AppendLine(AlignText("VAT on Return:", zInvoice.VatAdjustment.VatOnReturn))
                 .AppendLine(AlignText("Other VAT Adjustments:", zInvoice.VatAdjustment.OtherAdjustments))
                 .AppendLine(new string('-', ReceiptWidth));
+            }
 
             // Transaction Summary
             content.AppendLine(CenterText("TRANSACTION SUMMARY"))
@@ -527,12 +546,12 @@ namespace ServiceLibrary.Services
             await _dataContext.SaveChangesAsync();
 
             // Save to file
-            //File.WriteAllText(filePath, content.ToString());
+            File.WriteAllText(filePath, content.ToString());
+            Process.Start(new ProcessStartInfo(filePath) { UseShellExecute = true });
 
             // Print to thermal printer
-            PrintToPrinter(content);
+            //await PrintToPrinter(content);
 
-            //Process.Start(new ProcessStartInfo(filePath) { UseShellExecute = true });
         }
 
         public async Task<(bool isSuccess, string message)> ReprintInvoice(long id)
@@ -565,10 +584,10 @@ namespace ServiceLibrary.Services
             await _dataContext.SaveChangesAsync();
 
             // Print to thermal printer
-            PrintToPrinter(sb);
+            //await PrintToPrinter(sb);
 
-            //File.WriteAllText(tempPath, finalContent);
-            //Process.Start(new ProcessStartInfo(tempPath) { UseShellExecute = true });
+            File.WriteAllText(tempPath, finalContent);
+            Process.Start(new ProcessStartInfo(tempPath) { UseShellExecute = true });
 
 
             return (true, "Invoice reprinted successfully.");
@@ -605,10 +624,10 @@ namespace ServiceLibrary.Services
             await _dataContext.SaveChangesAsync();
 
             // Print to thermal printer
-            PrintToPrinter(sb);
+            //await PrintToPrinter(sb);
 
-            //File.WriteAllText(tempPath, finalContent);
-            //Process.Start(new ProcessStartInfo(tempPath) { UseShellExecute = true });
+            File.WriteAllText(tempPath, finalContent);
+            Process.Start(new ProcessStartInfo(tempPath) { UseShellExecute = true });
 
             return (true, "X-Reading report reprinted successfully.");
         }
@@ -635,8 +654,8 @@ namespace ServiceLibrary.Services
               .AppendLine(new string('=', ReceiptWidth));
 
             // When you need the final string:
-            //var finalContent = sb.ToString();
-            var finalContent = sb;
+            var finalContent = sb.ToString();
+            //var finalContent = sb;
 
             // Create a temporary file path
             var tempPath = Path.Combine(Path.GetTempPath(), $"ZReport_{invoiceDocument.CreatedAt:yyyyMMddHHmmss}.txt");
@@ -645,10 +664,10 @@ namespace ServiceLibrary.Services
             await _dataContext.SaveChangesAsync();
 
             // Print to thermal printer
-            PrintToPrinter(finalContent);
+            //await PrintToPrinter(finalContent);
 
-            //File.WriteAllText(tempPath, finalContent);
-            //Process.Start(new ProcessStartInfo(tempPath) { UseShellExecute = true });
+            File.WriteAllText(tempPath, finalContent);
+            Process.Start(new ProcessStartInfo(tempPath) { UseShellExecute = true });
 
             return (true, "Z-Reading report reprinted successfully.");
         }
@@ -683,11 +702,11 @@ namespace ServiceLibrary.Services
 
             // Print to default text viewer (or send to printer)
             var tempPrintPath = Path.Combine(Path.GetTempPath(), $"CashTrack_{cashierName}_{DateTime.Now:yyyyMMddHHmmss}.txt");
-            //File.WriteAllText(tempPrintPath, printContent);
-            //Process.Start(new ProcessStartInfo(tempPrintPath) { UseShellExecute = true });
 
-            // Optionally, print to thermal printer
-            PrintToPrinter(new StringBuilder(printContent));
+            File.WriteAllText(tempPrintPath, printContent);
+            Process.Start(new ProcessStartInfo(tempPrintPath) { UseShellExecute = true });
+
+            //PrintToPrinter(new StringBuilder(printContent));
         }
     }
 }

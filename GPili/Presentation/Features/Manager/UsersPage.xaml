@@ -240,12 +240,15 @@
                         <Grid RowDefinitions="*,Auto" ColumnDefinitions="*" RowSpacing="10" ColumnSpacing="10">
                             <VerticalStackLayout Spacing="10" Padding="10" HorizontalOptions="Fill">
 
-                                <!-- Barcode -->
+                                <!-- Email -->
                                 <material:TextField Title="Email" TextColor="White" Text="{Binding User.Email}">
+                                    <validation:RequiredValidation />
+                                </material:TextField>
+                                <!--<material:TextField Title="Email" TextColor="White" Text="{Binding User.Email}">
                                     <validation:RequiredValidation />
                                     <validation:RegexValidation Message="Please type a valid e-mail address." 
                                                                     Pattern="{x:Static input:AdvancedEntry.REGEX_EMAIL}"/>
-                                </material:TextField>
+                                </material:TextField>-->
 
                                 <!-- Name -->
                                 <material:TextField Grid.Column="0" TextColor="White" Title="First  Name" Text="{Binding User.FName}">
