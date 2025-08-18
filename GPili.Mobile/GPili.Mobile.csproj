@@ -75,11 +75,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Presentation\Contents\" />
 	  <Folder Include="Presentation\Popups\" />
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="Presentation\Contents\Cashier\TitleViewControl.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Presentation\Features\Cashier\CartPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

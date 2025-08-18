@@ -2,7 +2,13 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="GPili.Mobile.Presentation.Features.Cashier.CartPage"
+             xmlns:controls="clr-namespace:GPili.Mobile.Presentation.Contents.Cashier"
+             Shell.FlyoutBehavior="Disabled"
              Title="">
+    <Shell.TitleView>
+        <controls:TitleViewControl />
+    </Shell.TitleView>
+    
     <VerticalStackLayout>
         <Label 
             Text="Welcome to .NET MAUI!"

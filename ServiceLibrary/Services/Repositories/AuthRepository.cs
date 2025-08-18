@@ -186,13 +186,16 @@ namespace ServiceLibrary.Services.Repositories
             bool hasAuditLog = await _dataContext.AuditLog.AnyAsync(a => (a.Cashier != null && a.Cashier.Email == existing.Email) || (a.Manager != null && a.Manager.Email == existing.Email));
             bool hasInvoiceDoc = await _dataContext.InvoiceDocument.AnyAsync(d => d.Manager != null && d.Manager.Email == existing.Email);
 
-            if (hasTimestamp || hasInvoice || hasAuditLog || hasInvoiceDoc) {
+            if (hasTimestamp || hasInvoice || hasAuditLog || hasInvoiceDoc)
+            {
                 existing.IsActive = false;
                 existing.UpdatedAt = DateTime.Now;
                 _dataContext.User.Update(existing);
                 await _dataContext.SaveChangesAsync();
                 return (true, $"{existing.Role} disabled (still referenced in system)");
-            } else {
+            }
+            else
+            {
                 _dataContext.User.Remove(existing);
                 await _dataContext.SaveChangesAsync();
                 return (true, $"{existing.Role} deleted permanently");
@@ -229,12 +232,12 @@ namespace ServiceLibrary.Services.Repositories
 
         public async Task<bool> IsCashedDrawer(string cashierEmail)
         {
-            var timestamp = await _dataContext.Timestamp
+            return await _dataContext.Timestamp
                 .Include(t => t.Cashier)
-                .Where(t => t.Cashier.Email == cashierEmail && t.TsOut == null && t.CashInDrawerAmount != null && t.CashInDrawerAmount >= 1000)
-                .FirstOrDefaultAsync();
-
-            return timestamp != null;
+                .Where(t => t.Cashier.Email == cashierEmail
+                            && t.TsOut == null
+                            && t.CashInDrawerAmount >= 100)
+                .AnyAsync();
         }
 
         public async Task<(bool isSuccess, User? cashier)> IsCashierValid(string cashierEmail)

@@ -37,6 +37,6 @@ namespace ServiceLibrary.Models
         public bool IsTrainMode { get; set; } = false;
 
         // Is Retail Type
-        public bool IsRetailType { get; set; } = true;
+        public bool IsRetailType { get; set; } = false;
     }
 }

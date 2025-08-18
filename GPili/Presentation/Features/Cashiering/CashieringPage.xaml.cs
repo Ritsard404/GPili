@@ -139,7 +139,7 @@ public partial class CashieringPage : ContentPage
     }
 #endif
 
-    protected override async void OnAppearing()
+    protected override async void OnAppearingAsync()
     {
         base.OnAppearing();
 #if WINDOWS

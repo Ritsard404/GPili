@@ -38,7 +38,13 @@ namespace GPili.Mobile.Services
             {
 
                 CashierState.Info.UpdateCashierInfo(result.cashierName, result.cashierEmail, RoleType.Cashier);
-                await NavigateToAsync(AppRoutes.Cashiering);
+                App.UserInfo = new UserInfo
+                {
+                    Email = result.cashierEmail,
+                    Name = result.cashierName,
+                    Role = RoleType.Cashier
+                };
+                await AppConstant.AddTabMenus();
             }
             else
             {
@@ -50,6 +56,7 @@ namespace GPili.Mobile.Services
         public async Task Logout()
         {
             await NavigateToAsync(AppRoutes.Login);
+            App.UserInfo = null;
             CashierState.Info.Reset();
         }
         public Task NavigateToAsync(string route, IDictionary<string, object> routeParameters =

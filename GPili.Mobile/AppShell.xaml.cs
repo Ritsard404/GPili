@@ -2,6 +2,7 @@
 using GPili.Mobile.Presentation.Features.LogIn;
 using GPili.Mobile.Presentation.Features.Manager;
 using GPili.Mobile.Utils;
+using GPili.Mobile.Utils.State;
 
 namespace GPili.Mobile
 {
@@ -32,19 +33,20 @@ namespace GPili.Mobile
                 "Yes, Logout",
                 "Cancel");
 
+            App.UserInfo = null;
+            CashierState.Info.Reset();
             await Shell.Current.GoToAsync(AppRoutes.Login);
         }
 
 
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
 
-            using (var scope = IPlatformApplication.Current.Services.CreateScope())
-            {
-                var dbInitializer = scope.ServiceProvider.GetRequiredService<IDatabaseService>();
-                dbInitializer.InitializeAsync().GetAwaiter().GetResult();
-            }
+            using var scope = IPlatformApplication.Current.Services.CreateScope();
+            await scope.ServiceProvider.GetRequiredService<IDatabaseService>().InitializeAsync();
+
+            await scope.ServiceProvider.GetRequiredService<INavigationService>().InitializeAsync();
         }
     }
 }

@@ -6,4 +6,11 @@ public partial class CashierPage : ContentPage
 	{
 		InitializeComponent();
 	}
+	protected override async void OnAppearing()
+	{
+		base.OnAppearing();
+
+        if (BindingContext is CashierViewModel vm)
+            await vm.InitializeAsync();
+    }
 }
