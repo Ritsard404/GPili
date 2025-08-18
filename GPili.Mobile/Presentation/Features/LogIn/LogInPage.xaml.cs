@@ -1,0 +1,20 @@
+namespace GPili.Mobile.Presentation.Features.LogIn;
+
+public partial class LogInPage : ContentPage
+{
+	public LogInPage()
+	{
+		InitializeComponent();
+    }
+
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+
+        if (BindingContext is LogInViewModel vm)
+        {
+            await vm.InitializeAsync();
+        }
+
+    }
+}

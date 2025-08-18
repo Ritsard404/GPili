@@ -34,7 +34,7 @@ namespace ServiceLibrary.Services
 
             var users = new List<User>
             {
-                new() { Email = "ebisx@gpili.com", FName = "Admin", LName = "Ko", Role = RoleType.Developer },
+                new() { Email = "1", FName = "Admin", LName = "Ko", Role = RoleType.Developer },
                 new() { Email = "demo@ebisx.com", FName = "John", LName = "Cashier", Role = RoleType.Cashier },
                 new() { Email = "manager@gpili.com", FName = "Jane", LName = "Manager", Role = RoleType.Manager }
             };

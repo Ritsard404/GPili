@@ -1,9 +1,6 @@
-using CommunityToolkit.Maui;
-using GPili.Presentation.Features.Cashiering;
-using GPili.Presentation.Features.LogIn;
-using GPili.Presentation.Features.Manager;
-using GPili.Presentation.Popups;
-using GPili.Presentation.Popups.Manager;
+using GPili.Mobile.Presentation.Features.Cashier;
+using GPili.Mobile.Presentation.Features.LogIn;
+using GPili.Mobile.Presentation.Features.Manager;
 using Microsoft.Data.Sqlite;
 using ServiceLibrary.Extension;
 using ServiceLibrary.Utils;
@@ -25,65 +22,28 @@ internal static class ApplicationExtensions
     }
     public static IServiceCollection AddDatabase(this IServiceCollection services)
     {
-        string dbPath;
-
-#if DEBUG && WINDOWS
-        // Use test path in Debug mode
-        dbPath = Path.Combine(FolderPath.Database.Test, "GPili.db");
-#else
-                    // Use persistent path in Release mode
-                    dbPath = GetPersistentDatabasePath();
-#endif
+        string dbPath = Path.Combine(
+            Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads).AbsolutePath,
+            "GPili"
+        );
 
         // Ensure directory exists
         var dbDirectory = Path.GetDirectoryName(dbPath);
         if (!Directory.Exists(dbDirectory))
             Directory.CreateDirectory(dbDirectory);
 
-        string connectionString;
-
-#if ANDROID
-
-         connectionString = $"Data Source={dbPath}";
-#else
-
-        // Added Database Security
-        connectionString = new SqliteConnectionStringBuilder
+        string connectionString = new SqliteConnectionStringBuilder
         {
             DataSource = dbPath,
             Mode = SqliteOpenMode.ReadWriteCreate,
             Password = FolderPath.Database.Password
         }.ToString();
-#endif
 
         services.AddDbContext<DataContext>(options =>
             options.UseSqlite(connectionString, x => x.MigrationsAssembly(nameof(ServiceLibrary))));
 
         return services;
     }
-    private static string GetPersistentDatabasePath()
-    {
-#if ANDROID
-        // External public path (survives uninstall with permission)
-        //var basePath = Path.Combine(FileSystem.AppDataDirectory, "GPili");
-
-        var basePath = Path.Combine(
-            Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDocuments).AbsolutePath,
-            "GPili"
-        );
-#elif WINDOWS
-        // App-scoped local data
-        //var basePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "GPili");
-
-        var basePath = Path.Combine(FolderPath.Database.Test, "GPili.db");
-#else
-            // Default MAUI internal storage
-            var basePath = Path.Combine(FileSystem.AppDataDirectory, "Database");
-#endif
-
-        return Path.Combine(basePath, "GPili.db");
-    }
-
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
         services.AddSingleton<INavigationService, NavigationService>();
@@ -95,14 +55,17 @@ internal static class ApplicationExtensions
     public static IServiceCollection RegisterViews(this IServiceCollection services)
     {
         // Register your views here
-        services.AddSingleton<AppShell>();
+        //services.AddSingleton<AppShell>();
 
         services.AddPageViewModel<LogInViewModel, LogInPage>();
-        services.AddPageViewModel<CashieringViewModel, CashieringPage>();
+
+        services.AddPageViewModel<CashierViewModel, CashierPage>();
+        services.AddPageViewModel<CashierViewModel, TenderPage>();
+        services.AddPageViewModel<CashierViewModel, CartPage>();
 
         services.AddPageViewModel<ManagerViewModel, ManagerPage>();
-        services.AddPageViewModel<ProductsViewModel, ProductsPage>();
-        services.AddPageViewModel<UsersViewModel, UsersPage>();
+        services.AddPageViewModel<ManagerViewModel, ReportPage>();
+        services.AddPageViewModel<ManagerViewModel, DataPage>();
         return services;
     }
 
@@ -110,16 +73,16 @@ internal static class ApplicationExtensions
     {
         // Register your popups here
         //services.AddTransientPopup<LoaderView, LoaderViewModel>();
-        services.AddTransientPopup<ManagerAuthView, ManagerAuthViewModel>();
-        services.AddTransientPopup<EditItemView, EditItemViewModel>();
-        services.AddTransientPopup<EPaymentView, EPaymentViewModel>();
-        services.AddTransientPopup<DiscountView, DiscountViewModel>();
+        //services.AddTransientPopup<ManagerAuthView, ManagerAuthViewModel>();
+        //services.AddTransientPopup<EditItemView, EditItemViewModel>();
+        //services.AddTransientPopup<EPaymentView, EPaymentViewModel>();
+        //services.AddTransientPopup<DiscountView, DiscountViewModel>();
 
         // Manager
-        services.AddTransientPopup<DateSelectionPopup, SelectionOfDateViewModel>();
+        //services.AddTransientPopup<DateSelectionPopup, SelectionOfDateViewModel>();
         //services.AddTransientPopup<TerminalMachinePopup, TerminalMachineViewModel>();
         //services.AddTransientPopup<SaveProduct, SaveProductViewModel>();
-        services.AddTransientPopup<CategoriesView, ProductsViewModel>();
+        //services.AddTransientPopup<CategoriesView, ProductsViewModel>();
 
         return services;
     }

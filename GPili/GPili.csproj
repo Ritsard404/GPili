@@ -232,6 +232,10 @@
 	  <None Update="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Properties\PublishProfiles\" />
+	</ItemGroup>
+
 	<Target Name="ExcludeServiceLibraryPdb" BeforeTargets="CollectFilesForMsixPackaging">
 		<ItemGroup>
 			<MsixPackageFiles Remove="**\ServiceLibrary.pdb" />

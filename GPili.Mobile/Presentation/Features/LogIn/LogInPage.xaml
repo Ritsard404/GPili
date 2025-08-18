@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+             xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
+             x:Class="GPili.Mobile.Presentation.Features.LogIn.LogInPage">
+
+    <VerticalStackLayout Spacing="20" Padding="20" VerticalOptions="Center">
+        <Image  HorizontalOptions="Center">
+            <Image.Source>
+                <FontImageSource FontFamily="FASolid" Glyph="{x:Static fa:Solid.User}" Size="54" Color="Blue"/>
+            </Image.Source>
+        </Image>
+        <Label 
+                    Text="Welcome to GPili!"
+                    FontSize="32" TextColor="Blue"
+                    HorizontalOptions="Center" />
+
+        <material:PickerField Title="Select Cashier" ItemsSource="{Binding Cashiers}" 
+                              ItemDisplayBinding="{Binding FullName}"  
+                              SelectedItem="{Binding SelectedCashier}"
+                              Icon="{FontImageSource FontFamily='FASolid', Glyph={x:Static fa:Solid.CashRegister}}"
+                              AccentColor="Blue" AllowClear="True"/>
+
+        <material:TextField
+                Title="Admin Auth"
+            Text="{Binding AdminEmail}"
+                Icon="{FontImageSource FontFamily='FASolid', Glyph={x:Static fa:Solid.Lock}}"
+                AccentColor="Blue"
+                IsPassword="True" 
+            AllowClear="True"/>
+
+        <Button Text="Log In"
+                StyleClass="FilledButton" 
+                Command="{Binding LogInCommand}"/>
+
+    </VerticalStackLayout>
+
+</ContentPage>
