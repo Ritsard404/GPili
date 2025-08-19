@@ -10,6 +10,7 @@ namespace ServiceLibrary.Models
         [Required(ErrorMessage = "Email is required")]
         //[EmailAddress(ErrorMessage = "Invalid email format")]
         public required string Email { get; set; }
+        public string CardId { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "First name is required")]
         [StringLength(50, ErrorMessage = "First name cannot exceed 50 characters")]

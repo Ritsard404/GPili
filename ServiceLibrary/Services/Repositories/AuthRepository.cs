@@ -233,10 +233,10 @@ namespace ServiceLibrary.Services.Repositories
         public async Task<bool> IsCashedDrawer(string cashierEmail)
         {
             return await _dataContext.Timestamp
-                .Include(t => t.Cashier)
-                .Where(t => t.Cashier.Email == cashierEmail
-                            && t.TsOut == null
-                            && t.CashInDrawerAmount >= 100)
+                .Where(t => t.TsOut == null
+                            && t.CashInDrawerAmount.HasValue)
+                .Where(t => t.Cashier.Email == cashierEmail)
+                .AsNoTracking()
                 .AnyAsync();
         }
 
@@ -251,18 +251,27 @@ namespace ServiceLibrary.Services.Repositories
             return (true, cashier);
         }
 
-        public async Task<(bool isSuccess, User? manager)> IsManagerValid(string managerEmail)
+        public async Task<(bool isSuccess, User? manager)> IsManagerValid(string managerEmail, string? cardId = null)
         {
-            var manager = await _dataContext.User
-                .FirstOrDefaultAsync(u => u.Email == managerEmail && u.Role == RoleType.Manager);
+            var query = _dataContext.User.AsQueryable();
 
-            if (manager == null)
-                return (false, null);
+            // Apply filters conditionally
+            if (!string.IsNullOrWhiteSpace(managerEmail))
+                query = query.Where(u => u.Email == managerEmail);
 
-            return (true, manager);
+            if (!string.IsNullOrWhiteSpace(cardId))
+                query = query.Where(u => u.CardId == cardId);
+
+            // Only managers are valid
+            query = query.Where(u => u.Role == RoleType.Manager);
+
+            var manager = await query.FirstOrDefaultAsync();
+
+            return (manager != null, manager);
         }
 
-        public async Task<(bool isSuccess, string Role, string email, string name, string message)> LogIn(string managerEmail, string cashierEmail)
+
+        public async Task<(bool isSuccess, string Role, string email, string name, string message)> LogIn(string managerEmail, string cashierEmail, string? cardId = null)
         {
             // Fetch both users in a single query
             var users = await _dataContext.User
@@ -270,7 +279,10 @@ namespace ServiceLibrary.Services.Repositories
 
             var isTrainMode = await _dataContext.PosTerminalInfo.Select(t => t.IsTrainMode).FirstOrDefaultAsync();
 
-            var manager = users.FirstOrDefault(u => u.Email == managerEmail && u.Role != RoleType.Cashier);
+            var manager = !string.IsNullOrWhiteSpace(cardId)
+                    ? users.FirstOrDefault(u => u.CardId == cardId && u.Role != RoleType.Cashier)
+                    : users.FirstOrDefault(u => u.Email == managerEmail && u.Role != RoleType.Cashier);
+
             var cashier = users.FirstOrDefault(u => u.Email == cashierEmail && u.Role == RoleType.Cashier);
 
             if (manager == null && cashier == null)

@@ -106,6 +106,7 @@ namespace ServiceLibrary.Services.Repositories
         public async Task<(bool isSuccess, string message)> EditQtyTotalPriceItem(long itemId, decimal qty, decimal subtotal)
         {
             var existingItem = await _dataContext.Item
+                .AsSplitQuery()
                 .Include(i => i.Product)
                 .Include(i => i.Invoice)
                     .ThenInclude(i => i.Cashier)

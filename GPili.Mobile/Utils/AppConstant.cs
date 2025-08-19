@@ -50,6 +50,7 @@ namespace GPili.Mobile.Utils
                         {
                             Icon = AppIcons.Cart,
                             Title = "Cart",
+                            Route = nameof(CartPage),
                             ContentTemplate = new DataTemplate(typeof(CartPage)),
                         },
                         new ShellContent

@@ -18,7 +18,9 @@ namespace GPili.Mobile
         private void RegisterRoutes()
         {
             Routing.RegisterRoute(AppRoutes.Login, typeof(LogInPage));
+
             Routing.RegisterRoute(AppRoutes.Cashiering, typeof(CashierPage));
+            Routing.RegisterRoute(AppRoutes.Cart, typeof(CartPage));
 
             Routing.RegisterRoute(AppRoutes.Manager, typeof(ManagerPage));
         }

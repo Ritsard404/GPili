@@ -10,6 +10,7 @@ public partial class CashierPage : ContentPage
 	{
 		base.OnAppearing();
 
+        await Task.Delay(1500);
         if (BindingContext is CashierViewModel vm)
             await vm.InitializeAsync();
     }

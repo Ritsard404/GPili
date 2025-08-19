@@ -36,7 +36,7 @@ namespace ServiceLibrary.Services
             {
                 new() { Email = "1", FName = "Admin", LName = "Ko", Role = RoleType.Developer },
                 new() { Email = "demo@ebisx.com", FName = "John", LName = "Cashier", Role = RoleType.Cashier },
-                new() { Email = "manager@gpili.com", FName = "Jane", LName = "Manager", Role = RoleType.Manager }
+                new() { Email = "manager@gpili.com", FName = "Jane", LName = "Manager", Role = RoleType.Manager, CardId = "0472EE01B14D03" }
             };
 
             await _context.User.AddRangeAsync(users);

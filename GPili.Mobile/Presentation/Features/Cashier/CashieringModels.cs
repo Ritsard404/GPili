@@ -130,6 +130,9 @@ namespace GPili.Mobile.Presentation.Features.Cashiering
         public bool IsExactPayEnable => CashTenderAmount == 0 && !HasOtherPayments; 
         public void SetExactCashAmount() => CashTenderAmount = AmountDue;
 
+        // Item Count
+        public decimal Count => ItemsToPaid.Count;
+
         // Helper to raise all calculated property changes
         private void NotifyAllTotalsChanged()
         {
@@ -147,6 +150,7 @@ namespace GPili.Mobile.Presentation.Features.Cashiering
             OnPropertyChanged(nameof(VatZero));
             OnPropertyChanged(nameof(HasOtherPayments));
             OnPropertyChanged(nameof(IsExactPayEnable));
+            OnPropertyChanged(nameof(Count));
 
         }
 

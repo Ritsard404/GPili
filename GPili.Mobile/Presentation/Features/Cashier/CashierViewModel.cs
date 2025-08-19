@@ -2,10 +2,13 @@
 using Bumptech.Glide.Load.Model;
 using CommunityToolkit.Maui.Core.Extensions;
 using GPili.Mobile.Presentation.Features.Cashiering;
+using GPili.Mobile.Presentation.Popups;
+using GPili.Mobile.Utils;
 using GPili.Mobile.Utils.State;
 using ServiceLibrary.Models;
 using ServiceLibrary.Services.DTO.Order;
 using ServiceLibrary.Services.Interfaces;
+using System.Threading.Tasks;
 
 namespace GPili.Mobile.Presentation.Features.Cashier
 {
@@ -42,6 +45,8 @@ namespace GPili.Mobile.Presentation.Features.Cashier
 
         [ObservableProperty]
         private bool _isLoading = true;
+
+
 
         public async Task InitializeAsync()
         {
@@ -81,6 +86,7 @@ namespace GPili.Mobile.Presentation.Features.Cashier
                 await _auth.SetCashInDrawer(CashierState.Info.CashierEmail!, cashValue);
                 await Snackbar.Make($"₱{cashValue} has been stored in the drawer.", duration: TimeSpan.FromSeconds(1)).Show();
                 isCashedDrawer = true;
+                PopupState.PopupInfo.ClosePopup();
             }
 
             if (!IsRetail)
@@ -103,12 +109,11 @@ namespace GPili.Mobile.Presentation.Features.Cashier
             else
             {
                 Products = await _inventory.GetProducts();
-
-                await LoadItems();
             }
 
+            await LoadItems();
+
             IsLoading = false;
-            PopupState.PopupInfo.ClosePopup();
         }
         private async Task LoadItems()
         {
@@ -116,6 +121,33 @@ namespace GPili.Mobile.Presentation.Features.Cashier
 
             Items.Clear();
             Items = Tenders.ItemsToPaid = newItems.ToObservableCollection();
+        }
+
+        [RelayCommand]
+        private async Task IncreaseQty(Item item)
+        {
+            if (item == null) return;
+
+            item.Qty++;
+            await LoadItems();
+        }
+
+        [RelayCommand]
+        private async Task DecreaseQty(Item item)
+        {
+            if (item == null) return;
+
+            if (item.Qty > 1)
+            {
+                item.Qty--;
+            }
+            else
+            {
+                // Optional: remove item from cart when qty hits 0
+                Items.Remove(item);
+            }
+
+            await LoadItems();
         }
 
         [RelayCommand]
@@ -180,6 +212,12 @@ namespace GPili.Mobile.Presentation.Features.Cashier
         }
 
         [RelayCommand]
+        private async Task NavigateToCart()
+        {
+            await _navigationService.NavigateToAsync(AppRoutes.Cart);
+        }
+
+        [RelayCommand]
         private async Task SelectCategory(CategoryObservable category)
         {
             if (SelectedCategory.Id == category.Id)
@@ -200,28 +238,28 @@ namespace GPili.Mobile.Presentation.Features.Cashier
             IsLoading = false;
         }
 
-        //[RelayCommand]
-        //private async Task SelectItem(Item? item)
-        //{
-        //    if (item is null)
-        //        return;
+        [RelayCommand]
+        private async Task SelectItem(Item? item)
+        {
+            if (item is null)
+                return;
 
-        //    try
-        //    {
-        //        var result = await _popupService.ShowPopupAsync<EditItemViewModel>(
-        //             vm => vm.Initialize(item)
-        //         );
+            try
+            {
+                var result = await _popupService.ShowPopupAsync<EditItemViewModel>(
+                     vm => vm.Initialize(item)
+                 );
 
-        //        if (result is true)
-        //        {
-        //            await LoadItems();
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        await Shell.Current.DisplayAlert("Error", ex.ToString(), "OK");
-        //    }
-        //}
+                if (result is true)
+                {
+                    await LoadItems();
+                }
+            }
+            catch (Exception ex)
+            {
+                await Shell.Current.DisplayAlert("Error", ex.ToString(), "OK");
+            }
+        }
 
         private async Task<bool> RequestBluetoothAndLocationPermissions()
         {

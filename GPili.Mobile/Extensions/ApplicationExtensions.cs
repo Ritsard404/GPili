@@ -1,6 +1,8 @@
+using CommunityToolkit.Maui;
 using GPili.Mobile.Presentation.Features.Cashier;
 using GPili.Mobile.Presentation.Features.LogIn;
 using GPili.Mobile.Presentation.Features.Manager;
+using GPili.Mobile.Presentation.Popups;
 using Microsoft.Data.Sqlite;
 using ServiceLibrary.Extension;
 using ServiceLibrary.Utils;
@@ -73,8 +75,8 @@ internal static class ApplicationExtensions
     {
         // Register your popups here
         //services.AddTransientPopup<LoaderView, LoaderViewModel>();
-        //services.AddTransientPopup<ManagerAuthView, ManagerAuthViewModel>();
-        //services.AddTransientPopup<EditItemView, EditItemViewModel>();
+        services.AddTransientPopup<ManagerAuthView, ManagerAuthViewModel>();
+        services.AddTransientPopup<EditItemView, EditItemViewModel>();
         //services.AddTransientPopup<EPaymentView, EPaymentViewModel>();
         //services.AddTransientPopup<DiscountView, DiscountViewModel>();
 

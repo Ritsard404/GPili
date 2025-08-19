@@ -1,0 +1,100 @@
+﻿using GPili.Mobile.Utils.State;
+using ServiceLibrary.Models;
+using ServiceLibrary.Services.Interfaces;
+using System.ComponentModel.DataAnnotations;
+
+namespace GPili.Mobile.Presentation.Popups
+{
+    public partial class EditItemViewModel(IPopupService _popupService,
+        IOrder _order) : ObservableValidator
+    {
+        
+        public void Initialize(Item item)
+        {
+            Item = item;
+            Qty = item.Qty;
+            SubTotal = item.SubTotal;
+        }
+
+        [ObservableProperty]
+        private Item _item;
+
+        [ObservableProperty]
+        [Required(ErrorMessage = "Quantity is required.")]
+        [Range(0.001, double.MaxValue, ErrorMessage = "Quantity must be greater than 0.")]
+        private decimal _qty;
+
+        [ObservableProperty]
+        [Required(ErrorMessage = "Subtotal is required.")]
+        [Range(0.001, double.MaxValue, ErrorMessage = "Subtotal must be greater than 0.")]
+        private decimal _subTotal;
+
+        public double PopupWidth => Shell.Current.CurrentPage.Width * 0.8;
+        public double PopupHeight => Shell.Current.CurrentPage.Height * 0.6;
+
+        partial void OnQtyChanged(decimal value)
+        {
+            ValidateProperty(value, nameof(Qty));
+            SubTotal = Math.Round(Item.Price * value, 2);
+        }
+
+        partial void OnSubTotalChanged(decimal value) => ValidateProperty(value, nameof(SubTotal));
+
+        [RelayCommand]
+        public async Task SaveItem()
+        {
+            ValidateAllProperties();
+
+            if (HasErrors)
+            {
+                await Snackbar.Make("Please correct the errors.",
+                    duration: TimeSpan.FromSeconds(1)).Show();
+                return;
+            }
+
+            if (Item.Qty == Qty && Item.SubTotal == SubTotal)
+            {
+                _popupService.ClosePopup(false);
+                return;
+            }
+
+            var (isSuccess, message) = await _order.EditQtyTotalPriceItem(itemId: Item.Id, qty: Qty, subtotal: SubTotal);
+
+            if (isSuccess)
+            {
+                _popupService.ClosePopup(true);
+            }
+            else
+            {
+                await Snackbar.Make(message, duration: TimeSpan.FromSeconds(1)).Show();
+                return;
+            }
+        }
+
+        [RelayCommand]
+        private async Task VoidItem()
+        {
+            var result = await _popupService.ShowPopupAsync<ManagerAuthViewModel>();
+            var managerEmail = result as string;
+
+            if (string.IsNullOrWhiteSpace(managerEmail))
+                return;
+
+            var (isSuccess, message) = await _order.VoidItem(cashrEmail: CashierState.Info.CashierEmail!,
+                mgrEmail: managerEmail, itemId: Item.Id);
+            if (isSuccess)
+            {
+                await Snackbar.Make(message,
+                    duration: TimeSpan.FromSeconds(1)).Show();
+                _popupService.ClosePopup(true);
+            }
+            else
+            {
+                await Snackbar.Make(message,
+                    duration: TimeSpan.FromSeconds(1)).Show();
+
+                _popupService.ClosePopup(false);
+            }
+        }
+    }
+}
