@@ -254,6 +254,9 @@ namespace ServiceLibrary.Services.Repositories
         public async Task<(bool isSuccess, User? manager)> IsManagerValid(string managerEmail, string? cardId = null)
         {
             var query = _dataContext.User.AsQueryable();
+            
+            // Only managers are valid
+            query = query.Where(u => u.Role == RoleType.Manager && u.IsActive);
 
             // Apply filters conditionally
             if (!string.IsNullOrWhiteSpace(managerEmail))
@@ -262,14 +265,11 @@ namespace ServiceLibrary.Services.Repositories
             if (!string.IsNullOrWhiteSpace(cardId))
                 query = query.Where(u => u.CardId == cardId);
 
-            // Only managers are valid
-            query = query.Where(u => u.Role == RoleType.Manager);
 
             var manager = await query.FirstOrDefaultAsync();
 
             return (manager != null, manager);
         }
-
 
         public async Task<(bool isSuccess, string Role, string email, string name, string message)> LogIn(string managerEmail, string cashierEmail, string? cardId = null)
         {

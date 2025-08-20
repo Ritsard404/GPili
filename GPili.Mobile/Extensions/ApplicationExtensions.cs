@@ -26,7 +26,7 @@ internal static class ApplicationExtensions
     {
         string dbPath = Path.Combine(
             Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads).AbsolutePath,
-            "GPili"
+            "GPili.db"
         );
 
         // Ensure directory exists
@@ -61,13 +61,15 @@ internal static class ApplicationExtensions
 
         services.AddPageViewModel<LogInViewModel, LogInPage>();
 
-        services.AddPageViewModel<CashierViewModel, CashierPage>();
-        services.AddPageViewModel<CashierViewModel, TenderPage>();
-        services.AddPageViewModel<CashierViewModel, CartPage>();
+        // CashierViewModel is shared across CashierPage, TenderPage, CartPage
+        services.AddPageViewModel<CashierViewModel, CashierPage>(shared: true);
+        services.AddPageViewModel<CashierViewModel, TenderPage>(shared: true);
+        services.AddPageViewModel<CashierViewModel, CartPage>(shared: true);
 
-        services.AddPageViewModel<ManagerViewModel, ManagerPage>();
-        services.AddPageViewModel<ManagerViewModel, ReportPage>();
-        services.AddPageViewModel<ManagerViewModel, DataPage>();
+        // ManagerViewModel is shared across ManagerPage, ReportPage, DataPage
+        services.AddPageViewModel<ManagerViewModel, ManagerPage>(shared: true);
+        services.AddPageViewModel<ManagerViewModel, ReportPage>(shared: true);
+        services.AddPageViewModel<ManagerViewModel, DataPage>(shared: true);
         return services;
     }
 
@@ -77,8 +79,8 @@ internal static class ApplicationExtensions
         //services.AddTransientPopup<LoaderView, LoaderViewModel>();
         services.AddTransientPopup<ManagerAuthView, ManagerAuthViewModel>();
         services.AddTransientPopup<EditItemView, EditItemViewModel>();
-        //services.AddTransientPopup<EPaymentView, EPaymentViewModel>();
-        //services.AddTransientPopup<DiscountView, DiscountViewModel>();
+        services.AddTransientPopup<EPaymentView, EPaymentViewModel>();
+        services.AddTransientPopup<DiscountView, DiscountViewModel>();
 
         // Manager
         //services.AddTransientPopup<DateSelectionPopup, SelectionOfDateViewModel>();
@@ -89,11 +91,22 @@ internal static class ApplicationExtensions
         return services;
     }
 
-    private static void AddPageViewModel<TViewModel, TView>(this IServiceCollection services)
-        where TView : ContentPage, new()
-        where TViewModel : class
+    private static void AddPageViewModel<TViewModel, TView>(
+    this IServiceCollection services,
+    bool shared = false
+)
+    where TView : ContentPage, new()
+    where TViewModel : class
     {
-        services.AddTransient<TViewModel>();
-        services.AddTransient<TView>(s => new TView() { BindingContext = s.GetRequiredService<TViewModel>() });
+        if (shared)
+            services.AddSingleton<TViewModel>();
+        else
+            services.AddTransient<TViewModel>();
+
+        services.AddTransient<TView>(s => new TView
+        {
+            BindingContext = s.GetRequiredService<TViewModel>()
+        });
     }
+
 }

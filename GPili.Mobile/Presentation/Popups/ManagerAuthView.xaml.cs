@@ -13,7 +13,7 @@ public partial class ManagerAuthView : Popup
         BindingContext = _vm = vm;
         Opened += OnPopupOpened;
 
-        //Closed += OnPopupClosed();
+        Closed += OnPopupClosed;
     }
 
 
@@ -23,10 +23,10 @@ public partial class ManagerAuthView : Popup
         await _vm.InitializeAsync();
     }
 
-    private void OnPopupClosed(object? sender, EventArgs e)
+    private async void OnPopupClosed(object? sender, PopupClosedEventArgs e)
     {
         PopupState.PopupInfo.ClosePopup();
-        _vm.DisposeAsync().GetAwaiter().GetResult();
+         await _vm.DisposeAsync();
     }
 
 }

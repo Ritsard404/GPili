@@ -71,12 +71,12 @@
                     HorizontalOptions="Fill">
 
                         <Grid ColumnDefinitions="100,*,50"
-                      RowDefinitions="Auto,Auto"
+                      RowDefinitions="Auto,Auto,Auto"
                       ColumnSpacing="10"
                       VerticalOptions="Center">
 
                             <!-- Product Image -->
-                            <Image Grid.RowSpan="2"
+                            <Image Grid.RowSpan="3"
                            Grid.Column="0"
                            Source="{Binding ImageSourcePath}"
                            WidthRequest="80" HeightRequest="80"
@@ -86,7 +86,7 @@
                            IsVisible="{Binding HasImage}" />
 
                             <!-- Fallback Icon -->
-                            <Image Grid.RowSpan="2"
+                            <Image Grid.RowSpan="3"
                            Grid.Column="0"
                            Source="food_tray.png"
                            WidthRequest="80" HeightRequest="80"
@@ -124,9 +124,18 @@
                            VerticalOptions="Start"
                            HorizontalOptions="Start"/>
 
+                            <!-- Product Quantity -->
+                            <Label Grid.Column="1" Grid.Row="2"
+                           Text="{Binding Quantity}"
+                           FontSize="12"
+                           FontAttributes="Bold"
+                           TextColor="Grey"
+                           VerticalOptions="Start"
+                           HorizontalOptions="Start"/>
+
                             <!-- Add (+) Button -->
                             <Button Grid.Column="2"
-                            Grid.RowSpan="2"
+                            Grid.RowSpan="3"
                             Text="+"
                             FontSize="20"
                             BackgroundColor="#0288D1"

@@ -10,3 +10,5 @@ global using Microsoft.EntityFrameworkCore;
 global using ServiceLibrary.Data;
 global using ServiceLibrary.Services;
 global using GPili.Mobile.Services;
+global using GPili.Mobile.Utils.State;
+

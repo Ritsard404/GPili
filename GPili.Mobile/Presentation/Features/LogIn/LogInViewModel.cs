@@ -189,7 +189,7 @@ public partial class LogInViewModel(
 
             if (!isSuccess)
             {
-                await Snackbar.Make(message, duration: TimeSpan.FromSeconds(2)).Show();
+                await Toast.Make(message).Show();
                 return;
             }
 
@@ -201,6 +201,7 @@ public partial class LogInViewModel(
             };
 
             App.UserInfo = userDetails;
+            CashierState.Info.UpdateCashierInfo(name, email, role);
             await AppConstant.AddTabMenus();
         }
         catch (Exception ex)

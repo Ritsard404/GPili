@@ -9,30 +9,66 @@ namespace GPili.Mobile
     {
         public static MauiApp CreateMauiApp()
         {
-            SQLitePCL.Batteries_V2.Init();
+            try
+            {
 
-            var builder = MauiApp.CreateBuilder();
-            builder
-                .UseMauiApp<App>()
-                .ConfigureApplication()
-                .UseMauiCommunityToolkit()
-                .ConfigureFonts(fonts =>
-                {
-                    fonts.AddFont("Nunito-Regular.ttf", "NunitoRegular");
-                    fonts.AddFont("Nunito-Semibold.ttf", "NunitoSemibold");
-                    fonts.AddFont("Nunito-Bold.ttf", "NunitoBold");
-                    fonts.AddFont("Nunito-ExtraBold.ttf", "NunitoExtrabold");
-                    fonts.AddFont("Nunito-Black.ttf", "NunitoBlack");
-                    fonts.AddFontAwesomeIconFonts();
-                })
+                SQLitePCL.Batteries_V2.Init();
+
+                var builder = MauiApp.CreateBuilder();
+                builder
+                    .UseMauiApp<App>()
+                    .ConfigureApplication()
+                    .UseMauiCommunityToolkit()
+                    .ConfigureFonts(fonts =>
+                    {
+                        fonts.AddFont("Nunito-Regular.ttf", "NunitoRegular");
+                        fonts.AddFont("Nunito-Semibold.ttf", "NunitoSemibold");
+                        fonts.AddFont("Nunito-Bold.ttf", "NunitoBold");
+                        fonts.AddFont("Nunito-ExtraBold.ttf", "NunitoExtrabold");
+                        fonts.AddFont("Nunito-Black.ttf", "NunitoBlack");
+                        fonts.AddFontAwesomeIconFonts();
+                    })
                     .UseUraniumUI()
                     .UseUraniumUIMaterial();
 
 #if DEBUG
-    		builder.Logging.AddDebug();
+                builder.Logging.AddDebug();
 #endif
 
-            return builder.Build();
+                return builder.Build();
+
+            }
+            catch (Exception ex)
+            {
+                LogToFile($"Startup Error: {ex}");
+                throw; // Optional: rethrow if you want app to crash after logging
+            }
+        }
+
+        private static void LogToFile(string message)
+        {
+            try
+            {
+#if ANDROID
+                // Store in Android's public Documents folder
+                var logDir = Android.OS.Environment
+                    .GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDocuments)
+                    .AbsolutePath;
+#else
+                // Cross-platform app data storage
+                var logDir = FileSystem.AppDataDirectory;
+#endif
+                if (!Directory.Exists(logDir))
+                    Directory.CreateDirectory(logDir);
+
+                var logFile = Path.Combine(logDir, "maui-startup.log");
+                var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+                File.AppendAllText(logFile, $"[{timestamp}] {message}{Environment.NewLine}");
+            }
+            catch
+            {
+                // Avoid recursive logging failure
+            }
         }
     }
 }

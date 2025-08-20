@@ -10,8 +10,8 @@ public partial class CartPage : ContentPage
     {
         base.OnAppearing();
 
-        await Task.Delay(1500);
-        if (BindingContext is CashierViewModel vm)
-            await vm.InitializeAsync();
+        //await Task.Delay(1500);
+        //if (BindingContext is CashierViewModel vm)
+        //    await vm.InitializeAsync();
     }
 }

@@ -7,6 +7,7 @@ using GPili.Mobile.Utils;
 using GPili.Mobile.Utils.State;
 using ServiceLibrary.Models;
 using ServiceLibrary.Services.DTO.Order;
+using ServiceLibrary.Services.DTO.Payment;
 using ServiceLibrary.Services.Interfaces;
 using System.Threading.Tasks;
 
@@ -83,7 +84,7 @@ namespace GPili.Mobile.Presentation.Features.Cashier
 
                 IsLoading = true;
 
-                await _auth.SetCashInDrawer(CashierState.Info.CashierEmail!, cashValue);
+                await _auth.SetCashInDrawer(App.UserInfo.Email!, cashValue);
                 await Snackbar.Make($"₱{cashValue} has been stored in the drawer.", duration: TimeSpan.FromSeconds(1)).Show();
                 isCashedDrawer = true;
                 PopupState.PopupInfo.ClosePopup();
@@ -304,6 +305,7 @@ namespace GPili.Mobile.Presentation.Features.Cashier
         {
             IsLoading = true;
 
+
             try
             {
                 bool permissionsGranted = await RequestBluetoothAndLocationPermissions();
@@ -348,6 +350,16 @@ namespace GPili.Mobile.Presentation.Features.Cashier
                     {
                         await Snackbar.Make("Payment completed. Receipt was not printed.", duration: TimeSpan.FromSeconds(2)).Show();
                     }
+                }
+
+
+                if (payContent == KeypadActions.EXACT_PAY)
+                    Tenders.SetExactCashAmount();
+
+                if (payContent == KeypadActions.ENTER && Tenders.ChangeAmount < 0)
+                {
+                    await Toast.Make("Please enter a valid amount to pay.").Show();
+                    return;
                 }
 
                 var payOrder = new PayOrderDTO
@@ -409,160 +421,160 @@ namespace GPili.Mobile.Presentation.Features.Cashier
             Tenders.OtherPayments = new();
         }
 
-        //[RelayCommand]
-        //private async Task VoidOrder()
-        //{
-        //    try
-        //    {
+        [RelayCommand]
+        private async Task VoidOrder()
+        {
+            try
+            {
 
-        //        var result = await _popupService.ShowPopupAsync<ManagerAuthViewModel>();
-        //        var managerEmail = result as string;
+                var result = await _popupService.ShowPopupAsync<ManagerAuthViewModel>();
+                var managerEmail = result as string;
 
-        //        if (string.IsNullOrWhiteSpace(managerEmail))
-        //            return;
+                if (string.IsNullOrWhiteSpace(managerEmail))
+                    return;
 
 
-        //        var reason = await Shell.Current.DisplayPromptAsync(
-        //            title: "Void Order",
-        //            message: "Please enter the reason for the void:",
-        //            accept: "Submit",
-        //            cancel: "Not specified",
-        //            placeholder: "e.g., Damaged item, Wrong order",
-        //            keyboard: Keyboard.Text
-        //        );
+                var reason = await Shell.Current.DisplayPromptAsync(
+                    title: "Void Order",
+                    message: "Please enter the reason for the void:",
+                    accept: "Submit",
+                    cancel: "Not specified",
+                    placeholder: "e.g., Damaged item, Wrong order",
+                    keyboard: Keyboard.Text
+                );
 
-        //        //if (string.IsNullOrWhiteSpace(reason))
-        //        //{
-        //        //    await Shell.Current.DisplayAlert(
-        //        //        title: "Invalid Input",
-        //        //        message: "Reason for void cannot be empty. Please try again.",
-        //        //        cancel: "OK"
-        //        //    );
-        //        //    IsRefundDisplay = false;
-        //        //    IsLoading = false;
-        //        //    return;
-        //        //}
+                //if (string.IsNullOrWhiteSpace(reason))
+                //{
+                //    await Shell.Current.DisplayAlert(
+                //        title: "Invalid Input",
+                //        message: "Reason for void cannot be empty. Please try again.",
+                //        cancel: "OK"
+                //    );
+                //    IsRefundDisplay = false;
+                //    IsLoading = false;
+                //    return;
+                //}
 
-        //        if (string.IsNullOrWhiteSpace(reason))
-        //        {
-        //            reason = "Not specified"; // Default reason if none provided
-        //        }
+                if (string.IsNullOrWhiteSpace(reason))
+                {
+                    reason = "Not specified"; // Default reason if none provided
+                }
 
-        //        IsLoading = true;
+                IsLoading = true;
 
-        //        var payOrder = new PayOrderDTO
-        //        {
-        //            CashierEmail = CashierState.Info.CashierEmail!,
-        //            CashTendered = Tenders.CashTenderAmount,
-        //            OtherPayment = Tenders.HasOtherPayments ? Tenders.OtherPayments.ToList() : new(),
-        //            ChangeAmount = Tenders.ChangeAmount,
-        //            DueAmount = Tenders.AmountDue,
-        //            TotalAmount = Tenders.TotalAmount,
-        //            SubTotal = Tenders.SubTotal,
-        //            DiscountAmount = Tenders.DiscountAmount,
-        //            VatExempt = Tenders.VatExemptSales,
-        //            VatSales = Tenders.VatSales,
-        //            VatAmount = Tenders.VatAmount,
-        //            VatZero = Tenders.VatZero,
-        //            TotalTendered = Tenders.TenderAmount,
-        //            GrossAmount = Tenders.GrossTotal,
-        //            Discount = Tenders.Discount
-        //        };
+                var payOrder = new PayOrderDTO
+                {
+                    CashierEmail = CashierState.Info.CashierEmail!,
+                    CashTendered = Tenders.CashTenderAmount,
+                    OtherPayment = Tenders.HasOtherPayments ? Tenders.OtherPayments.ToList() : new(),
+                    ChangeAmount = Tenders.ChangeAmount,
+                    DueAmount = Tenders.AmountDue,
+                    TotalAmount = Tenders.TotalAmount,
+                    SubTotal = Tenders.SubTotal,
+                    DiscountAmount = Tenders.DiscountAmount,
+                    VatExempt = Tenders.VatExemptSales,
+                    VatSales = Tenders.VatSales,
+                    VatAmount = Tenders.VatAmount,
+                    VatZero = Tenders.VatZero,
+                    TotalTendered = Tenders.TenderAmount,
+                    GrossAmount = Tenders.GrossTotal,
+                    Discount = Tenders.Discount
+                };
 
-        //        var (isSuccess, message) = await _order.VoidOrder(cashierEmail: CashierState.Info.CashierEmail!,
-        //            managerEmail: managerEmail, reason: reason, pay: payOrder);
-        //        if (isSuccess)
-        //        {
-        //            await Snackbar.Make(message,
-        //                duration: TimeSpan.FromSeconds(1)).Show();
-        //            await LoadItems();
-        //            Tenders.Discount = new();
-        //        }
-        //        else
-        //        {
-        //            await Snackbar.Make(message,
-        //                duration: TimeSpan.FromSeconds(1)).Show();
-        //        }
+                var (isSuccess, message) = await _order.VoidOrder(cashierEmail: CashierState.Info.CashierEmail!,
+                    managerEmail: managerEmail, reason: reason, pay: payOrder);
+                if (isSuccess)
+                {
+                    await Snackbar.Make(message,
+                        duration: TimeSpan.FromSeconds(1)).Show();
+                    await LoadItems();
+                    Tenders.Discount = new();
+                }
+                else
+                {
+                    await Snackbar.Make(message,
+                        duration: TimeSpan.FromSeconds(1)).Show();
+                }
 
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Debug.WriteLine(ex);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
 
-        //    }
-        //    finally
-        //    {
-        //        IsLoading = false;
-        //    }
-        //}
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
 
-        //[RelayCommand]
-        //private async Task EPayments()
-        //{
-        //    if (!Items.Any())
-        //    {
-        //        await Snackbar.Make("There are no pending items or payments at the moment. " +
-        //            "Select an order before proceeding.",
-        //            duration: TimeSpan.FromSeconds(1)).Show();
-        //        return;
-        //    }
+        [RelayCommand]
+        private async Task EPayments()
+        {
+            if (!Items.Any())
+            {
+                await Snackbar.Make("There are no pending items or payments at the moment. " +
+                    "Select an order before proceeding.",
+                    duration: TimeSpan.FromSeconds(1)).Show();
+                return;
+            }
 
-        //    var popup = new EPaymentView();
-        //    var result = await Shell.Current.ShowPopupAsync(popup);
-        //    if (result is ObservableCollection<EPaymentDTO> payments && payments.Any())
-        //    {
-        //        Tenders.OtherPayments = payments;
-        //    }
-        //}
+            var popup = new EPaymentView();
+            var result = await Shell.Current.ShowPopupAsync(popup);
+            if (result is ObservableCollection<EPaymentDTO> payments && payments.Any())
+            {
+                Tenders.OtherPayments = payments;
+            }
+        }
 
-        //[RelayCommand]
-        //private async Task Discount()
-        //{
-        //    if (!Items.Any())
-        //    {
-        //        await Snackbar.Make("There are no items available for a discount. Please select an order before applying a discount.",
-        //            duration: TimeSpan.FromSeconds(1)).Show();
-        //        return;
-        //    }
+        [RelayCommand]
+        private async Task Discount()
+        {
+            if (!Items.Any())
+            {
+                await Snackbar.Make("There are no items available for a discount. Please select an order before applying a discount.",
+                    duration: TimeSpan.FromSeconds(1)).Show();
+                return;
+            }
 
-        //    if (Tenders.DiscountAmount > 0)
-        //    {
-        //        await Snackbar.Make("A discount has already been applied to this order.",
-        //            duration: TimeSpan.FromSeconds(1)).Show();
-        //        return;
-        //    }
+            if (Tenders.DiscountAmount > 0)
+            {
+                await Snackbar.Make("A discount has already been applied to this order.",
+                    duration: TimeSpan.FromSeconds(1)).Show();
+                return;
+            }
 
-        //    var popupResult = await _popupService.ShowPopupAsync<ManagerAuthViewModel>();
-        //    var managerEmail = popupResult as string;
+            var popupResult = await _popupService.ShowPopupAsync<ManagerAuthViewModel>();
+            var managerEmail = popupResult as string;
 
-        //    if (string.IsNullOrWhiteSpace(managerEmail))
-        //        return;
+            if (string.IsNullOrWhiteSpace(managerEmail))
+                return;
 
-        //    var popup = new DiscountView();
-        //    var result = await Shell.Current.ShowPopupAsync(popup);
+            var popup = new DiscountView();
+            var result = await Shell.Current.ShowPopupAsync(popup);
 
-        //    if (result is DiscountDTO discount)
-        //    {
-        //        Tenders.Discount = discount;
-        //    }
-        //}
+            if (result is DiscountDTO discount)
+            {
+                Tenders.Discount = discount;
+            }
+        }
 
-        //[RelayCommand]
-        //private async Task Manager()
-        //{
-        //    if (Items.Any())
-        //    {
+        [RelayCommand]
+        private async Task Manager()
+        {
+            if (Items.Any())
+            {
 
-        //        await Shell.Current.DisplayAlert("Action Denied!", "Cashier has pending item/s.", "OK");
-        //        return;
-        //    }
+                await Shell.Current.DisplayAlert("Action Denied!", "Cashier has pending item/s.", "OK");
+                return;
+            }
 
-        //    var result = await _popupService.ShowPopupAsync<ManagerAuthViewModel>();
+            var result = await _popupService.ShowPopupAsync<ManagerAuthViewModel>();
 
-        //    if (result is not string managerEmail || string.IsNullOrWhiteSpace(managerEmail))
-        //        return;
+            if (result is not string managerEmail || string.IsNullOrWhiteSpace(managerEmail))
+                return;
 
-        //    await _navigationService.GoToManager();
-        //}
+            await _navigationService.GoToManager();
+        }
     }
 }

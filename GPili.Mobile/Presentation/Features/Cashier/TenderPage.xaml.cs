@@ -6,12 +6,9 @@ public partial class TenderPage : ContentPage
 	{
 		InitializeComponent();
     }
-    protected override async void OnAppearing()
+    private void CashEntry_TextChanged(object sender, TextChangedEventArgs e)
     {
-        base.OnAppearing();
-
-        await Task.Delay(1500);
-        if (BindingContext is CashierViewModel vm)
-            await vm.InitializeAsync();
+        if (sender is Entry entry && string.IsNullOrWhiteSpace(entry.Text))
+            entry.Text = "0";
     }
 }

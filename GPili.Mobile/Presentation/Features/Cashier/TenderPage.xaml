@@ -3,15 +3,143 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="GPili.Mobile.Presentation.Features.Cashier.TenderPage"
              xmlns:controls="clr-namespace:GPili.Mobile.Presentation.Contents.Cashier"
+             xmlns:converter="clr-namespace:GPili.Mobile.Converters"
              xmlns:loader="clr-namespace:GPili.Mobile.Presentation.Contents"
              Shell.FlyoutBehavior="Disabled"
              Title="" x:Name="CashierPageRoot">
+    <ContentPage.Resources>
+        <converter:InverseBoolConverter x:Key="InverseBoolConverter"/>
+        <converter:ItemIndexConverter x:Key="ItemIndexConverter"/>
+        <converter:GreaterThanZeroToBoolConverter x:Key="GreaterThanZeroToBoolConverter"/>
+    </ContentPage.Resources>
     <Shell.TitleView>
         <controls:TitleViewControl />
     </Shell.TitleView>
 
-    <Grid RowDefinitions="Auto,*, Auto" Margin="0,20,0,20">
-        <controls:CartTotalView Grid.Row="2"/>
-        <loader:LoaderView Grid.Row="0" Grid.RowSpan="4" IsVisible="{Binding IsLoading}"/>
+    <Grid RowDefinitions="*, Auto, Auto, Auto" Margin="0,20,0,20" >
+        <VerticalStackLayout Grid.Row="0" Padding="10" HorizontalOptions="Center" Spacing="10">
+
+            <Grid ColumnDefinitions="*,Auto" >
+                <Label Text="SUBTOTAL: " Grid.Column="0"
+                            FontSize="14"
+                            FontAttributes="Bold"
+                            VerticalOptions="Center"></Label>
+                <Entry WidthRequest="100"  Grid.Column="1"
+                            IsReadOnly="True" 
+                            Text="{Binding Tenders.SubTotal, StringFormat='₱ {0:N2}'}" 
+                            FontAttributes="Bold"
+                            TextColor="Black"
+                            VerticalOptions="Center"
+                            HorizontalTextAlignment="End"
+                            />
+            </Grid>
+            <Grid ColumnDefinitions="*,Auto">
+                <Label Text="TOTAL: " Grid.Column="0"
+                            FontSize="14"
+                            FontAttributes="Bold"
+                            VerticalOptions="Center"></Label>
+                <Entry WidthRequest="100" Grid.Column="1"
+                            IsReadOnly="True" 
+                            Text="{Binding Tenders.TotalAmount, StringFormat='₱ {0:N2}'}" 
+                            FontAttributes="Bold"
+                            VerticalOptions="Center"
+                            HorizontalTextAlignment="End"
+                            />
+            </Grid>
+            <Grid ColumnDefinitions="*,Auto">
+                <Label Text="BALANCE: " Grid.Column="0"
+                            FontSize="14"
+                            FontAttributes="Bold"
+                            VerticalOptions="Center"></Label>
+                <Entry WidthRequest="100" Grid.Column="1"
+                            IsReadOnly="True" 
+                            Text="{Binding Tenders.ChangeAmount, StringFormat='₱ {0:N2}'}" 
+                            FontAttributes="Bold"
+                            VerticalOptions="Center"
+                            HorizontalTextAlignment="End"
+                            />
+            </Grid>
+            <Grid ColumnDefinitions="*,Auto">
+                <Label Text="DISCOUNT: " Grid.Column="0"
+                            FontSize="14"
+                            FontAttributes="Bold"
+                            VerticalOptions="Center" HorizontalOptions="Start"></Label>
+                <Entry WidthRequest="100" Grid.Column="1"
+                            IsReadOnly="True" 
+                            Text="{Binding Tenders.DiscountAmount, StringFormat='₱ {0:N2}'}" 
+                            FontAttributes="Bold"
+                            VerticalOptions="Center" HorizontalOptions="End"
+                            HorizontalTextAlignment="End"
+                            />
+            </Grid>
+            <Grid ColumnDefinitions="*,Auto" 
+                                IsVisible="{Binding Tenders.DiscountAmount, Converter={StaticResource GreaterThanZeroToBoolConverter}}">
+                <Label Text="{Binding Tenders.Discount.DiscountType, StringFormat='{0}:'}" 
+                            FontSize="14" Grid.Column="0"
+                            FontAttributes="Bold"
+                            VerticalOptions="Center"/>
+
+                <Entry HorizontalOptions="Fill" Grid.Column="1"
+                            IsReadOnly="True" 
+                            Text="{Binding Tenders.Discount.DiscountPercent, StringFormat='{0}%'}"
+                            FontAttributes="Bold"
+                            VerticalOptions="Center"
+                            HorizontalTextAlignment="End"/>
+            </Grid>
+            <CollectionView ItemsSource="{Binding Tenders.OtherPayments}"
+                         SelectionMode="None" 
+                         HorizontalOptions="End"
+                         IsVisible="{Binding Tenders.HasOtherPayments}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid ColumnDefinitions="*,Auto" >
+                            <Label Text="{Binding SaleTypeName, StringFormat='{0}:'}" 
+                                FontSize="14" Grid.Column="0"
+                                FontAttributes="Bold"
+                                VerticalOptions="Center"/>
+                            <Entry WidthRequest="100"  Grid.Column="1"
+                                IsReadOnly="True" 
+                                Text="{Binding Amount, StringFormat='₱ {0:N2}'}" 
+                                FontAttributes="Bold"
+                                VerticalOptions="Center" HorizontalOptions="End"
+                                HorizontalTextAlignment="End"/>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
+
+        <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto" Padding="10" RowSpacing="5">
+            <Label Text="CASH: " Grid.Column="0"
+                            FontSize="20"
+                            FontAttributes="Bold"
+                            VerticalOptions="Center"></Label>
+            <Entry WidthRequest="100" Grid.Column="2"
+                            Text="{Binding Tenders.CashTenderAmount}" 
+                            FontAttributes="Bold" FontSize="20"
+                            VerticalOptions="Center"
+                            HorizontalTextAlignment="End"
+                            Keyboard="Numeric" TextChanged="CashEntry_TextChanged"/>
+        </Grid>
+
+        <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto, Auto, Auto" Padding="10" RowSpacing="10">
+            <Button Grid.Row="0" Grid.Column="2" Text="Pay" BackgroundColor="#1A72DD"
+                    Command="{Binding PayOrderCommand}"
+                    CommandParameter="ENTER"/>
+            <Button Grid.Row="1" Grid.Column="2" Text="Exact Amount" BackgroundColor="#1A72DD"
+                    Command="{Binding PayOrderCommand}"
+                    CommandParameter="EXACT"
+                    IsEnabled="{Binding Tenders.IsExactPayEnable}"/>
+            <Button Grid.Row="2" Grid.Column="2" Text="Clear" BackgroundColor="Gold"
+                    Command="{Binding ClearQtyCommand}"/>
+
+            <Button Grid.Row="0" Grid.Column="0" Text="Discount" BackgroundColor="#1A72DD"
+                    Command="{Binding DiscountCommand}"/>
+            <Button Grid.Row="1" Grid.Column="0" Text="E-Payment" BackgroundColor="#1A72DD"
+                    Command="{Binding EPaymentsCommand}" />
+        </Grid>
+        
+        <controls:CartTotalView Grid.Row="3"/>
+        <loader:LoaderView Grid.Row="0" Grid.RowSpan="5" IsVisible="{Binding IsLoading}"/>
     </Grid>
 </ContentPage>
