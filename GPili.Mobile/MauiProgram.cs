@@ -30,6 +30,16 @@ namespace GPili.Mobile
                     })
                     .UseUraniumUI()
                     .UseUraniumUIMaterial();
+                AppDomain.CurrentDomain.UnhandledException += (s, e) =>
+                {
+                    LogToFile($"[FATAL] UnhandledException: {e.ExceptionObject}");
+                };
+
+                TaskScheduler.UnobservedTaskException += (s, e) =>
+                {
+                    LogToFile($"[FATAL] UnobservedTaskException: {e.Exception}");
+                    e.SetObserved();
+                };
 
 #if DEBUG
                 builder.Logging.AddDebug();

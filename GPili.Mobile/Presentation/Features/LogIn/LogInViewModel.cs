@@ -206,6 +206,22 @@ public partial class LogInViewModel(
         }
         catch (Exception ex)
         {
+            // Optional: log the exception to a service or file
+            await Shell.Current.DisplayAlert("An unexpected error occurred", $"{ex.Message}", "Ok"
+                );
+            var error = ex.ToString();
+            if (ex.InnerException != null)
+                error += "\n\nInnerException:\n" + ex.InnerException.ToString();
+
+            // Write to a file in a specific folder on C:\
+            var logDir = Android.OS.Environment
+                .GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDocuments)
+                .AbsolutePath;
+            if (!Directory.Exists(logDir))
+                Directory.CreateDirectory(logDir);
+            var logPath = Path.Combine(logDir, "login-error.txt");
+            File.WriteAllText(logPath, error);
+
             await Shell.Current.DisplayAlert("Login Error", ex.Message, "OK");
         }
         finally

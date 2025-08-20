@@ -53,7 +53,7 @@ StrokeThickness="0">
        HorizontalOptions="End"/>
         </Grid>
         <Border.GestureRecognizers>
-            <TapGestureRecognizer Command="{Binding BindingContext.NavigateToCartCommand, Source={x:Reference CashierPageRoot}}"/>
+            <TapGestureRecognizer Command="{Binding BindingContext.NavigateToCartCommand}"/>
         </Border.GestureRecognizers>
     </Border>
 </ContentView>

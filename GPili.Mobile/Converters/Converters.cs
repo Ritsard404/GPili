@@ -1,4 +1,5 @@
 ﻿using GPili.Mobile.Presentation.Features.Cashiering;
+using System.Collections;
 using System.Globalization;
 
 namespace GPili.Mobile.Converters
@@ -112,4 +113,17 @@ namespace GPili.Mobile.Converters
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
             => throw new NotImplementedException();
     }
+    public class EmptyCollectionToBoolConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is IEnumerable enumerable)
+                return !enumerable.Cast<object>().Any();
+            return true; // treat null as empty
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            => throw new NotImplementedException();
+    }
+
 }

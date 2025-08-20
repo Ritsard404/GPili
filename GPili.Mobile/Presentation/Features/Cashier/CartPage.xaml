@@ -12,12 +12,34 @@
         <converter:InverseBoolConverter x:Key="InverseBoolConverter"/>
         <converter:ItemIndexConverter x:Key="ItemIndexConverter"/>
         <converter:GreaterThanZeroToBoolConverter x:Key="GreaterThanZeroToBoolConverter"/>
+        <converter:EmptyCollectionToBoolConverter x:Key="EmptyCollectionToBoolConverter"/>
     </ContentPage.Resources>
     <Shell.TitleView>
         <controls:TitleViewControl />
     </Shell.TitleView>
 
     <Grid RowDefinitions="Auto,*, Auto" Margin="0,20,0,20">
+        <!-- Empty Cart Icon -->
+        <VerticalStackLayout Grid.Row="1" IsVisible="{Binding Items, Converter={StaticResource EmptyCollectionToBoolConverter}}" 
+                             VerticalOptions="Center">
+            <Image 
+           WidthRequest="80"
+           HeightRequest="80"
+           VerticalOptions="Center"
+           HorizontalOptions="Center" 
+           Source="abandoned_cart.png"/>
+
+            <!-- Empty Cart Text -->
+            <Label
+           Text="Your cart is empty..."
+           FontSize="18"
+           FontAttributes="Bold"
+           HorizontalOptions="Center"
+           VerticalOptions="Start"
+           />
+
+        </VerticalStackLayout>
+
         <CollectionView x:Name="OrderItemsCollectionView"
                 Grid.Row="1"
                 ItemsSource="{Binding Items}"

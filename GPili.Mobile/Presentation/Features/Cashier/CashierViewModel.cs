@@ -1,15 +1,11 @@
-﻿using Android.Webkit;
-using Bumptech.Glide.Load.Model;
-using CommunityToolkit.Maui.Core.Extensions;
+﻿using CommunityToolkit.Maui.Core.Extensions;
 using GPili.Mobile.Presentation.Features.Cashiering;
 using GPili.Mobile.Presentation.Popups;
 using GPili.Mobile.Utils;
-using GPili.Mobile.Utils.State;
 using ServiceLibrary.Models;
 using ServiceLibrary.Services.DTO.Order;
 using ServiceLibrary.Services.DTO.Payment;
 using ServiceLibrary.Services.Interfaces;
-using System.Threading.Tasks;
 
 namespace GPili.Mobile.Presentation.Features.Cashier
 {

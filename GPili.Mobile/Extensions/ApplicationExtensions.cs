@@ -34,6 +34,7 @@ internal static class ApplicationExtensions
         if (!Directory.Exists(dbDirectory))
             Directory.CreateDirectory(dbDirectory);
 
+        //string connectionString = $"Data Source={dbPath}";
         string connectionString = new SqliteConnectionStringBuilder
         {
             DataSource = dbPath,
