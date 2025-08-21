@@ -17,6 +17,11 @@ public partial class ManagerPage : ContentPage
             XReading.IsEnabled = false; 
         }
 
+        if (App.UserInfo != null && App.UserInfo.Role != RoleType.Cashier)
+        {
+            CashPullOut.IsEnabled = false; 
+        }
+
 
     }
 }

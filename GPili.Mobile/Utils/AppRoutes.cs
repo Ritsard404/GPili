@@ -10,5 +10,7 @@ namespace GPili.Mobile.Utils
         public const string Cart = $"//{nameof(CartPage)}";
 
         public const string Manager = "//ManagerPage";
+        public const string TranxLists = "/TranxListPage";
+        public const string RefundInvoice = "/RefundInvoicePage";
     }
 }

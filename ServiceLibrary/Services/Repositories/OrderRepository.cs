@@ -32,6 +32,17 @@ namespace ServiceLibrary.Services.Repositories
 
             if (product.Quantity < qty)
                 return (false, $"Insufficient stock. Only {product.Quantity} “{product.Name}” left in inventory.");
+            
+            // Check if device time is earlier than last recorded invoice
+            var lastInvoice = await _dataContext.Invoice
+                .OrderByDescending(i => i.CreatedAt)
+                .AsNoTracking()
+                .FirstOrDefaultAsync();
+
+            if (lastInvoice != null && DateTime.Now < lastInvoice.CreatedAt)
+            {
+                return (false, "Cannot add item: device date/time is earlier than the last recorded order. Please correct the date/time.");
+            }
 
             var isTrainMode = await _terminalMachine.IsTrainMode();
             var pendingOrder = await PendingOrder(isTrainMode);
@@ -449,11 +460,12 @@ namespace ServiceLibrary.Services.Repositories
                         .ThenInclude(it => it.Product)
                     .FirstOrDefaultAsync(p => p.Status == InvoiceStatusType.Pending && p.IsTrainMode == isTrainMode);
                 if (pendingOrder == null)
-                    return (false, "No pending order found.", null);
+                    return (false, "No pending order found.", null); 
 
                 var invoice = await _report.GetInvoiceById(pendingOrder.Id);
                 if (invoice == null)
                     return (false, "Invoice not found.", null);
+
 
                 pendingOrder.Status = InvoiceStatusType.Paid;
                 pendingOrder.StatusChangeDate = DateTime.Now;

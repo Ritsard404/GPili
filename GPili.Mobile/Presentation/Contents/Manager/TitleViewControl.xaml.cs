@@ -17,9 +17,14 @@ public partial class TitleViewControl : ContentView
 		base.OnParentSet();
 
         if (App.UserInfo != null && App.UserInfo.Role != RoleType.Cashier)
+		{
             BackButton.IsVisible = false;
-        else
-            BackButton.IsVisible = true;
+            LogOutButton.IsVisible = false;
+		}
+		else
+		{
+            BackLogInButton.IsVisible = false;
+        }
     }
 	//public async void GoBack(object sender, EventArgs e)
  //   {

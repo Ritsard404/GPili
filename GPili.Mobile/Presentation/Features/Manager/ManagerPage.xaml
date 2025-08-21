@@ -5,6 +5,7 @@
              xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
              xmlns:controls="clr-namespace:GPili.Mobile.Presentation.Contents.Manager"
              xmlns:loader="clr-namespace:GPili.Mobile.Presentation.Contents"
+             xmlns:local="clr-namespace:GPili.Mobile.Utils"
              Title="">
     <Shell.TitleView>
         <controls:TitleViewControl BindingContext="{Binding}" />
@@ -16,6 +17,17 @@
 
                 <!-- Row 0 -->
                 <Frame Grid.Row="0" Grid.Column="0" Padding="10" CornerRadius="12" HasShadow="True" BackgroundColor="White" x:Name="XReading">
+                    <VisualStateManager.VisualStateGroups>
+                        <VisualStateGroup Name="CommonStates">
+                            <VisualState Name="Normal" />
+                            <VisualState Name="Disabled">
+                                <VisualState.Setters>
+                                    <Setter Property="Opacity" Value="0.5" />
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateManager.VisualStateGroups>
+
                     <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
                         <Image Source="print_sales.png" WidthRequest="48" HeightRequest="48" Aspect="AspectFit"/>
                         <Label Text="Z-Reading" FontSize="14" HorizontalOptions="Center"/>
@@ -30,21 +42,40 @@
                         <Image Source="tranx_list.png" WidthRequest="48" HeightRequest="48" Aspect="AspectFit"/>
                         <Label Text="Transaction List" FontSize="14" HorizontalOptions="Center"/>
                     </VerticalStackLayout>
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding NavigateCommand}" CommandParameter="{x:Static local:AppRoutes.TranxLists}" />
+                    </Frame.GestureRecognizers>
                 </Frame>
 
                 <!-- Row 1 -->
                 <Frame Grid.Row="1" Grid.Column="0" Padding="10" CornerRadius="12" HasShadow="True" BackgroundColor="White">
                     <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
                         <Image Source="refund.png" WidthRequest="48" HeightRequest="48" Aspect="AspectFit"/>
-                        <Label Text="Refund Invoice" FontSize="14" HorizontalOptions="Center"/>
+                        <Label Text="Refund Invoice" FontSize="14" HorizontalOptions="Center" />
                     </VerticalStackLayout>
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding NavigateCommand}" CommandParameter="{x:Static local:AppRoutes.RefundInvoice}" />
+                    </Frame.GestureRecognizers>
                 </Frame>
 
-                <Frame Grid.Row="1" Grid.Column="1" Padding="10" CornerRadius="12" HasShadow="True" BackgroundColor="White">
+                <Frame Grid.Row="1" Grid.Column="1" Padding="10" CornerRadius="12" HasShadow="True" BackgroundColor="White" x:Name="CashPullOut">
+                    <VisualStateManager.VisualStateGroups>
+                        <VisualStateGroup Name="CommonStates">
+                            <VisualState Name="Normal" />
+                            <VisualState Name="Disabled">
+                                <VisualState.Setters>
+                                    <Setter Property="Opacity" Value="0.5" />
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateManager.VisualStateGroups>
                     <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
                         <Image Source="cash_pullout.png" WidthRequest="48" HeightRequest="48" Aspect="AspectFit"/>
                         <Label Text="Cash Pull-Out" FontSize="14" HorizontalOptions="Center"/>
                     </VerticalStackLayout>
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding CashWithdrawCommand}"/>
+                    </Frame.GestureRecognizers>
                 </Frame>
 
                 <!-- Row 2 -->
@@ -53,11 +84,14 @@
                         <Image Source="cashtrack.png" WidthRequest="48" HeightRequest="48" Aspect="AspectFit"/>
                         <Label Text="Cash Track" FontSize="14" HorizontalOptions="Center"/>
                     </VerticalStackLayout>
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding CashTrackCommand}"/>
+                    </Frame.GestureRecognizers>
                 </Frame>
             </Grid>
 
         </ScrollView>
-        
+
         <loader:ManagerLoaderView IsVisible="{Binding IsLoading}"/>
     </Grid>
 </ContentPage>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="GPili.Mobile.Presentation.Features.Manager.Sales.RefundInvoicePage"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+             xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
+             xmlns:validation="clr-namespace:InputKit.Shared.Validations;assembly=InputKit.Maui"
+             xmlns:input="clr-namespace:InputKit.Shared.Controls;assembly=InputKit.Maui"
+             xmlns:loader="clr-namespace:GPili.Mobile.Presentation.Contents"
+             Title="Refund Invoice">
+    <Grid RowDefinitions="Auto, *, Auto"
+       HorizontalOptions="Fill" VerticalOptions="Fill"
+       Padding="10" RowSpacing="10">
+        <input:FormView  Grid.Row="0" SubmitCommand="{Binding SearchRefundItemsCommand}">
+            <Grid ColumnDefinitions="0.6*, 0.4*" ColumnSpacing="20" VerticalOptions="Center">
+                <material:TextField Title="Invoice Number" Text="{Binding InvId}" >
+                    <validation:DigitsOnlyValidation/>
+                    <validation:RequiredValidation/>
+
+                    <material:TextField.Behaviors>
+                        <toolkit:EventToCommandBehavior
+                        EventName="Completed"
+                        Command="{Binding SearchRefundItemsCommand}"/>
+                    </material:TextField.Behaviors>
+                </material:TextField>
+
+                <Button Text="Search" input:FormView.IsSubmitButton="True"
+                    Grid.Column="2" Command="{Binding SearchRefundItemsCommand}"
+                       HeightRequest="45">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="FASolid"
+                         Glyph="{x:Static fa:Solid.MagnifyingGlass}"
+                         Color="White" Size="16"/>
+                    </Button.ImageSource>
+                </Button>
+            </Grid>
+        </input:FormView>
+        <ScrollView Orientation="Both" Grid.Row="1">
+            <material:DataGrid HorizontalOptions="Center" 
+                       ItemsSource="{Binding ToRefundItems}" 
+                       SelectedItems="{Binding ToSelectedRefundItems}"
+                       StrokeShape="RoundRectangle 12">
+                <material:DataGrid.Columns>
+                    <material:DataGridSelectionColumn Title="Select"/>
+                    <material:DataGridColumn ValueBinding="{Binding Product.Name}" Title="Name"/>
+                    <material:DataGridColumn ValueBinding="{Binding QtyDisplay}" Title="Quantity" />
+                    <material:DataGridColumn ValueBinding="{Binding DisplayPrice}" Title="Price" />
+                    <material:DataGridColumn ValueBinding="{Binding DisplaySubtotalVat}" Title="SubTotal" />
+                </material:DataGrid.Columns>
+            </material:DataGrid>
+        </ScrollView>
+
+        <Button Grid.Row="2" Text="Refund Items" Background="Red"
+            FontSize="Medium" FontAttributes="Bold"
+            Command="{Binding RefundItemsCommand}">
+
+        </Button>
+        <loader:LoaderView Grid.Row="0" Grid.RowSpan="5" IsVisible="{Binding IsLoading}"/>
+    </Grid>
+
+</ContentPage>
