@@ -4,14 +4,14 @@
              xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
              x:Class="GPili.Mobile.Presentation.Contents.Cashier.CartTotalView">
     <Border Grid.Row="2"
-Background="#1A72DD"
-VerticalOptions="End"
-HorizontalOptions="Fill"
-HeightRequest="70"
-Margin="20"
-Padding="15"
-StrokeShape="RoundRectangle 15"
-StrokeThickness="0">
+        Background="#1A72DD"
+        VerticalOptions="End"
+        HorizontalOptions="Fill"
+        HeightRequest="70"
+        Margin="20"
+        Padding="15"
+        StrokeShape="RoundRectangle 15"
+        StrokeThickness="0">
 
         <Grid ColumnDefinitions="Auto,*,Auto,Auto" VerticalOptions="Center">
             <!-- Cart Icon -->

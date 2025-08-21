@@ -46,6 +46,7 @@ namespace GPili.Mobile.Presentation.Popups
 
             if (isSuccess)
             {
+                await DisposeAsync();
                 await _popupService.ClosePopupAsync(user.Email);
             }
             else

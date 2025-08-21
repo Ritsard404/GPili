@@ -13,6 +13,6 @@
                 IsVisible="{Binding Tenders.Count, Converter={StaticResource GreaterThanZeroToBoolConverter}}"/>
 
         <Button Text="Manager" BackgroundColor="Red"
-            Grid.Column="2" />
+            Grid.Column="2" Command="{Binding ManagerCommand}" />
     </Grid>
 </ContentView>

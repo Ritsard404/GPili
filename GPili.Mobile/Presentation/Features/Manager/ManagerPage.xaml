@@ -2,11 +2,62 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="GPili.Mobile.Presentation.Features.Manager.ManagerPage"
+             xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
+             xmlns:controls="clr-namespace:GPili.Mobile.Presentation.Contents.Manager"
+             xmlns:loader="clr-namespace:GPili.Mobile.Presentation.Contents"
              Title="">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+    <Shell.TitleView>
+        <controls:TitleViewControl BindingContext="{Binding}" />
+    </Shell.TitleView>
+    <Grid RowDefinitions="*">
+        <ScrollView Orientation="Vertical" Grid.Row="0">
+            <Grid Padding="15" RowSpacing="20" ColumnSpacing="15"
+              ColumnDefinitions="*, *" RowDefinitions="Auto, Auto, Auto">
+
+                <!-- Row 0 -->
+                <Frame Grid.Row="0" Grid.Column="0" Padding="10" CornerRadius="12" HasShadow="True" BackgroundColor="White" x:Name="XReading">
+                    <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
+                        <Image Source="print_sales.png" WidthRequest="48" HeightRequest="48" Aspect="AspectFit"/>
+                        <Label Text="Z-Reading" FontSize="14" HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ZReadingCommand}" />
+                    </Frame.GestureRecognizers>
+                </Frame>
+
+                <Frame Grid.Row="0" Grid.Column="1" Padding="10" CornerRadius="12" HasShadow="True" BackgroundColor="White">
+                    <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
+                        <Image Source="tranx_list.png" WidthRequest="48" HeightRequest="48" Aspect="AspectFit"/>
+                        <Label Text="Transaction List" FontSize="14" HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Row 1 -->
+                <Frame Grid.Row="1" Grid.Column="0" Padding="10" CornerRadius="12" HasShadow="True" BackgroundColor="White">
+                    <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
+                        <Image Source="refund.png" WidthRequest="48" HeightRequest="48" Aspect="AspectFit"/>
+                        <Label Text="Refund Invoice" FontSize="14" HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <Frame Grid.Row="1" Grid.Column="1" Padding="10" CornerRadius="12" HasShadow="True" BackgroundColor="White">
+                    <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
+                        <Image Source="cash_pullout.png" WidthRequest="48" HeightRequest="48" Aspect="AspectFit"/>
+                        <Label Text="Cash Pull-Out" FontSize="14" HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Row 2 -->
+                <Frame Grid.Row="2" Grid.Column="0" Padding="10" CornerRadius="12" HasShadow="True" BackgroundColor="White">
+                    <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
+                        <Image Source="cashtrack.png" WidthRequest="48" HeightRequest="48" Aspect="AspectFit"/>
+                        <Label Text="Cash Track" FontSize="14" HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Frame>
+            </Grid>
+
+        </ScrollView>
+        
+        <loader:ManagerLoaderView IsVisible="{Binding IsLoading}"/>
+    </Grid>
 </ContentPage>

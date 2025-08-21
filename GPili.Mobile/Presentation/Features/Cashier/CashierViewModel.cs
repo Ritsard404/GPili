@@ -570,7 +570,9 @@ namespace GPili.Mobile.Presentation.Features.Cashier
             if (result is not string managerEmail || string.IsNullOrWhiteSpace(managerEmail))
                 return;
 
-            await _navigationService.GoToManager();
+            //await _navigationService.GoToManager();
+
+            await AppConstant.AddTabManager();
         }
     }
 }

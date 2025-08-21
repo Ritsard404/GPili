@@ -6,7 +6,7 @@ namespace GPili.Mobile.Utils
 {
     public class AppConstant
     {
-        public async static Task AddTabMenus()
+        private static void RemovePage()
         {
             var routesToRemove = new[]{
                 nameof(CartPage),
@@ -25,8 +25,13 @@ namespace GPili.Mobile.Utils
                     AppShell.Current.Items.Remove(existingItem);
                 }
             }
+        }
 
-            if (string.IsNullOrEmpty(App.UserInfo.Email))
+        public async static Task AddTabMenus()
+        {
+            RemovePage(); 
+            
+            if (App.UserInfo == null)
             {
                 await Shell.Current.GoToAsync(AppRoutes.Login);
                 return;
@@ -71,7 +76,6 @@ namespace GPili.Mobile.Utils
 
             }
 
-
             if (App.UserInfo.Role == RoleType.Manager || App.UserInfo.Role == RoleType.Developer)
             {
                 var tab = new TabBar()
@@ -110,6 +114,49 @@ namespace GPili.Mobile.Utils
 
             }
 
+        }
+        public async static Task AddTabManager()
+        {
+            RemovePage(); 
+
+            if (App.UserInfo.Role == RoleType.Cashier)
+            {
+
+                var tab = new TabBar()
+                {
+                    Title = "Sales Page",
+                    Route = nameof(ManagerPage),
+                    Items =
+                    {
+                        new ShellContent
+                        {
+                            Icon = AppIcons.Manager,
+                            Title = "Sales",
+                            ContentTemplate = new DataTemplate(typeof(ManagerPage)),
+                        },
+                        new ShellContent
+                        {
+                            Icon = AppIcons.Report,
+                            Title = "Report",
+                            ContentTemplate = new DataTemplate(typeof(ReportPage)),
+                        },
+                        new ShellContent
+                        {
+                            Icon = AppIcons.Data,
+                            Title = "Data",
+                            ContentTemplate = new DataTemplate(typeof(DataPage)),
+                        },
+                    }
+                };
+
+                if (!AppShell.Current.Items.Contains(tab))
+                {
+                    AppShell.Current.Items.Add(tab);
+                    await Shell.Current.GoToAsync(AppRoutes.Manager);
+
+                }
+
+            }
         }
     }
 }

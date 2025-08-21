@@ -44,6 +44,7 @@ namespace GPili.Mobile.Services
                     Name = result.cashierName,
                     Role = RoleType.Cashier
                 };
+
                 await AppConstant.AddTabMenus();
             }
             else

@@ -11,9 +11,9 @@ public partial class ManagerAuthView : Popup
 
         InitializeComponent();
         BindingContext = _vm = vm;
-        Opened += OnPopupOpened;
+        //Opened += OnPopupOpened;
 
-        Closed += OnPopupClosed;
+        //Closed += OnPopupClosed;
     }
 
 

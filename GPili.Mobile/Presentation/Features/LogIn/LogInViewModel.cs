@@ -199,6 +199,7 @@ public partial class LogInViewModel(
                 Name = name,
                 Role = role
             };
+            await DisposeAsync();
 
             App.UserInfo = userDetails;
             CashierState.Info.UpdateCashierInfo(name, email, role);
