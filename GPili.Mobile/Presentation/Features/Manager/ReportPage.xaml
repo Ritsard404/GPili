@@ -4,6 +4,7 @@
              x:Class="GPili.Mobile.Presentation.Features.Manager.ReportPage"
              xmlns:controls="clr-namespace:GPili.Mobile.Presentation.Contents.Manager"
              xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
+             xmlns:local="clr-namespace:GPili.Mobile.Utils"
              Title="">
     <Shell.TitleView>
         <controls:TitleViewControl BindingContext="{Binding}" />
@@ -27,6 +28,9 @@
                     <Image Source="sales_history.png" WidthRequest="48" HeightRequest="48" Aspect="AspectFit"/>
                     <Label Text="Sales History" FontSize="14" HorizontalOptions="Center"/>
                 </VerticalStackLayout>
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding NavigateCommand}" CommandParameter="{x:Static local:AppRoutes.SalesHistory}" />
+                </Frame.GestureRecognizers>
             </Frame>
 
             <Frame Grid.Row="0" Grid.Column="1" Padding="10" CornerRadius="12" HasShadow="True" BackgroundColor="White">
@@ -34,6 +38,9 @@
                     <Image Source="audit_trail.png" WidthRequest="48" HeightRequest="48" Aspect="AspectFit"/>
                     <Label Text="Audit Trail" FontSize="14" HorizontalOptions="Center"/>
                 </VerticalStackLayout>
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding NavigateCommand}" CommandParameter="{x:Static local:AppRoutes.AuditTrail}" />
+                </Frame.GestureRecognizers>
             </Frame>
 
             <!-- Row 1 -->
@@ -42,6 +49,9 @@
                     <Image Source="transaction.png" WidthRequest="48" HeightRequest="48" Aspect="AspectFit"/>
                     <Label Text="Daily Tranx" FontSize="14" HorizontalOptions="Center"/>
                 </VerticalStackLayout>
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding NavigateCommand}" CommandParameter="{x:Static local:AppRoutes.DailyTranx}" />
+                </Frame.GestureRecognizers>
             </Frame>
 
             <Frame Grid.Row="1" Grid.Column="1" Padding="10" CornerRadius="12" HasShadow="True" BackgroundColor="White">
@@ -49,6 +59,9 @@
                     <Image Source="trash_icon.png" WidthRequest="48" HeightRequest="48" Aspect="AspectFit"/>
                     <Label Text="Voided List" FontSize="14" HorizontalOptions="Center"/>
                 </VerticalStackLayout>
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding NavigateCommand}" CommandParameter="{x:Static local:AppRoutes.VoidedList}" />
+                </Frame.GestureRecognizers>
             </Frame>
 
             <!-- Row 2 -->
@@ -57,6 +70,9 @@
                     <Image Source="sales_book.png" WidthRequest="48" HeightRequest="48" Aspect="AspectFit"/>
                     <Label Text="Sales Book" FontSize="14" HorizontalOptions="Center"/>
                 </VerticalStackLayout>
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding NavigateCommand}" CommandParameter="{x:Static local:AppRoutes.SalesBook}" />
+                </Frame.GestureRecognizers>
             </Frame>
 
             <Frame Grid.Row="2" Grid.Column="1" Padding="10" CornerRadius="12" HasShadow="True" BackgroundColor="White">
@@ -64,6 +80,9 @@
                     <Image Source="pwd_list.png" WidthRequest="48" HeightRequest="48" Aspect="AspectFit"/>
                     <Label Text="PWD/SC List" FontSize="14" HorizontalOptions="Center"/>
                 </VerticalStackLayout>
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding NavigateCommand}" CommandParameter="{x:Static local:AppRoutes.PwdOrScList}" />
+                </Frame.GestureRecognizers>
             </Frame>
         </Grid>
     </ScrollView>

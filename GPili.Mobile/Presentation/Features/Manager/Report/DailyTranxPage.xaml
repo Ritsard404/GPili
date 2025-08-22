@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="GPili.Mobile.Presentation.Features.Manager.Report.DailyTranxPage"
+             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+             xmlns:control="clr-namespace:GPili.Mobile.Presentation.Contents.Manager"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             Title="Daily Tranx">
+    <Grid RowDefinitions="Auto,Auto,*" RowSpacing="10">
+        <control:DateSelectionView Grid.Row="0"/>
+        <toolkit:Expander Grid.Row="1">
+            <toolkit:Expander.Header>
+                <Border HeightRequest="50" WidthRequest="150" StrokeShape="RoundRectangle 10">
+                    <Label Text="TOTALS" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
+                       FontSize="20" FontAttributes="Bold"/>
+                </Border>
+            </toolkit:Expander.Header>
+            <toolkit:Expander.Content>
+                <VerticalStackLayout Margin="5" Spacing="10">
+                    <Label Margin="0,20,0,0" HorizontalOptions="Start" VerticalOptions="Center">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="GROSS SALES: " />
+                                <Span Text="{Binding TotalTranxList.TotalGrossSales}" TextColor="#00BCD4" FontAttributes="Bold" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Label HorizontalOptions="Start" VerticalOptions="Center">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="RETURNS: " />
+                                <Span Text="{Binding TotalTranxList.TotalReturns}" TextColor="#00BCD4" FontAttributes="Bold" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Label HorizontalOptions="Start" VerticalOptions="Center">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="NET OF RETURNS: " />
+                                <Span Text="{Binding TotalTranxList.TotalNetOfReturns}" TextColor="#00BCD4" FontAttributes="Bold" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Label HorizontalOptions="Start" VerticalOptions="Center">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="LESS DISCOUNT: " />
+                                <Span Text="{Binding TotalTranxList.TotalLessDiscount}" TextColor="#00BCD4" FontAttributes="Bold" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Label HorizontalOptions="Start" VerticalOptions="Center">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="NET OF SALES: " />
+                                <Span Text="{Binding TotalTranxList.TotalNetOfSales}" TextColor="#00BCD4" FontAttributes="Bold" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Label HorizontalOptions="Start" VerticalOptions="Center">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="VATABLE: " />
+                                <Span Text="{Binding TotalTranxList.TotalVatable}" TextColor="#00BCD4" FontAttributes="Bold" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Label HorizontalOptions="Start" VerticalOptions="Center">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="EXEMPT: " />
+                                <Span Text="{Binding TotalTranxList.TotalExempt}" TextColor="#00BCD4" FontAttributes="Bold" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Label HorizontalOptions="Start" VerticalOptions="Center">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="VAT: " />
+                                <Span Text="{Binding TotalTranxList.TotalVat}" TextColor="#00BCD4" FontAttributes="Bold" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                </VerticalStackLayout>
+            </toolkit:Expander.Content>
+        </toolkit:Expander>
+        <Grid Grid.Row="2" RowSpacing="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <ScrollView Grid.Row="0" Orientation="Both" VerticalScrollBarVisibility="Never" HorizontalScrollBarVisibility="Never" HorizontalOptions="Center">
+                <material:DataGrid StrokeShape="RoundRectangle 10" Grid.Row="0" ItemsSource="{Binding AuditTrail}" HorizontalOptions="Center" Margin="5">
+                    <ActivityIndicator IsRunning="{Binding IsLoading}" Margin="10" />
+                    <material:DataGrid.Columns>
+                        <material:DataGridColumn ValueBinding="{Binding Date}" Title="DATE" />
+                        <material:DataGridColumn ValueBinding="{Binding Time}" Title="TIME" />
+                        <material:DataGridColumn ValueBinding="{Binding UserName}" Title="USER" />
+                        <material:DataGridColumn ValueBinding="{Binding Action}" Title="ACTION" />
+                        <material:DataGridColumn ValueBinding="{Binding Amount}" Title="AMOUNT" />
+                    </material:DataGrid.Columns>
+                </material:DataGrid>
+            </ScrollView>
+        </Grid>
+    </Grid>
+</ContentPage>

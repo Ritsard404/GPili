@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="GPili.Mobile.Presentation.Features.Manager.Report.AuditTrailPage"
+             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+             xmlns:control="clr-namespace:GPili.Mobile.Presentation.Contents.Manager"
+             Title="Audit Trail">
+    <Grid RowDefinitions="Auto,*" RowSpacing="10">
+        <control:DateSelectionView Grid.Row="0"/>
+        <Grid Grid.Row="1" RowSpacing="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <ScrollView Grid.Row="0" Orientation="Both" VerticalScrollBarVisibility="Never" HorizontalScrollBarVisibility="Never">
+                <material:DataGrid StrokeShape="RoundRectangle 10" Grid.Row="0" ItemsSource="{Binding AuditTrail}" HorizontalOptions="Center" Margin="5">
+                    <ActivityIndicator IsRunning="{Binding IsLoading}" Margin="10" />
+                    <material:DataGrid.Columns>
+                        <material:DataGridColumn ValueBinding="{Binding Date}" Title="DATE" />
+                        <material:DataGridColumn ValueBinding="{Binding Time}" Title="TIME" />
+                        <material:DataGridColumn ValueBinding="{Binding UserName}" Title="USER" />
+                        <material:DataGridColumn ValueBinding="{Binding Action}" Title="ACTION" />
+                        <material:DataGridColumn ValueBinding="{Binding Amount}" Title="AMOUNT" />
+                    </material:DataGrid.Columns>
+                </material:DataGrid>
+            </ScrollView>
+        </Grid>
+    </Grid>
+</ContentPage>

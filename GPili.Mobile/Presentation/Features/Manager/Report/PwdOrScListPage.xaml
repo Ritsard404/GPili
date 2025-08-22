@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="GPili.Mobile.Presentation.Features.Manager.Report.PwdOrScListPage"
+             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+             xmlns:control="clr-namespace:GPili.Mobile.Presentation.Contents.Manager"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             Title="Pwd/Senior List">
+    <Grid RowDefinitions="Auto,Auto,*" RowSpacing="10">
+        <control:DateSelectionView Grid.Row="0"/>
+        <toolkit:Expander Grid.Row="1">
+            <toolkit:Expander.Header>
+                <Border HeightRequest="50" WidthRequest="150" StrokeShape="RoundRectangle 10">
+                    <Label Text="TOTALS" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
+                     FontSize="20" FontAttributes="Bold"/>
+                </Border>
+            </toolkit:Expander.Header>
+            <toolkit:Expander.Content>
+                <VerticalStackLayout Margin="5" Spacing="10">
+                    <Label Margin="0,20,0,0" HorizontalOptions="Start" VerticalOptions="Center">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="GROSS SALES: " />
+                                <Span Text="{Binding TotalPwdOrSeniorList.TotalGrossSales}" TextColor="#00BCD4" FontAttributes="Bold" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Label HorizontalOptions="Start" VerticalOptions="Center">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="RETURNS: " />
+                                <Span Text="{Binding TotalPwdOrSeniorList.TotalReturns}" TextColor="#00BCD4" FontAttributes="Bold" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Label HorizontalOptions="Start" VerticalOptions="Center">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="NET OF RETURNS: " />
+                                <Span Text="{Binding TotalPwdOrSeniorList.TotalNetOfReturns}" TextColor="#00BCD4" FontAttributes="Bold" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Label HorizontalOptions="Start" VerticalOptions="Center">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="LESS DISCOUNT: " />
+                                <Span Text="{Binding TotalPwdOrSeniorList.TotalLessDiscount}" TextColor="#00BCD4" FontAttributes="Bold" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Label HorizontalOptions="Start" VerticalOptions="Center">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="NET OF SALES: " />
+                                <Span Text="{Binding TotalPwdOrSeniorList.TotalNetOfSales}" TextColor="#00BCD4" FontAttributes="Bold" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Label HorizontalOptions="Start" VerticalOptions="Center">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="VATABLE: " />
+                                <Span Text="{Binding TotalPwdOrSeniorList.TotalVatable}" TextColor="#00BCD4" FontAttributes="Bold" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Label HorizontalOptions="Start" VerticalOptions="Center">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="EXEMPT: " />
+                                <Span Text="{Binding TotalPwdOrSeniorList.TotalExempt}" TextColor="#00BCD4" FontAttributes="Bold" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Label HorizontalOptions="Start" VerticalOptions="Center">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="VAT: " />
+                                <Span Text="{Binding TotalPwdOrSeniorList.TotalVat}" TextColor="#00BCD4" FontAttributes="Bold" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                </VerticalStackLayout>
+            </toolkit:Expander.Content>
+        </toolkit:Expander>
+        <ScrollView Orientation="Horizontal" Grid.Row="2">
+            <material:DataGrid StrokeShape="RoundRectangle 10" Grid.Row="0" ItemsSource="{Binding PwdOrSeniorList}" HorizontalOptions="Center" Margin="5">
+                <ActivityIndicator IsRunning="{Binding IsLoading}" Margin="10" />
+
+                <material:DataGrid.Columns>
+                    <material:DataGridColumn ValueBinding="{Binding Date}" Title="DATE" />
+                    <material:DataGridColumn ValueBinding="{Binding InvoiceNum}" Title="OR NO" />
+                    <material:DataGridColumn ValueBinding="{Binding Src}" Title="SRC" />
+                    <material:DataGridColumn ValueBinding="{Binding DiscType}" Title="DISC TYPE" />
+                    <material:DataGridColumn ValueBinding="{Binding Percent}" Title="%" />
+                    <material:DataGridColumn ValueBinding="{Binding SubTotal}" Title="SUB TOTAL" />
+                    <material:DataGridColumn ValueBinding="{Binding AmountDue}" Title="AMOUNT DUE" />
+                    <material:DataGridColumn ValueBinding="{Binding GrossSales}" Title="GROSS SALES" />
+                    <material:DataGridColumn ValueBinding="{Binding Returns}" Title="RETURNS" />
+                    <material:DataGridColumn ValueBinding="{Binding NetOfReturns}" Title="NET OF RETURNS" />
+                    <material:DataGridColumn ValueBinding="{Binding LessDiscount}" Title="LESS DISCOUNT" />
+                    <material:DataGridColumn ValueBinding="{Binding NetOfSales}" Title="NET OF SALES" />
+                    <material:DataGridColumn ValueBinding="{Binding Vatable}" Title="VATABLE" />
+                    <material:DataGridColumn ValueBinding="{Binding ZeroRated}" Title="ZERO RATED" />
+                    <material:DataGridColumn ValueBinding="{Binding Exempt}" Title="EXEMPT" />
+                    <material:DataGridColumn ValueBinding="{Binding Vat}" Title="VAT" />
+                </material:DataGrid.Columns>
+            </material:DataGrid>
+        </ScrollView>
+    </Grid>
+</ContentPage>

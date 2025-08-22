@@ -10,7 +10,18 @@ namespace GPili.Mobile.Utils
         public const string Cart = $"//{nameof(CartPage)}";
 
         public const string Manager = "//ManagerPage";
+
+        // Manager Sub Pages
+        // Sales 
         public const string TranxLists = "/TranxListPage";
         public const string RefundInvoice = "/RefundInvoicePage";
+
+        // Reports
+        public const string AuditTrail = "/AuditTrailPage";
+        public const string DailyTranx = "/DailyTranxPage";
+        public const string PwdOrScList = "/PwdOrScListPage";
+        public const string SalesBook = "/SalesBookPage";
+        public const string SalesHistory = "/SalesHistoryPage";
+        public const string VoidedList = "/VoidedListPage";
     }
 }

@@ -174,10 +174,4 @@ namespace GPili.Mobile.Presentation.Features.Manager
             await _navigationService.NavigateToAsync(AppRoutes.Login);
         }
     }
-    public class ButtonData
-    {
-        public string Image { get; set; } = string.Empty;
-        public string Label { get; set; } = string.Empty;
-        public string Command { get; set; } = string.Empty;
-    }
 }

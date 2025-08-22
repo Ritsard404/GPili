@@ -1,7 +1,4 @@
 ﻿using GPili.Mobile.Presentation.Popups;
-using ServiceLibrary.Models;
-using ServiceLibrary.Services.DTO.Report;
-using ServiceLibrary.Services.Interfaces;
 
 namespace GPili.Mobile.Presentation.Features.Manager.Sales
 {

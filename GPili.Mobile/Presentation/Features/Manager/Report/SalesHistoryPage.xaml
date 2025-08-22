@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="GPili.Mobile.Presentation.Features.Manager.Report.SalesHistoryPage"
+             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+             xmlns:control="clr-namespace:GPili.Mobile.Presentation.Contents.Manager"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             Title="Sales History">
+    <Grid RowDefinitions="Auto,Auto,*" RowSpacing="10">
+        <control:DateSelectionView Grid.Row="0"/>
+        <toolkit:Expander Grid.Row="1">
+            <toolkit:Expander.Header>
+                <Border HeightRequest="50" WidthRequest="150" StrokeShape="RoundRectangle 10">
+                    <Label Text="TOTALS" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
+                       FontSize="20" FontAttributes="Bold"/>
+                </Border>
+            </toolkit:Expander.Header>
+            <toolkit:Expander.Content>
+                <VerticalStackLayout Margin="5" Spacing="10">
+                    <Label Margin="0,20,0,0" HorizontalOptions="Start" VerticalOptions="Center">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="COST: " />
+                                <Span Text="{Binding TotalSalesReports.TotalRevenue}" TextColor="#00BCD4" FontAttributes="Bold" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Label HorizontalOptions="Start" VerticalOptions="Center">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="PRICE: " />
+                                <Span Text="{Binding TotalSalesReports.TotalPrice}" TextColor="#00BCD4" FontAttributes="Bold" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Label HorizontalOptions="Start" VerticalOptions="Center">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="OVERALL COST: " />
+                                <Span Text="{Binding TotalSalesReports.OverallTotalCost}" TextColor="#00BCD4" FontAttributes="Bold" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Label HorizontalOptions="Start" VerticalOptions="Center">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="REVENUE: " />
+                                <Span Text="{Binding TotalSalesReports.TotalRevenue}" TextColor="#00BCD4" FontAttributes="Bold" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Label HorizontalOptions="Start" VerticalOptions="Center">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="PROFIT: " />
+                                <Span Text="{Binding TotalSalesReports.TotalProfit}" TextColor="#00BCD4" FontAttributes="Bold" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                </VerticalStackLayout>
+            </toolkit:Expander.Content>
+        </toolkit:Expander>
+        <ScrollView Orientation="Horizontal" Grid.Row="2">
+            <material:DataGrid StrokeShape="RoundRectangle 10" Grid.Row="0" ItemsSource="{Binding SalesReports}" HorizontalOptions="Center" Margin="5">
+                <ActivityIndicator IsRunning="{Binding IsLoading}" Margin="10" />
+                <material:DataGrid.Columns>
+                    <material:DataGridColumn ValueBinding="{Binding InvoiceDate, StringFormat='{}{0:yyyy-MM-dd}'}" Title="DATE" />
+                    <material:DataGridColumn ValueBinding="{Binding InvoiceNumber}" Title="INVOICE" />
+                    <material:DataGridColumn ValueBinding="{Binding ItemName}" Title="ITEM NAME" />
+                    <material:DataGridColumn ValueBinding="{Binding BaseUnit}" Title="UNIT" />
+                    <material:DataGridColumn ValueBinding="{Binding Quantity}" Title="QTY" />
+                    <material:DataGridColumn ValueBinding="{Binding Cost}" Title="COST" />
+                    <material:DataGridColumn ValueBinding="{Binding Price}" Title="PRICE" />
+                    <material:DataGridColumn ValueBinding="{Binding ItemGroup}" Title="GROUP" />
+                    <material:DataGridColumn ValueBinding="{Binding Barcode}" Title="BARCODE" />
+                    <material:DataGridColumn ValueBinding="{Binding Status}" Title="STATUS" />
+                    <material:DataGridColumn ValueBinding="{Binding TotalCost}" Title="TOTAL COST" />
+                    <material:DataGridColumn ValueBinding="{Binding Revenue}" Title="REVENUE" />
+                    <material:DataGridColumn ValueBinding="{Binding Profit}" Title="PROFIT" />
+                </material:DataGrid.Columns>
+            </material:DataGrid>
+        </ScrollView>
+    </Grid>
+</ContentPage>

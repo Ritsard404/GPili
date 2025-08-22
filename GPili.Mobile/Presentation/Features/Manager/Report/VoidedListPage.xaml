@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="GPili.Mobile.Presentation.Features.Manager.Report.VoidedListPage"
+             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+             xmlns:control="clr-namespace:GPili.Mobile.Presentation.Contents.Manager"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             Title="Voided List">
+    <Grid RowDefinitions="Auto,Auto,*" RowSpacing="10">
+        <control:DateSelectionView Grid.Row="0"/>
+        <toolkit:Expander Grid.Row="1">
+            <toolkit:Expander.Header>
+                <Border HeightRequest="50" WidthRequest="150" StrokeShape="RoundRectangle 10">
+                    <Label Text="TOTALS" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
+                       FontSize="20" FontAttributes="Bold"/>
+                </Border>
+            </toolkit:Expander.Header>
+            <toolkit:Expander.Content>
+                <VerticalStackLayout Margin="5" Spacing="10">
+                    <Label Margin="0,20,0,0" HorizontalOptions="Start" VerticalOptions="Center">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="GROSS: " />
+                                <Span Text="{Binding TotalVoidedList.TotalGross}" TextColor="#00BCD4" FontAttributes="Bold" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Label HorizontalOptions="Start" VerticalOptions="Center">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="DISCOUNT: " />
+                                <Span Text="{Binding TotalVoidedList.TotalDiscount}" TextColor="#00BCD4" FontAttributes="Bold" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Label HorizontalOptions="Start" VerticalOptions="Center">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="AMOUNT DUE: " />
+                                <Span Text="{Binding TotalVoidedList.TotalAmountDue}" TextColor="#00BCD4" FontAttributes="Bold" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Label HorizontalOptions="Start" VerticalOptions="Center">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="VATABLE: " />
+                                <Span Text="{Binding TotalVoidedList.TotalVatable, StringFormat='{}{0:N2}'}" TextColor="#00BCD4" FontAttributes="Bold" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Label HorizontalOptions="Start" VerticalOptions="Center">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="VAT ZERO: " />
+                                <Span Text="{Binding TotalVoidedList.TotalVatZero}" TextColor="#00BCD4" FontAttributes="Bold" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Label HorizontalOptions="Start" VerticalOptions="Center">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="EXEMPT: " />
+                                <Span Text="{Binding TotalVoidedList.TotalExempt}" TextColor="#00BCD4" FontAttributes="Bold" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Label HorizontalOptions="Start" VerticalOptions="Center">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="VAT: " />
+                                <Span Text="{Binding TotalVoidedList.TotalVat, StringFormat='{}{0:N2}'}" TextColor="#00BCD4" FontAttributes="Bold" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                </VerticalStackLayout>
+            </toolkit:Expander.Content>
+        </toolkit:Expander>
+        <ScrollView Orientation="Both" Grid.Row="2" HorizontalScrollBarVisibility="Never" VerticalScrollBarVisibility="Never">
+            <Border StrokeShape="RoundRectangle 12">
+                <Grid RowDefinitions="Auto, *">
+                    <Grid ColumnSpacing="2" Padding="5"
+                  ColumnDefinitions="100,120,100,50,100,100,100,100,100,100,100,200,150,100,100,100">
+                        <Label Grid.Column="0" Text="DATE" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                        <Label Grid.Column="1" Text="OR NO" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                        <Label Grid.Column="2" Text="DISC TYPE" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                        <Label Grid.Column="3" Text="%" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                        <Label Grid.Column="4" Text="GROSS SALES" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                        <Label Grid.Column="5" Text="DISCOUNT" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                        <Label Grid.Column="6" Text="AMOUNT DUE" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                        <Label Grid.Column="7" Text="NET OF SALES" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                        <Label Grid.Column="8" Text="VATABLE" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                        <Label Grid.Column="9" Text="ZERO RATED" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                        <Label Grid.Column="10" Text="EXEMPT" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                        <Label Grid.Column="11" Text="REASON" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                        <Label Grid.Column="12" Text="USER" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                        <Label Grid.Column="13" Text="CANCELLED BY" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                        <Label Grid.Column="14" Text="CANCELLED DATE" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                        <Label Grid.Column="15" Text="CANCELLED TIME" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                    </Grid>
+                    <CollectionView Grid.Row="1" ItemsSource="{Binding VoidedList}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <toolkit:Expander>
+                                    <toolkit:Expander.Header>
+                                        <Grid ColumnSpacing="5" Padding="5" HorizontalOptions="Center"
+                                    ColumnDefinitions="100,120,100,50,100,100,100,100,100,100,100,200,150,100,100,100">
+                                            <Label Grid.Column="0" Text="{Binding Date}"/>
+                                            <Label Grid.Column="1" Text="{Binding InvoiceNum}"/>
+                                            <Label Grid.Column="2" Text="{Binding DiscType}"/>
+                                            <Label Grid.Column="3" Text="{Binding Percent}"/>
+                                            <Label Grid.Column="4" Text="{Binding GrossSales, StringFormat='{}{0:N2}'}"/>
+                                            <Label Grid.Column="5" Text="{Binding Discount, StringFormat='{}{0:N2}'}"/>
+                                            <Label Grid.Column="6" Text="{Binding AmountDue, StringFormat='{}{0:N2}'}"/>
+                                            <Label Grid.Column="7" Text="{Binding NetAmount, StringFormat='{}{0:N2}'}"/>
+                                            <Label Grid.Column="8" Text="{Binding Vatable, StringFormat='{}{0:N2}'}"/>
+                                            <Label Grid.Column="9" Text="{Binding ZeroRated, StringFormat='{}{0:N2}'}"/>
+                                            <Label Grid.Column="10" Text="{Binding Exempt, StringFormat='{}{0:N2}'}"/>
+                                            <Label Grid.Column="11" Text="{Binding Reason}"/>
+                                            <Label Grid.Column="12" Text="{Binding User}"/>
+                                            <Label Grid.Column="13" Text="{Binding CancelledBy}"/>
+                                            <Label Grid.Column="14" Text="{Binding CancelledDate}"/>
+                                            <Label Grid.Column="15" Text="{Binding CancelledTime}"/>
+                                        </Grid>
+                                    </toolkit:Expander.Header>
+                                    <toolkit:Expander.Content>
+                                        <material:DataGrid StrokeShape="RoundRectangle 10" Background="Black" Grid.Row="0" ItemsSource="{Binding VoidedItemList}" HorizontalOptions="Center" Margin="5">
+                                            <material:DataGrid.Columns>
+                                                <material:DataGridColumn ValueBinding="{Binding No}" Title="No" />
+                                                <material:DataGridColumn ValueBinding="{Binding Barcode}" Title="Barcode" />
+                                                <material:DataGridColumn ValueBinding="{Binding ItemName}" Title="Item Name" />
+                                                <material:DataGridColumn ValueBinding="{Binding Quantity}" Title="Qty" />
+                                                <material:DataGridColumn ValueBinding="{Binding Price}" Title="Price" />
+                                                <material:DataGridColumn ValueBinding="{Binding Amount}" Title="Amount" />
+                                                <material:DataGridColumn ValueBinding="{Binding Return}" Title="Return" />
+                                                <material:DataGridColumn ValueBinding="{Binding Reason}" Title="Reason" />
+                                            </material:DataGrid.Columns>
+                                        </material:DataGrid>
+                                    </toolkit:Expander.Content>
+                                </toolkit:Expander>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+
+                    </CollectionView>
+                </Grid>
+            </Border>
+
+        </ScrollView>
+    </Grid>
+</ContentPage>

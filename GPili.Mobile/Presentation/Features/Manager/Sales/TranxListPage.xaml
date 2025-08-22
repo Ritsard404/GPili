@@ -6,10 +6,10 @@
              xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
              xmlns:loader="clr-namespace:GPili.Mobile.Presentation.Contents"
              Title="{Binding TransactionListTitle}">
-    <Grid RowDefinitions="Auto,Auto, *, Auto"
+    <Grid RowDefinitions="Auto, *, Auto"
        HorizontalOptions="Fill" VerticalOptions="Fill"
        Padding="5">
-        <Grid Grid.Row="1" RowDefinitions="Auto,Auto" RowSpacing="10">
+        <Grid Grid.Row="0" RowDefinitions="Auto,Auto" RowSpacing="10">
             <HorizontalStackLayout Grid.Row="0" HorizontalOptions="Center" Spacing="20">
                 <material:DatePickerField Title="From:" Date="{Binding From}"
                 HorizontalOptions="Fill" 
@@ -30,7 +30,7 @@
                 </Button.ImageSource>
             </Button>
         </Grid>
-        <ScrollView Grid.Row="2" Margin="0,20,0,0">
+        <ScrollView Grid.Row="1" Margin="0,20,0,0">
             <Grid  RowDefinitions="Auto, *">
                 <Border Grid.Row="0"
             Stroke="Transparent"

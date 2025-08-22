@@ -2,6 +2,7 @@ using CommunityToolkit.Maui;
 using GPili.Mobile.Presentation.Features.Cashier;
 using GPili.Mobile.Presentation.Features.LogIn;
 using GPili.Mobile.Presentation.Features.Manager;
+using GPili.Mobile.Presentation.Features.Manager.Report;
 using GPili.Mobile.Presentation.Features.Manager.Sales;
 using GPili.Mobile.Presentation.Popups;
 using Microsoft.Data.Sqlite;
@@ -76,6 +77,15 @@ internal static class ApplicationExtensions
         // Sales
         services.AddPageViewModel<SalesViewModel, TranxListPage>(shared: true);
         services.AddPageViewModel<SalesViewModel, RefundInvoicePage>(shared: true);
+
+        //Report
+        services.AddPageViewModel<ReportViewModel, SalesHistoryPage>(shared: true);
+        services.AddPageViewModel<ReportViewModel, AuditTrailPage>(shared: true);
+        services.AddPageViewModel<ReportViewModel, DailyTranxPage>(shared: true);
+        services.AddPageViewModel<ReportViewModel, VoidedListPage>(shared: true);
+        services.AddPageViewModel<ReportViewModel, SalesBookPage>(shared: true);
+        services.AddPageViewModel<ReportViewModel, PwdOrScListPage>(shared: true);
+
         return services;
     }
 

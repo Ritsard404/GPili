@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+             xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
+             xmlns:validation="clr-namespace:InputKit.Shared.Validations;assembly=InputKit.Maui"
+             x:Class="GPili.Mobile.Presentation.Contents.Manager.DateSelectionView">
+    <Grid RowDefinitions="Auto,Auto" RowSpacing="10">
+        <HorizontalStackLayout Grid.Row="0" HorizontalOptions="Center" Spacing="20">
+            <material:DatePickerField Title="From:" Date="{Binding From}"
+                HorizontalOptions="Fill" 
+                Grid.Column="0"/>
+
+            <material:DatePickerField Title="To:" Date="{Binding To}" 
+                     HorizontalOptions="Fill"
+                     Grid.Column="1"/>
+        </HorizontalStackLayout>
+
+        <Grid Grid.Row="1" Grid.Column="0" ColumnDefinitions="Auto,*,Auto" Margin="5,0,5,0" ColumnSpacing="10">
+            <!-- Picker: only visible when HasDiscType -->
+            <material:PickerField Grid.Column="0"
+                              Title="Type"
+                              SelectedItem="{Binding DiscType}"
+                              IsVisible="{Binding HasDiscType}">
+                <validation:RequiredValidation />
+                <material:PickerField.ItemsSource>
+                    <x:Array Type="{x:Type x:String}">
+                        <x:String></x:String>
+                        <x:String>PWD</x:String>
+                        <x:String>Senior Citizen</x:String>
+                    </x:Array>
+                </material:PickerField.ItemsSource>
+            </material:PickerField>
+
+            <!-- Spacer to push button to the right -->
+            <BoxView Grid.Column="1" WidthRequest="0" />
+
+            <!-- Search button always at the end -->
+            <Button Grid.Column="2" Text="Search"
+                Command="{Binding SearchReportCommand}"
+                WidthRequest="150" HorizontalOptions="End">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="FASolid"
+                                 Glyph="{x:Static fa:Solid.MagnifyingGlass}"
+                                 Color="White" Size="16"/>
+                </Button.ImageSource>
+            </Button>
+        </Grid>
+    </Grid>
+</ContentView>

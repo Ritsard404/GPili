@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="GPili.Mobile.Presentation.Features.Manager.Report.SalesBookPage"
+             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+             xmlns:control="clr-namespace:GPili.Mobile.Presentation.Contents.Manager"
+             Title="Sales Book">
+    <Grid RowDefinitions="Auto,*" RowSpacing="10">
+        <control:DateSelectionView Grid.Row="0"/>
+        <Grid Grid.Row="1" RowSpacing="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <ScrollView Grid.Row="0" Orientation="Both" VerticalScrollBarVisibility="Never" HorizontalScrollBarVisibility="Never">
+                <material:DataGrid StrokeShape="RoundRectangle 10" Grid.Row="0" ItemsSource="{Binding SalesBook}" HorizontalOptions="Center" Margin="5">
+                    <ActivityIndicator IsRunning="{Binding IsLoading}" Margin="10" />
+                    <material:DataGrid.Columns>
+                        <material:DataGridColumn ValueBinding="{Binding CreatedAt, StringFormat='{}{0:yyyy-MM-dd}'}" Title="DATE" />
+                        <material:DataGridColumn ValueBinding="{Binding LastInvoice}" Title="INVOICE" />
+                        <material:DataGridColumn ValueBinding="{Binding Previous}" Title="PREVIOUS" />
+                        <material:DataGridColumn ValueBinding="{Binding Present}" Title="PRESENT" />
+                        <material:DataGridColumn ValueBinding="{Binding Sales}" Title="SALES" />
+                        <material:DataGridColumn ValueBinding="{Binding Id}" Title="Z-COUNTER" />
+                    </material:DataGrid.Columns>
+                </material:DataGrid>
+            </ScrollView>
+        </Grid>
+    </Grid>
+</ContentPage>

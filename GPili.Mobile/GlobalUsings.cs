@@ -11,4 +11,7 @@ global using ServiceLibrary.Data;
 global using ServiceLibrary.Services;
 global using GPili.Mobile.Services;
 global using GPili.Mobile.Utils.State;
+global using ServiceLibrary.Services.DTO.Report;
+global using ServiceLibrary.Services.Interfaces;
+global using ServiceLibrary.Models;
 
