@@ -5,7 +5,8 @@
              xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
              xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
              xmlns:loader="clr-namespace:GPili.Mobile.Presentation.Contents"
-             Title="{Binding TransactionListTitle}">
+             Title="{Binding TransactionListTitle}"
+             x:Name="TransactListRoot">
     <Grid RowDefinitions="Auto, *, Auto"
        HorizontalOptions="Fill" VerticalOptions="Fill"
        Padding="5">

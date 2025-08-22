@@ -1,8 +1,10 @@
 ﻿using GPili.Mobile.Presentation.Popups;
+using ServiceLibrary.Utils;
 
 namespace GPili.Mobile.Presentation.Features.Manager.Sales
 {
-    public partial class SalesViewModel(IReport _report, IOrder _order, IPopupService _popupService) : ObservableObject
+    public partial class SalesViewModel(IReport _report, IOrder _order, 
+        IPopupService _popupService,IPrinterService _printer) : ObservableObject
     {
         [ObservableProperty]
         private bool _isLoading = false;
@@ -40,6 +42,26 @@ namespace GPili.Mobile.Presentation.Features.Manager.Sales
         private async Task SearchInvoices()
         {
             await InitializeTransactLists();
+        }
+        [RelayCommand]
+        private async Task RePrintInvoice(GetInvoiceDocumentDTO documentDTO)
+        {
+            IsLoading = true;
+            switch (documentDTO.Type)
+            {
+                case InvoiceDocumentType.Invoice:
+                    await _printer.ReprintInvoice(documentDTO.Id);
+                    break;
+
+                case InvoiceDocumentType.XReport:
+                    await _printer.ReprintPrintXReading(documentDTO.Id);
+                    break;
+
+                case InvoiceDocumentType.ZReport:
+                    await _printer.ReprintPrintZReading(documentDTO.Id);
+                    break;
+            }
+            IsLoading = false;
         }
 
         // Refund

@@ -1,9 +1,6 @@
 ﻿
 using GPili.Mobile.Presentation.Popups;
 using GPili.Mobile.Utils;
-using ServiceLibrary.Models;
-using ServiceLibrary.Services.DTO.Report;
-using ServiceLibrary.Services.Interfaces;
 
 namespace GPili.Mobile.Presentation.Features.Manager
 {
@@ -44,6 +41,8 @@ namespace GPili.Mobile.Presentation.Features.Manager
                 await _navigationService.NavigateToAsync(route);
         }
         #region Sales
+
+       
 
         [RelayCommand]
         private async Task CashTrack()
