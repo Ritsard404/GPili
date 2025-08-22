@@ -570,6 +570,8 @@ namespace GPili.Mobile.Presentation.Features.Cashier
             if (result is not string managerEmail || string.IsNullOrWhiteSpace(managerEmail))
                 return;
 
+            App.UserInfo.ManagerEmail = managerEmail;
+
             //await _navigationService.GoToManager();
 
             await AppConstant.AddTabManager();

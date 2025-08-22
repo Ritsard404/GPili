@@ -1,6 +1,7 @@
 ﻿using GPili.Mobile.Presentation.Features.Cashier;
 using GPili.Mobile.Presentation.Features.LogIn;
 using GPili.Mobile.Presentation.Features.Manager;
+using GPili.Mobile.Presentation.Features.Manager.Data;
 using GPili.Mobile.Presentation.Features.Manager.Report;
 using GPili.Mobile.Presentation.Features.Manager.Sales;
 using GPili.Mobile.Utils;
@@ -34,6 +35,14 @@ namespace GPili.Mobile
             Routing.RegisterRoute(AppRoutes.SalesBook, typeof(SalesBookPage));
             Routing.RegisterRoute(AppRoutes.SalesHistory, typeof(SalesHistoryPage));
             Routing.RegisterRoute(AppRoutes.VoidedList, typeof(VoidedListPage));
+
+            Routing.RegisterRoute(AppRoutes.Category, typeof(CategoryPage));
+            Routing.RegisterRoute(AppRoutes.Product, typeof(ProductPage));
+            Routing.RegisterRoute(AppRoutes.SaleType, typeof(SaleTypePage));
+            Routing.RegisterRoute(AppRoutes.Setting, typeof(SettingPage));
+            Routing.RegisterRoute(AppRoutes.User, typeof(UsersPage));
+
+
         }
         private async void OnLogoutClicked(object sender, EventArgs e)
         {

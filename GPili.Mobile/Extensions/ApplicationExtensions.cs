@@ -2,9 +2,11 @@ using CommunityToolkit.Maui;
 using GPili.Mobile.Presentation.Features.Cashier;
 using GPili.Mobile.Presentation.Features.LogIn;
 using GPili.Mobile.Presentation.Features.Manager;
+using GPili.Mobile.Presentation.Features.Manager.Data;
 using GPili.Mobile.Presentation.Features.Manager.Report;
 using GPili.Mobile.Presentation.Features.Manager.Sales;
 using GPili.Mobile.Presentation.Popups;
+using GPili.Mobile.Presentation.Popups.Manager;
 using Microsoft.Data.Sqlite;
 using ServiceLibrary.Extension;
 using ServiceLibrary.Utils;
@@ -86,6 +88,13 @@ internal static class ApplicationExtensions
         services.AddPageViewModel<ReportViewModel, SalesBookPage>(shared: true);
         services.AddPageViewModel<ReportViewModel, PwdOrScListPage>(shared: true);
 
+        // Data
+        services.AddPageViewModel<ProductsViewModel, CategoryPage>(shared: true);
+        services.AddPageViewModel<ProductsViewModel, ProductPage>(shared: true);
+        services.AddPageViewModel<DataViewModel, SaleTypePage>(shared: true);
+        services.AddPageViewModel<DataViewModel, SettingPage>(shared: true);
+        services.AddPageViewModel<UsersViewModel, UsersPage>();
+
         return services;
     }
 
@@ -99,7 +108,7 @@ internal static class ApplicationExtensions
         services.AddTransientPopup<DiscountView, DiscountViewModel>();
 
         // Manager
-        //services.AddTransientPopup<DateSelectionPopup, SelectionOfDateViewModel>();
+        services.AddTransientPopup<DateSelectionPopup, SelectionOfDateViewModel>();
         //services.AddTransientPopup<TerminalMachinePopup, TerminalMachineViewModel>();
         //services.AddTransientPopup<SaveProduct, SaveProductViewModel>();
         //services.AddTransientPopup<CategoriesView, ProductsViewModel>();

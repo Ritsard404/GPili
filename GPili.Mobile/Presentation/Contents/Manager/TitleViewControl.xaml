@@ -27,7 +27,7 @@
             TextColor="White"
             CornerRadius="8"
             ContentLayout="Right,10"
-            ImageSource="logout.png" /> 
+            ImageSource="logout.png" Command="{Binding LogoutCashierCommand}"/> 
 
 
     </Grid>

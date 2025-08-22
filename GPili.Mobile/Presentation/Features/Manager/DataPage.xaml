@@ -4,6 +4,7 @@
              x:Class="GPili.Mobile.Presentation.Features.Manager.DataPage"
              xmlns:controls="clr-namespace:GPili.Mobile.Presentation.Contents.Manager"
              xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
+             xmlns:local="clr-namespace:GPili.Mobile.Utils"
              Title="">
     <Shell.TitleView>
         <controls:TitleViewControl BindingContext="{Binding}" />
@@ -15,58 +16,79 @@
             <!-- Buttons -->
             <Frame Grid.Row="0" Grid.Column="0" Padding="10" CornerRadius="12" HasShadow="True" BackgroundColor="White">
                 <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
-                    <Image Source="download.png" WidthRequest="48" HeightRequest="48" Aspect="AspectFit"/>
-                    <Label Text="Load Products" FontSize="14" HorizontalOptions="Center"/>
-                </VerticalStackLayout>
-            </Frame>
-
-            <Frame Grid.Row="0" Grid.Column="1" Padding="10" CornerRadius="12" HasShadow="True" BackgroundColor="White">
-                <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
-                    <Image Source="upload.png" WidthRequest="48" HeightRequest="48" Aspect="AspectFit"/>
-                    <Label Text="Push Journal" FontSize="14" HorizontalOptions="Center"/>
-                </VerticalStackLayout>
-            </Frame>
-
-            <Frame Grid.Row="1" Grid.Column="0" Padding="10" CornerRadius="12" HasShadow="True" BackgroundColor="White">
-                <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
                     <Image Source="group.png" WidthRequest="48" HeightRequest="48" Aspect="AspectFit"/>
                     <Label Text="Users" FontSize="14" HorizontalOptions="Center"/>
                 </VerticalStackLayout>
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding NavigatePageTypeCommand}" CommandParameter="Users"/>
+                </Frame.GestureRecognizers>
             </Frame>
-
-            <Frame Grid.Row="1" Grid.Column="1" Padding="10" CornerRadius="12" HasShadow="True" BackgroundColor="White">
+            
+            <Frame Grid.Row="0" Grid.Column="1" Padding="10" CornerRadius="12" HasShadow="True" BackgroundColor="White">
                 <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
                     <Image Source="category.png" WidthRequest="48" HeightRequest="48" Aspect="AspectFit"/>
                     <Label Text="Categories" FontSize="14" HorizontalOptions="Center"/>
                 </VerticalStackLayout>
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding NavigatePageTypeCommand}" CommandParameter="Categories"/>
+                </Frame.GestureRecognizers>
             </Frame>
 
-            <Frame Grid.Row="2" Grid.Column="0" Padding="10" CornerRadius="12" HasShadow="True" BackgroundColor="White">
+            <Frame Grid.Row="1" Grid.Column="0" Padding="10" CornerRadius="12" HasShadow="True" BackgroundColor="White">
                 <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
                     <Image Source="products.png" WidthRequest="48" HeightRequest="48" Aspect="AspectFit"/>
                     <Label Text="Products" FontSize="14" HorizontalOptions="Center"/>
                 </VerticalStackLayout>
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding NavigatePageTypeCommand}" CommandParameter="Products"/>
+                </Frame.GestureRecognizers>
             </Frame>
-
-            <Frame Grid.Row="2" Grid.Column="1" Padding="10" CornerRadius="12" HasShadow="True" BackgroundColor="White">
-                <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
-                    <Image Source="settings.png" WidthRequest="48" HeightRequest="48" Aspect="AspectFit"/>
-                    <Label Text="Settings" FontSize="14" HorizontalOptions="Center"/>
-                </VerticalStackLayout>
-            </Frame>
-
-            <Frame Grid.Row="3" Grid.Column="0" Padding="10" CornerRadius="12" HasShadow="True" BackgroundColor="White">
+            <Frame Grid.Row="1" Grid.Column="1" Padding="10" CornerRadius="12" HasShadow="True" BackgroundColor="White">
                 <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
                     <Image Source="wallet.png" WidthRequest="48" HeightRequest="48" Aspect="AspectFit"/>
                     <Label Text="Sale Types" FontSize="14" HorizontalOptions="Center"/>
                 </VerticalStackLayout>
             </Frame>
 
-            <Frame Grid.Row="3" Grid.Column="1" Padding="10" CornerRadius="12" HasShadow="True" BackgroundColor="White">
+            <Frame Grid.Row="2" Grid.Column="0" Padding="10" CornerRadius="12" HasShadow="True" BackgroundColor="White">
                 <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
                     <Image Source="reset.png" WidthRequest="48" HeightRequest="48" Aspect="AspectFit"/>
                     <Label Text="Reset Database" FontSize="14" HorizontalOptions="Center"/>
                 </VerticalStackLayout>
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding ResetDatabaseCommand}"/>
+                </Frame.GestureRecognizers>
+            </Frame>
+
+            <Frame x:Name="SettingFrame" Grid.Row="2" Grid.Column="1" Padding="10" CornerRadius="12" HasShadow="True" BackgroundColor="White">
+                <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
+                    <Image Source="settings.png" WidthRequest="48" HeightRequest="48" Aspect="AspectFit"/>
+                    <Label Text="Settings" FontSize="14" HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding NavigateCommand}" CommandParameter="{x:Static local:AppRoutes.Setting}" />
+                </Frame.GestureRecognizers>
+            </Frame>
+
+
+            <Frame Grid.Row="3" Grid.Column="0" Padding="10" CornerRadius="12" HasShadow="True" BackgroundColor="White">
+                <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
+                    <Image Source="download.png" WidthRequest="48" HeightRequest="48" Aspect="AspectFit"/>
+                    <Label Text="Load Products" FontSize="14" HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding LoadDataCommand}"/>
+                </Frame.GestureRecognizers>
+            </Frame>
+
+            <Frame Grid.Row="3" Grid.Column="1" Padding="10" CornerRadius="12" HasShadow="True" BackgroundColor="White">
+                <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
+                    <Image Source="upload.png" WidthRequest="48" HeightRequest="48" Aspect="AspectFit"/>
+                    <Label Text="Push Journal" FontSize="14" HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding PushJournalCommand}"/>
+                </Frame.GestureRecognizers>
             </Frame>
         </Grid>
     </ScrollView>

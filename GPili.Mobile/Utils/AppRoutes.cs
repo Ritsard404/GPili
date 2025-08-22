@@ -23,5 +23,12 @@ namespace GPili.Mobile.Utils
         public const string SalesBook = "/SalesBookPage";
         public const string SalesHistory = "/SalesHistoryPage";
         public const string VoidedList = "/VoidedListPage";
+
+        // Data
+        public const string Category = "/CategoryPage";
+        public const string Product = "/ProductPage";
+        public const string SaleType = "/SaleTypePage";
+        public const string Setting = "/SettingPage";
+        public const string User = "/UserPage";
     }
 }

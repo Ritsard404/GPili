@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+             xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
+             xmlns:validation="clr-namespace:InputKit.Shared.Validations;assembly=InputKit.Maui"
+             xmlns:input="clr-namespace:InputKit.Shared.Controls;assembly=InputKit.Maui"
+             xmlns:model="clr-namespace:ServiceLibrary.Models;assembly=ServiceLibrary"
+             x:Class="GPili.Mobile.Presentation.Features.Manager.Data.CategoryPage"
+             Title="Categories" x:Name="CategoriesRoot">
+    <Grid RowDefinitions="Auto, Auto, *" Margin="5,5,5,0">
+        <Button Grid.Column="3" StyleClass="FilledButton"  Grid.Row="0"
+            Text="New Category" FontSize="Small"
+            Command="{Binding AddCategoryCommand}"
+            WidthRequest="200" HorizontalOptions="End" Margin="0,0,0,10">
+            <Button.ImageSource>
+                <FontImageSource FontFamily="FASolid"
+                             Glyph="{x:Static fa:Solid.Plus}"
+                             Color="White" Size="16"/>
+            </Button.ImageSource>
+        </Button>
+        <Border Grid.Row="1"
+        Stroke="Transparent"
+        StrokeShape="RoundRectangle 12,12,0,0"
+        StrokeThickness="0" HeightRequest="50"
+        Background="#383949">
+            <Grid ColumnDefinitions="0.5*, 0.5*" ColumnSpacing="10">
+                <Label Text="Name" Grid.Column="0" TextColor="White"
+                   FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"
+                   />
+                <Label Text="Action" Grid.Column="1" FontAttributes="Bold"  TextColor="White"
+                   HorizontalOptions="Center" VerticalOptions="Center"/>
+            </Grid>
+        </Border>
+        <Border Grid.Row="2"
+        Stroke="Transparent"
+        StrokeThickness="0"
+        StrokeShape="RoundRectangle 0,0,12,12"
+        Background="#121125" Margin="0,0,0,5">
+            <CollectionView
+            ItemsSource="{Binding Categories}"
+            Margin="0,0,0,5"
+            ItemSizingStrategy="MeasureAllItems">
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="model:Category">
+                        <Grid ColumnDefinitions="0.5*, 0.5*"
+                            ColumnSpacing="10" Padding="10">
+                            <material:TextField Title="{Binding CtgryName}" Text="{Binding CtgryName}"
+                                            Grid.Column="0">
+                                <validation:RequiredValidation />
+                            </material:TextField>
+                            <Grid ColumnDefinitions="0.5*, 0.5*" Grid.Column="1" Padding="10" ColumnSpacing="10">
+                                <Button FontSize="Small"
+                                    Grid.Column="0"
+                                    Command="{Binding BindingContext.EditCategoryCommand, Source={x:Reference CategoriesRoot}}"
+                                    CommandParameter="{Binding .}">
+                                    <Button.ImageSource>
+                                        <FontImageSource FontFamily="FASolid"
+                                     Glyph="{x:Static fa:Solid.FloppyDisk}"
+                                     Color="YellowGreen" Size="16"/>
+                                    </Button.ImageSource>
+                                </Button>
+                                <Button FontSize="Small"
+                                    Grid.Column="1"
+                                    Command="{Binding BindingContext.RemoveCategoryCommand, Source={x:Reference CategoriesRoot}}"
+                                    CommandParameter="{Binding .}">
+                                    <Button.ImageSource>
+                                        <FontImageSource FontFamily="FASolid"
+                                     Glyph="{x:Static fa:Solid.Trash}"
+                                     Color="Red" Size="16"/>
+                                    </Button.ImageSource>
+                                </Button>
+                            </Grid>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Border>
+    </Grid>
+</ContentPage>

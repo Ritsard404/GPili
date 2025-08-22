@@ -490,6 +490,7 @@ namespace GPili.Presentation.Features.Manager
                 IsSettingsDisplay = false;
             }
         }
+
         [RelayCommand]
         private void CloseSettings()
         {

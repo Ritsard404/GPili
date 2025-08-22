@@ -13,7 +13,7 @@ public partial class DataPage : ContentPage
     {
         base.OnAppearing();
 
-        if (App.UserInfo != null && App.UserInfo.Role == RoleType.Cashier)
-            Shell.SetFlyoutBehavior(this, FlyoutBehavior.Disabled);
+        if (App.UserInfo != null && App.UserInfo.Role != RoleType.Developer)
+            SettingFrame.IsVisible = false;
     }
 }

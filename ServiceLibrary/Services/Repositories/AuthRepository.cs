@@ -106,8 +106,8 @@ namespace ServiceLibrary.Services.Repositories
                 string.IsNullOrWhiteSpace(user.Role))
                 return (false, "All user fields are required.");
 
-            if (!new EmailAddressAttribute().IsValid(user.Email))
-                return (false, "Invalid email format.");
+            //if (!new EmailAddressAttribute().IsValid(user.Email))
+            //    return (false, "Invalid email format.");
 
             var existing = await _dataContext.User.FirstOrDefaultAsync(u => u.Email.ToLower() == user.Email.ToLower() && u.Role == user.Role);
             if (existing == null)
@@ -128,7 +128,6 @@ namespace ServiceLibrary.Services.Repositories
             {
                 await _auditLog.AddManagerAudit(existing, AuditActionType.Update, $"Updated manager: {existing.FullName} ({existing.Email})", null);
             }
-            // ... handle other roles if needed
 
             existing.FName = user.FName;
             existing.LName = user.LName;
@@ -256,7 +255,7 @@ namespace ServiceLibrary.Services.Repositories
             var query = _dataContext.User.AsQueryable();
             
             // Only managers are valid
-            query = query.Where(u => u.Role == RoleType.Manager && u.IsActive);
+            query = query.Where(u => u.Role != RoleType.Cashier && u.IsActive);
 
             // Apply filters conditionally
             if (!string.IsNullOrWhiteSpace(managerEmail))
