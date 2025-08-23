@@ -8,7 +8,7 @@
         VerticalOptions="End"
         HorizontalOptions="Fill"
         HeightRequest="70"
-        Margin="20"
+        Margin="15,0,15,0"
         Padding="15"
         StrokeShape="RoundRectangle 15"
         StrokeThickness="0">

@@ -1,9 +1,5 @@
-﻿using GPili.Mobile.Presentation.Features.Manager.Report;
-using GPili.Mobile.Presentation.Popups.Manager;
-using ServiceLibrary.Utils;
-using Shiny;
+﻿using ServiceLibrary.Utils;
 using System.ComponentModel.DataAnnotations;
-using static Java.Text.Normalizer;
 
 namespace GPili.Mobile.Presentation.Features.Manager.Data
 {
@@ -19,8 +15,7 @@ namespace GPili.Mobile.Presentation.Features.Manager.Data
         [ObservableProperty]
         private TerminalConfiguration? _terminalConfig;
 
-        [ObservableProperty]
-        private List<SaleType> _saleTypes = new();
+
         [RelayCommand]
         private async Task SaveSettings()
         {
@@ -104,20 +99,9 @@ namespace GPili.Mobile.Presentation.Features.Manager.Data
                         }
                         break;
 
-                    case DataPageType.Products:
-                        var products = await _inventory.GetProducts();
-                        var categories = await _inventory.GetCategories();
-                        break;
-
-                    case DataPageType.Categories:
-                        var catList = await _inventory.GetCategories();
-                        break;
-
-                    case DataPageType.Users:
-                        var users = await _auth.Users();
-                        break;
 
                     case DataPageType.SaleTypes:
+                        SaleTypes.Clear();
                         SaleTypes = await _ePayment.SaleTypes();
                         break;
                 }
@@ -127,30 +111,74 @@ namespace GPili.Mobile.Presentation.Features.Manager.Data
                 IsLoading = false;
             }
         }
-
+        // Sale Types
 
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(ModeText))]
-        [NotifyPropertyChangedFor(nameof(ModeButtonColor))]
-        private bool _isTrainingMode = POSInfo.Terminal.IsTrainMode;
+        private List<SaleType> _saleTypes = new();
 
-        public string ModeText => IsTrainingMode ? "Training Mode" : "Live Mode";
-        public Color ModeButtonColor => IsTrainingMode ? Colors.Orange : Colors.Green;
+        [ObservableProperty]
+        private SaleType _newSaleType;
+
+        [ObservableProperty]
+        private bool _isAddSaleTypeDisplay;
+
+        private string CurrentManagerEmail =>
+            App.UserInfo?.ManagerEmail ?? App.UserInfo?.Email ?? string.Empty;
+
+        private async Task HandleSaleTypeOperation(
+            Func<Task<(bool isSuccess, string message)>> operation,
+            bool closeAddForm = false)
+        {
+            try
+            {
+                IsLoading = true;
+
+                var (isSuccess, message) = await operation();
+                if (isSuccess)
+                {
+                    await RefreshSaleTypes();
+                    await Toast.Make(message).Show();
+
+                    if (closeAddForm)
+                        IsAddSaleTypeDisplay = false;
+                }
+                else
+                {
+                    await Shell.Current.DisplayAlert("Error", message, "Ok");
+                }
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        private async Task RefreshSaleTypes()
+        {
+            SaleTypes = await _ePayment.SaleTypes();
+        }
 
         [RelayCommand]
-        private async Task ChangeMode()
+        private void ToggleAddSalesType()
         {
-            IsLoading = true;
-            if (App.UserInfo != null && App.UserInfo.Role != RoleType.Cashier)
-            {
-                var result = await _terminalMachine.ChangeMode(App.UserInfo.Email!);
+            if (!IsAddSaleTypeDisplay)
+                NewSaleType = new SaleType { Name = "", Type = "", Account = "" };
 
-                IsTrainingMode = result;
-                POSInfo.Terminal = await _terminalMachine.GetTerminalInfo();
-            }
-
-            IsLoading = false;
+            IsAddSaleTypeDisplay = !IsAddSaleTypeDisplay;
         }
+
+        [RelayCommand]
+        private Task UpdateSaleType(SaleType saleType) =>
+            HandleSaleTypeOperation(() => _ePayment.UpdateSaleType(saleType, CurrentManagerEmail));
+
+        [RelayCommand]
+        private Task RemoveSaleType(SaleType saleType) =>
+            HandleSaleTypeOperation(() => _ePayment.DeleteSaleType(saleType.Id, CurrentManagerEmail));
+
+        [RelayCommand]
+        private Task AddSaleType() =>
+            HandleSaleTypeOperation(() => _ePayment.AddSaleType(NewSaleType, CurrentManagerEmail), closeAddForm: true);
+
     }
     public partial class TerminalConfiguration : ObservableValidator
     {

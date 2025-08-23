@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="GPili.Mobile.Presentation.Contents.Manager.SaveProduct"
+            xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+            xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+            xmlns:validation="clr-namespace:InputKit.Shared.Validations;assembly=InputKit.Maui"
+             xmlns:input="clr-namespace:InputKit.Shared.Controls;assembly=InputKit.Maui"
+            xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
+            xmlns:model="clr-namespace:ServiceLibrary.Models;assembly=ServiceLibrary"
+             xmlns:converter="clr-namespace:GPili.Mobile.Converters"
+            >
+    <ContentView.Resources>
+        <converter:HasValueConverter x:Key="HasValueConverter" />
+        <converter:InverseBoolConverter x:Key="InverseBoolConverter"/>
+    </ContentView.Resources>
+
+    <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Grid.RowSpan="4"
+       BackgroundColor="White" 
+       ZIndex="1">
+        <BoxView BackgroundColor="Transparent">
+            <BoxView.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding CloseSaveProductCommand}"/>
+            </BoxView.GestureRecognizers>
+        </BoxView>
+        <Border 
+        StrokeShape="RoundRectangle 15"
+        StrokeThickness="0">
+            <Grid RowDefinitions="Auto, *"
+              HorizontalOptions="Fill" VerticalOptions="Fill"
+              Padding="5">
+                <Label Grid.Row="0" HorizontalOptions="Center"
+               VerticalOptions="Center"
+               FontSize="Medium" FontAttributes="Bold"
+               Text="{Binding Title}" />
+                <input:FormView Grid.Row="1" SubmitCommand="{Binding SaveCommand}" Spacing="20">
+                    <Grid RowDefinitions="*,Auto" ColumnDefinitions="*, *" RowSpacing="10" ColumnSpacing="10">
+                        <ScrollView Orientation="Vertical" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+                            <VerticalStackLayout Spacing="10" Padding="10" HorizontalOptions="Fill">
+
+                                <!--Image On Resto Type-->
+                                <StackLayout IsVisible="{Binding IsRestoType}">
+
+                                    <!--Image with X-button overlay-->
+                                    <Grid IsVisible="{Binding Product.ImagePath, Converter={StaticResource HasValueConverter}}"
+                                        HeightRequest="100" WidthRequest="100">
+                                        <!--Product Image-->
+                                        <Image
+                                            Source="{Binding Product.ImagePath}"
+                                            Aspect="AspectFill"
+                                            HeightRequest="100"
+                                            WidthRequest="100"
+                                            IsVisible="{Binding Product.ImagePath, Converter={StaticResource HasValueConverter}}"/>
+
+                                        <!-- FontAwesome Placeholder Icon -->
+                                        <!--<Image
+                                            HeightRequest="60"
+                                            WidthRequest="60"
+                                            HorizontalOptions="Center"
+                                            VerticalOptions="Center"
+                                            IsVisible="{Binding Product.ImagePath, Converter={StaticResource InverseBoolConverter}}">
+                                            <Image.Source>
+                                                <FontImageSource
+                                                    FontFamily="FASolid"
+                                                    Glyph="{x:Static fa:Solid.Image}"
+                                                    Color="Gray"
+                                                    Size="60"/>
+                                            </Image.Source>
+                                        </Image>-->
+
+                                        <!-- Remove Button (only if image is picked) -->
+                                        <Button
+                                            IsVisible="{Binding Product.ImagePath, Converter={StaticResource HasValueConverter}}"
+                                            Command="{Binding RemovePickedImageCommand}"
+                                            BackgroundColor="Transparent"
+                                            WidthRequest="28"
+                                            HeightRequest="28"
+                                            HorizontalOptions="End"
+                                            VerticalOptions="Start"
+                                            Margin="2">
+                                            <Button.ImageSource>
+                                                <FontImageSource Glyph="{x:Static fa:Solid.Xmark}" Size="20" Color="Red" />
+                                            </Button.ImageSource>
+                                        </Button>
+                                    </Grid>
+
+                                    <Button Text="Select Image" Command="{Binding PickImageCommand}" />
+                                </StackLayout>
+
+                                <!-- Barcode -->
+                                <material:TextField Title="Barcode" Text="{Binding Product.Barcode}"
+                                                IsVisible="{Binding IsRestoType, Converter={StaticResource InverseBoolConverter}}">
+                                    <validation:RequiredValidation />
+                                </material:TextField>
+
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="10" HorizontalOptions="Fill">
+                                    <!-- Name -->
+                                    <material:TextField Grid.Column="0" Title="Name" Text="{Binding Product.Name}">
+                                        <validation:RequiredValidation />
+                                    </material:TextField>
+
+                                    <!-- Base Unit -->
+                                    <material:TextField Grid.Column="1" Title="Base Unit" Text="{Binding Product.BaseUnit}">
+                                        <validation:RequiredValidation />
+                                    </material:TextField>
+                                </Grid>
+
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="10" IsVisible="{Binding IsRestoType, Converter={StaticResource InverseBoolConverter}}">
+                                    <!-- Quantity -->
+                                    <material:TextField Grid.Column="0" Title="Quantity" Text="{Binding Product.Quantity}" Keyboard="Numeric" />
+
+                                    <!-- Cost -->
+                                    <material:TextField Grid.Column="1" Title="Cost" Text="{Binding Product.Cost}" Keyboard="Numeric" />
+
+                                </Grid>
+
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                    <!-- Price -->
+                                    <material:TextField Grid.Column="0" Title="Price" Text="{Binding Product.Price}" Keyboard="Numeric" />
+
+
+                                    <!-- Is Available + Status -->
+                                    <HorizontalStackLayout Grid.Column="1" Spacing="5" HorizontalOptions="Fill" VerticalOptions="Center">
+                                        <CheckBox IsChecked="{Binding Product.IsAvailable}" />
+                                        <Label Text="{Binding StatusText}"
+                                      
+                                       VerticalOptions="Center" />
+                                    </HorizontalStackLayout>
+                                </Grid>
+
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                    <!-- Item Type -->
+                                    <material:TextField Grid.Column="0" Title="Item Type" Text="{Binding Product.ItemType}">
+                                        <validation:RequiredValidation />
+                                    </material:TextField>
+
+                                    <!-- Vat Type -->
+                                    <material:PickerField Grid.Column="1" TextColor="DarkGrey"
+                                                      Title="Vat Type" SelectedItem="{Binding Product.VatType}">
+                                        <validation:RequiredValidation />
+                                        <material:PickerField.ItemsSource>
+                                            <x:Array Type="{x:Type x:String}">
+                                                <x:String>Vatable</x:String>
+                                                <x:String>Excempt</x:String>
+                                                <x:String>Zero</x:String>
+                                            </x:Array>
+                                        </material:PickerField.ItemsSource>
+                                    </material:PickerField>
+                                </Grid>
+
+                                <!-- Category -->
+                                <!-- You may want to bind this to a list of categories -->
+                                <material:PickerField Title="Category"  TextColor="DarkGrey"
+                                          ItemsSource="{Binding Categories}"
+                                          ItemDisplayBinding="{Binding CtgryName}"
+                                          SelectedItem="{Binding Product.Category}" >
+                                    <validation:RequiredValidation/>
+                                </material:PickerField>
+                            </VerticalStackLayout>
+                        </ScrollView>
+                        <Button Text="Save" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                        input:FormView.IsSubmitButton="True" Margin="10,0,10,0"
+                            VerticalOptions="Center"
+                        StyleClass="FilledButton"/>
+                    </Grid>
+                </input:FormView>
+            </Grid>
+        </Border>
+    </Grid>
+</ContentView>

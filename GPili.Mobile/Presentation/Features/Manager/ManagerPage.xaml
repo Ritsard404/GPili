@@ -13,7 +13,7 @@
     <Grid RowDefinitions="*">
         <ScrollView Orientation="Vertical" Grid.Row="0">
             <Grid Padding="15" RowSpacing="20" ColumnSpacing="15"
-              ColumnDefinitions="*, *" RowDefinitions="Auto, Auto, Auto">
+              ColumnDefinitions="*, *" RowDefinitions="Auto, Auto, Auto,*,Auto">
 
                 <!-- Row 0 -->
                 <Frame Grid.Row="0" Grid.Column="0" Padding="10" CornerRadius="12" HasShadow="True" BackgroundColor="White" x:Name="XReading">
@@ -88,6 +88,12 @@
                         <TapGestureRecognizer Command="{Binding CashTrackCommand}"/>
                     </Frame.GestureRecognizers>
                 </Frame>
+
+                <Button Text="{Binding ModeText}" x:Name="TrainModeButton"
+                                Grid.Row="4" Grid.Column="0"
+                                FontSize="Title" FontAttributes="Bold"
+                                TextColor="{Binding ModeButtonColor}"
+                                Command="{Binding ChangeModeCommand}"/>
             </Grid>
 
         </ScrollView>

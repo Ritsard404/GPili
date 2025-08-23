@@ -11,6 +11,9 @@
         <Button Text="Void" BackgroundColor="Red"
             Grid.Column="0" Command="{Binding VoidOrderCommand}" 
                 IsVisible="{Binding Tenders.Count, Converter={StaticResource GreaterThanZeroToBoolConverter}}"/>
+        
+        <Label Text="Train Mode" TextColor="Red" x:Name="TrainLabel" Grid.Column="1" 
+               HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
 
         <Button Text="Manager" BackgroundColor="Red"
             Grid.Column="2" Command="{Binding ManagerCommand}" />

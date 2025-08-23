@@ -2,6 +2,7 @@
 using GPili.Mobile.Presentation.Popups;
 using GPili.Mobile.Presentation.Popups.Manager;
 using GPili.Mobile.Utils;
+using ServiceLibrary.Utils;
 
 namespace GPili.Mobile.Presentation.Features.Manager
 {
@@ -520,6 +521,29 @@ namespace GPili.Mobile.Presentation.Features.Manager
             {
                 IsLoading = false;
             }
+        }
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(ModeText))]
+        [NotifyPropertyChangedFor(nameof(ModeButtonColor))]
+        private bool _isTrainingMode = POSInfo.Terminal.IsTrainMode;
+
+        public string ModeText => IsTrainingMode ? "Training Mode" : "Live Mode";
+        public Color ModeButtonColor => IsTrainingMode ? Colors.Red : Colors.White;
+
+        [RelayCommand]
+        private async Task ChangeMode()
+        {
+            IsLoading = true;
+            if (App.UserInfo != null && App.UserInfo.Role != RoleType.Cashier)
+            {
+                var result = await _terminalMachine.ChangeMode(App.UserInfo.Email!);
+
+                IsTrainingMode = result;
+                POSInfo.Terminal = await _terminalMachine.GetTerminalInfo();
+            }
+
+            IsLoading = false;
         }
 
     }

@@ -15,6 +15,7 @@ public partial class ManagerPage : ContentPage
         {
             Shell.SetFlyoutBehavior(this, FlyoutBehavior.Disabled);
             XReading.IsEnabled = false; 
+            TrainModeButton.IsVisible = false;
         }
 
         if (App.UserInfo != null && App.UserInfo.Role != RoleType.Cashier)

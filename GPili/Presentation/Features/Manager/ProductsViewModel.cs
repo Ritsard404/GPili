@@ -264,6 +264,27 @@ namespace GPili.Presentation.Features.Manager
 
 
         [RelayCommand]
+        private async Task RemoveProduct(Product product)
+        {
+            IsLoading = true;
+            try
+            {
+                var (isSuccess, message) = await _inventory.DeleteProduct(product.Id, ManagerEmail);
+                if (isSuccess)
+                {
+                    await Snackbar.Make("Product deleted successfully.", duration: TimeSpan.FromSeconds(1)).Show();
+                    Products = await _inventory.GetProducts();
+                }
+                else
+                {
+                    await Shell.Current.DisplayAlert("Error", $"Error deleting product: {message}", "OK");
+                }
+            }
+            finally { IsLoading = false; }
+
+        }
+
+        [RelayCommand]
         public async Task AddCategory()
         {
             IsLoading = true;

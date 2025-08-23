@@ -13,6 +13,8 @@ public partial class LogInPage : ContentPage
     {
         base.OnAppearing();
 
+        TrainModeLabel.IsVisible = POSInfo.Terminal.IsTrainMode;
+
         if (BindingContext is LogInViewModel vm)
         {
             await vm.InitializeAsync();

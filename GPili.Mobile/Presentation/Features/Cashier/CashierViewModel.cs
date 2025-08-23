@@ -49,7 +49,7 @@ namespace GPili.Mobile.Presentation.Features.Cashier
         {
             IsRetail = POSInfo.Terminal.IsRetailType;
 
-            bool isCashedDrawer = await _auth.IsCashedDrawer(CashierState.Info.CashierEmail);
+            bool isCashedDrawer = await _auth.IsCashedDrawer(App.UserInfo.Email);
 
             PopupState.PopupInfo.OpenPopup("Set Drawer", "Set drawer cash");
 

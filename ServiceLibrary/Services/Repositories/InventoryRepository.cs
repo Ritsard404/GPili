@@ -135,7 +135,7 @@ namespace ServiceLibrary.Services.Repositories
             if (posInfo.IsRetailType)
                 product.ImagePath = null;
 
-            if(posInfo.IsRetailType && string.IsNullOrWhiteSpace(product.Barcode))
+            if (posInfo.IsRetailType && string.IsNullOrWhiteSpace(product.Barcode))
                 return (false, "All product fields are required.");
             // else: allow as provided
 
@@ -296,7 +296,25 @@ namespace ServiceLibrary.Services.Repositories
 
         public async Task<Category[]> GetCategories()
         {
-            return await _dataContext.Category.OrderBy(c => c.CtgryName).ToArrayAsync();
+            var orderMap = new Dictionary<string, int>
+                {
+                    { "Burgers", 1 },
+                    { "Nachos", 2 },
+                    { "Shawarma", 3 },
+                    { "Sandwich", 4 },
+                    { "Fries", 5 },
+                    { "Sizzling/Rice Meals", 6 },
+                    { "Combo's", 7 },
+                    { "Ad-ons", 8 },
+                    { "Drinks", 9 }
+                };
+
+            var categories = await _dataContext.Category.ToListAsync();
+
+            return categories
+                .OrderBy(c => orderMap.TryGetValue(c.CtgryName, out var order) ? order : int.MaxValue)
+                .ToArray();
+
         }
 
         public async Task<(bool isSuccess, string message)> NewCategory(Category category, string managerEmail)

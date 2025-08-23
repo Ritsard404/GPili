@@ -6,14 +6,4 @@ public partial class CategoryPage : ContentPage
 	{
 		InitializeComponent();
     }
-    protected async override void OnAppearing()
-    {
-        base.OnAppearing();
-
-        if (BindingContext is DataViewModel vm)
-        {
-            vm.CurrenDataPage = DataPageType.Categories;
-            await vm.InitializeData();
-        }
-    }
 }

@@ -18,7 +18,7 @@ namespace ServiceLibrary.Services.Repositories
                 .Include(t => t.Cashier)
                 .Where(t => t.Cashier.Email == cashierEmail &&
                     t.TsOut == null && t.CashInDrawerAmount != null &&
-                    t.CashInDrawerAmount >= 1000 && t.IsTrainMode == isTrainMode)
+                    t.CashInDrawerAmount >= 100 && t.IsTrainMode == isTrainMode)
                 .FirstOrDefaultAsync();
 
             var manager = await IsManagerValid(managerEmail);
@@ -233,7 +233,7 @@ namespace ServiceLibrary.Services.Repositories
         {
             return await _dataContext.Timestamp
                 .Where(t => t.TsOut == null
-                            && t.CashInDrawerAmount.HasValue)
+                            && t.CashInDrawerAmount.HasValue && t.CashInDrawerAmount > 0)
                 .Where(t => t.Cashier.Email == cashierEmail)
                 .AsNoTracking()
                 .AnyAsync();
@@ -253,7 +253,7 @@ namespace ServiceLibrary.Services.Repositories
         public async Task<(bool isSuccess, User? manager)> IsManagerValid(string managerEmail, string? cardId = null)
         {
             var query = _dataContext.User.AsQueryable();
-            
+
             // Only managers are valid
             query = query.Where(u => u.Role != RoleType.Cashier && u.IsActive);
 

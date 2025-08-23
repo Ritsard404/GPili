@@ -96,6 +96,9 @@
 	  <MauiXaml Update="Presentation\Contents\Manager\DateSelectionView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Presentation\Contents\Manager\SaveProduct.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Presentation\Contents\Manager\TitleViewControl.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

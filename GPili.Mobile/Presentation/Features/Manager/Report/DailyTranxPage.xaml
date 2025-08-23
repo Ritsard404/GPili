@@ -84,24 +84,29 @@
                 </VerticalStackLayout>
             </toolkit:Expander.Content>
         </toolkit:Expander>
-        <Grid Grid.Row="2" RowSpacing="10">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+        <ScrollView Orientation="Horizontal" Grid.Row="2" HorizontalScrollBarVisibility="Never">
+            <material:DataGrid StrokeShape="RoundRectangle 10"  Grid.Row="0" ItemsSource="{Binding TranxList}" HorizontalOptions="Center" Margin="5">
+                <ActivityIndicator IsRunning="{Binding IsBusy}" Margin="10"/>
 
-            <ScrollView Grid.Row="0" Orientation="Both" VerticalScrollBarVisibility="Never" HorizontalScrollBarVisibility="Never" HorizontalOptions="Center">
-                <material:DataGrid StrokeShape="RoundRectangle 10" Grid.Row="0" ItemsSource="{Binding AuditTrail}" HorizontalOptions="Center" Margin="5">
-                    <ActivityIndicator IsRunning="{Binding IsLoading}" Margin="10" />
-                    <material:DataGrid.Columns>
-                        <material:DataGridColumn ValueBinding="{Binding Date}" Title="DATE" />
-                        <material:DataGridColumn ValueBinding="{Binding Time}" Title="TIME" />
-                        <material:DataGridColumn ValueBinding="{Binding UserName}" Title="USER" />
-                        <material:DataGridColumn ValueBinding="{Binding Action}" Title="ACTION" />
-                        <material:DataGridColumn ValueBinding="{Binding Amount}" Title="AMOUNT" />
-                    </material:DataGrid.Columns>
-                </material:DataGrid>
-            </ScrollView>
-        </Grid>
+                <material:DataGrid.Columns>
+                    <material:DataGridColumn ValueBinding="{Binding Date}" Title="DATE"/>
+                    <material:DataGridColumn ValueBinding="{Binding InvoiceNum}" Title="OR NO" />
+                    <material:DataGridColumn ValueBinding="{Binding Src}" Title="SRC" />
+                    <material:DataGridColumn ValueBinding="{Binding DiscType}" Title="DISC TYPE" />
+                    <material:DataGridColumn ValueBinding="{Binding Percent}" Title="%" />
+                    <material:DataGridColumn ValueBinding="{Binding SubTotal}" Title="SUB TOTAL" />
+                    <material:DataGridColumn ValueBinding="{Binding AmountDue}" Title="AMOUNT DUE" />
+                    <material:DataGridColumn ValueBinding="{Binding GrossSales}" Title="GROSS SALES" />
+                    <material:DataGridColumn ValueBinding="{Binding Returns}" Title="RETURNS" />
+                    <material:DataGridColumn ValueBinding="{Binding NetOfReturns}" Title="NET OF RETURNS" />
+                    <material:DataGridColumn ValueBinding="{Binding LessDiscount}" Title="LESS DISCOUNT" />
+                    <material:DataGridColumn ValueBinding="{Binding NetOfSales}" Title="NET OF SALES" />
+                    <material:DataGridColumn ValueBinding="{Binding Vatable}" Title="VATABLE" />
+                    <material:DataGridColumn ValueBinding="{Binding ZeroRated}" Title="ZERO RATED" />
+                    <material:DataGridColumn ValueBinding="{Binding Exempt}" Title="EXEMPT" />
+                    <material:DataGridColumn ValueBinding="{Binding Vat}" Title="VAT" />
+                </material:DataGrid.Columns>
+            </material:DataGrid>
+        </ScrollView>
     </Grid>
 </ContentPage>

@@ -5,35 +5,40 @@
              xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
              x:Class="GPili.Mobile.Presentation.Features.LogIn.LogInPage">
 
-    <VerticalStackLayout Spacing="20" Padding="20" VerticalOptions="Center">
-        <Image  HorizontalOptions="Center">
-            <Image.Source>
-                <FontImageSource FontFamily="FASolid" Glyph="{x:Static fa:Solid.User}" Size="54" Color="Blue"/>
-            </Image.Source>
-        </Image>
-        <Label 
-                    Text="Welcome to GPili!"
-                    FontSize="32" TextColor="Blue"
-                    HorizontalOptions="Center" />
+    <Grid RowDefinitions="*,Auto">
+        <VerticalStackLayout Spacing="20" Padding="20" VerticalOptions="Center">
+            <Image  HorizontalOptions="Center">
+                <Image.Source>
+                    <FontImageSource FontFamily="FASolid" Glyph="{x:Static fa:Solid.User}" Size="54" Color="Blue"/>
+                </Image.Source>
+            </Image>
+            <Label 
+                 Text="Welcome to GPili!"
+                 FontSize="32" TextColor="Blue"
+                 HorizontalOptions="Center" />
 
-        <material:PickerField Title="Select Cashier" ItemsSource="{Binding Cashiers}" 
-                              ItemDisplayBinding="{Binding FullName}"  
-                              SelectedItem="{Binding SelectedCashier}"
-                              Icon="{FontImageSource FontFamily='FASolid', Glyph={x:Static fa:Solid.CashRegister}}"
-                              AccentColor="Blue" AllowClear="True"/>
+            <material:PickerField Title="Select Cashier" ItemsSource="{Binding Cashiers}" 
+                           ItemDisplayBinding="{Binding FullName}"  
+                           SelectedItem="{Binding SelectedCashier}"
+                           Icon="{FontImageSource FontFamily='FASolid', Glyph={x:Static fa:Solid.CashRegister}}"
+                           AccentColor="Blue" AllowClear="True"/>
 
-        <material:TextField
-                Title="Admin Auth"
-            Text="{Binding AdminEmail}"
-                Icon="{FontImageSource FontFamily='FASolid', Glyph={x:Static fa:Solid.Lock}}"
-                AccentColor="Blue"
-                IsPassword="True" 
-            AllowClear="True"/>
+            <material:TextField
+             Title="Admin Auth"
+         Text="{Binding AdminEmail}"
+             Icon="{FontImageSource FontFamily='FASolid', Glyph={x:Static fa:Solid.Lock}}"
+             AccentColor="Blue"
+             IsPassword="True" 
+         AllowClear="True"/>
 
-        <Button Text="Log In"
-                StyleClass="FilledButton" 
-                Command="{Binding LogInCommand}"/>
+            <Button Text="Log In"
+             StyleClass="FilledButton" 
+             Command="{Binding LogInCommand}"/>
 
-    </VerticalStackLayout>
-
+        </VerticalStackLayout>
+        <Label Text="Training Mode" TextColor="Red" 
+               Margin="10,0,0,10"
+               x:Name="TrainModeLabel" Grid.Row="1"
+               HorizontalTextAlignment="Start"/>
+    </Grid>
 </ContentPage>

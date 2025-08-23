@@ -2,11 +2,166 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="GPili.Mobile.Presentation.Features.Manager.Data.ProductPage"
-             Title="ProductPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+             xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
+             xmlns:model="clr-namespace:ServiceLibrary.Models;assembly=ServiceLibrary"
+             xmlns:fakePopup="clr-namespace:GPili.Mobile.Presentation.Contents.Manager"
+             xmlns:converter="clr-namespace:GPili.Mobile.Converters"
+             Title="Products" x:Name="ProductsPageRoot">
+    <ContentPage.Resources>
+        <converter:BoolToTextStatus x:Key="BoolToTextStatus" />
+    </ContentPage.Resources>
+    <Grid  RowDefinitions="Auto,*, Auto, Auto" RowSpacing="10"
+            HorizontalOptions="Fill" VerticalOptions="Fill"
+            Padding="10">
+        <!--Search Bar-->
+        <Grid Grid.Row="0" ColumnDefinitions="*, Auto" ColumnSpacing="20" VerticalOptions="Center">
+            <material:TextField Title="Search..." Text="{Binding SearchProduct}"
+                                 Grid.Column="0">
+                <material:TextField.Behaviors>
+                    <toolkit:EventToCommandBehavior
+                       EventName="Completed"
+                       Command="{Binding SearchCommand}" />
+                </material:TextField.Behaviors>
+                <material:TextField.Attachments>
+                    <Button  StyleClass="FilledButton" 
+                         FontSize="Small"
+                         Command="{Binding SearchCommand}">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="FASolid"
+                                                  Glyph="{x:Static fa:Solid.MagnifyingGlass}"
+                                                  Size="14" />
+                        </Button.ImageSource>
+                    </Button>
+                </material:TextField.Attachments>
+            </material:TextField>
+            <Button Grid.Column="1" StyleClass="FilledButton" 
+                 Text="New" FontSize="Small"
+                 Command="{Binding AddProductCommand}">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="FASolid"
+                                  Glyph="{x:Static fa:Solid.Plus}"
+                                  Size="16"/>
+                </Button.ImageSource>
+            </Button>
+        </Grid>
+        <!--Product List-->
+        <Grid Grid.Row="1">
+            <ScrollView Orientation="Horizontal">
+                <Grid RowDefinitions="Auto,*">
+                    <!-- FIXED HEADER ROW -->
+                    <Border Grid.Row="0"
+                     Stroke="Transparent"
+                     StrokeShape="RoundRectangle 12,12,0,0"
+                     StrokeThickness="0" 
+                     Background="#383949">
+                        <Grid ColumnDefinitions="180,100,100,100,80,100,180,80,120,150" Padding="12"
+                           ColumnSpacing="10">
+                            <Label Text="Name" Grid.Column="0" FontAttributes="Bold" TextColor="White" />
+                            <Label Text="Price" Grid.Column="1" FontAttributes="Bold" TextColor="White" />
+                            <Label Text="Cost" Grid.Column="2" FontAttributes="Bold" TextColor="White" />
+                            <Label Text="Unit" Grid.Column="3" FontAttributes="Bold" TextColor="White" />
+                            <Label Text="Status" Grid.Column="4" FontAttributes="Bold" TextColor="White" />
+                            <Label Text="Vat Type" Grid.Column="5" FontAttributes="Bold" TextColor="White" />
+                            <Label Text="Category" Grid.Column="6" FontAttributes="Bold" TextColor="White" />
+                            <Label Text="On Hand" Grid.Column="7" FontAttributes="Bold" TextColor="White" />
+                            <Label Text="Timestamp" Grid.Column="8" FontAttributes="Bold" TextColor="White" />
+                            <Label Text="Action" HorizontalOptions="Center" Grid.Column="9" FontAttributes="Bold" TextColor="White" />
+                        </Grid>
+                    </Border>
+
+                    <!-- SCROLLABLE ITEMS -->
+                    <Border Grid.Row="1"
+                     Stroke="Transparent"
+                     StrokeThickness="0"
+                     StrokeShape="RoundRectangle 0,0,12,12"
+                     Background="#121125" Margin="0,0,0,5">
+                        <CollectionView
+                         ItemsSource="{Binding Products}"
+                         Margin="0,0,0,5"
+                         ItemSizingStrategy="MeasureAllItems">
+
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="model:Product">
+                                    <Grid ColumnDefinitions="180,100,100,100,80,100,180,80,120,150"
+                                 Padding="15,7,15,7" Margin="4"
+                                 ColumnSpacing="10">
+
+                                        <Label TextColor="White" FontSize="12" Text="{Binding Name}"
+                                     Grid.Column="0" />
+                                        <Label TextColor="White" Text="{Binding Price}"
+                                     Grid.Column="1" />
+                                        <Label TextColor="White" Text="{Binding Cost}"
+                                     Grid.Column="2" />
+                                        <Label TextColor="White" Text="{Binding BaseUnit}"
+                                     Grid.Column="3" />
+                                        <Label TextColor="White" Text="{Binding IsAvailable, Converter={StaticResource BoolToTextStatus}}"
+                                     Grid.Column="4" />
+                                        <Label TextColor="White" Text="{Binding VatType}"
+                                     Grid.Column="5" />
+                                        <Label TextColor="White" Text="{Binding Category.CtgryName}"
+                                     Grid.Column="6" />
+                                        <Label TextColor="White" Text="{Binding Quantity}"
+                                     Grid.Column="7" />
+                                        <Grid Grid.Column="8" RowDefinitions="Auto, Auto">
+                                            <Label TextColor="White" Text="{Binding CreatedAt, StringFormat='{}{0:dd/MM/yyyy}'}"
+                                         Grid.Row="0" />
+                                            <Label TextColor="White" Text="{Binding UpdatedAt, StringFormat='{}{0:dd/MM/yyyy}'}"
+                                         Grid.Row="1" />
+                                        </Grid>
+
+                                        <Grid Grid.Column="9" ColumnDefinitions="0.5*, 0.5*" ColumnSpacing="10" Padding="10">
+                                            <Button Background="Green"
+                                                 Grid.Column="0"
+                                             Command="{Binding BindingContext.EditProductCommand, Source={x:Reference ProductsPageRoot}}"
+                                             CommandParameter="{Binding .}" >
+                                                <Button.ImageSource>
+                                                    <FontImageSource FontFamily="FASolid"
+                                                  Glyph="{x:Static fa:Solid.Pencil}"
+                                                 Size="12" />
+                                                </Button.ImageSource>
+                                            </Button>
+
+                                            <Button Grid.Column="1" Background="Red"
+                                             Command="{Binding BindingContext.RemoveProductCommand, Source={x:Reference ProductsPageRoot}}"
+                                             CommandParameter="{Binding .}">
+                                                <Button.ImageSource>
+                                                    <FontImageSource FontFamily="FASolid"
+                                                  Glyph="{x:Static fa:Solid.Trash}"
+                                                  Size="12" />
+                                                </Button.ImageSource>
+                                            </Button>
+                                        </Grid>
+
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </Border>
+                </Grid>
+            </ScrollView>
+        </Grid>
+
+        <fakePopup:SaveProduct IsVisible="{Binding IsSaveProdDisplay}"
+                            Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Grid.RowSpan="4"/>
+
+        <!-- Loader Overlay -->
+        <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Grid.RowSpan="4"
+       BackgroundColor="#80000000" 
+         IsVisible="{Binding IsLoading}"
+         ZIndex="1">
+            <!-- Ensure it's on top -->
+
+            <StackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="10"
+              WidthRequest="250">
+                <ActivityIndicator IsRunning="True" Color="White" WidthRequest="50" HeightRequest="50" />
+
+                <!-- Status message from progress -->
+                <Label Text="Loading..." TextColor="White" FontSize="16" HorizontalTextAlignment="Center" />
+
+            </StackLayout>
+        </Grid>
+    </Grid>
+
 </ContentPage>

@@ -48,9 +48,12 @@
                     <Image Source="wallet.png" WidthRequest="48" HeightRequest="48" Aspect="AspectFit"/>
                     <Label Text="Sale Types" FontSize="14" HorizontalOptions="Center"/>
                 </VerticalStackLayout>
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding NavigateCommand}" CommandParameter="{x:Static local:AppRoutes.SaleType}" />
+                </Frame.GestureRecognizers>
             </Frame>
 
-            <Frame Grid.Row="2" Grid.Column="0" Padding="10" CornerRadius="12" HasShadow="True" BackgroundColor="White">
+            <Frame x:Name="ResetButton" Grid.Row="2" Grid.Column="0" Padding="10" CornerRadius="12" HasShadow="True" BackgroundColor="White">
                 <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
                     <Image Source="reset.png" WidthRequest="48" HeightRequest="48" Aspect="AspectFit"/>
                     <Label Text="Reset Database" FontSize="14" HorizontalOptions="Center"/>
@@ -71,7 +74,7 @@
             </Frame>
 
 
-            <Frame Grid.Row="3" Grid.Column="0" Padding="10" CornerRadius="12" HasShadow="True" BackgroundColor="White">
+            <Frame Grid.Row="3" Grid.Column="0" Padding="10" CornerRadius="12" HasShadow="True" BackgroundColor="White" IsVisible="False">
                 <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
                     <Image Source="download.png" WidthRequest="48" HeightRequest="48" Aspect="AspectFit"/>
                     <Label Text="Load Products" FontSize="14" HorizontalOptions="Center"/>
@@ -81,7 +84,7 @@
                 </Frame.GestureRecognizers>
             </Frame>
 
-            <Frame Grid.Row="3" Grid.Column="1" Padding="10" CornerRadius="12" HasShadow="True" BackgroundColor="White">
+            <Frame Grid.Row="3" Grid.Column="1" Padding="10" CornerRadius="12" HasShadow="True" BackgroundColor="White" IsVisible="False">
                 <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
                     <Image Source="upload.png" WidthRequest="48" HeightRequest="48" Aspect="AspectFit"/>
                     <Label Text="Push Journal" FontSize="14" HorizontalOptions="Center"/>

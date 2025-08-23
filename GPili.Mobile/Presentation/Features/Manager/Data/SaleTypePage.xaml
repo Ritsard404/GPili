@@ -2,11 +2,158 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="GPili.Mobile.Presentation.Features.Manager.Data.SaleTypePage"
-             Title="SaleTypePage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+             xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
+             xmlns:validation="clr-namespace:InputKit.Shared.Validations;assembly=InputKit.Maui"
+             xmlns:input="clr-namespace:InputKit.Shared.Controls;assembly=InputKit.Maui"
+             Title="Sale Type" x:Name="SaleTypeRoot">
+   
+        <Grid>
+            <Grid RowDefinitions="Auto, *" Margin="5">
+
+                <Button StyleClass="FilledButton"  Grid.Row="0"
+         Text="New Sale Type" FontSize="Small"
+         Command="{Binding ToggleAddSalesTypeCommand}"
+         WidthRequest="200" HorizontalOptions="End" Margin="0,0,0,10">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="FASolid"
+                      Glyph="{x:Static fa:Solid.Plus}"
+                      Size="16"/>
+                    </Button.ImageSource>
+                </Button>
+            <ScrollView Grid.Row="1" Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
+                <Grid RowDefinitions="Auto,*">
+
+                    <Border Grid.Row="0"
+         Stroke="Transparent"
+         StrokeShape="RoundRectangle 12,12,0,0"
+         StrokeThickness="0" HeightRequest="50"
+         Background="#383949">
+                        <Grid ColumnDefinitions="150,150,150,150,200" ColumnSpacing="10">
+                            <Label Text="Name" Grid.Column="0" 
+            FontAttributes="Bold" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"
+            />
+                            <Label Text="Account" Grid.Column="1" FontAttributes="Bold" TextColor="White" 
+            HorizontalOptions="Center" VerticalOptions="Center"/>
+                            <Label Text="Type" Grid.Column="2" 
+            FontAttributes="Bold" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"
+            />
+                            <Label Text="Status" Grid.Column="3" FontAttributes="Bold" TextColor="White" 
+            HorizontalOptions="Center" VerticalOptions="Center"/>
+                            <Label Text="Action" Grid.Column="4" FontAttributes="Bold" TextColor="White" 
+            HorizontalOptions="Center" VerticalOptions="Center"/>
+                        </Grid>
+                    </Border>
+                    <Border Grid.Row="1"
+         Stroke="Transparent"
+         StrokeThickness="0"
+         StrokeShape="RoundRectangle 0,0,12,12"
+         Background="#121125" Margin="0,0,0,5">
+                        <CollectionView
+             ItemsSource="{Binding SaleTypes}"
+             Margin="0,0,0,5"
+             >
+
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="150,150,150,100,200"
+                     ColumnSpacing="20" Padding="10">
+                                        <material:TextField Title="{Binding Name}" Text="{Binding Name}"
+                                     Grid.Column="0">
+                                            <validation:RequiredValidation />
+                                        </material:TextField>
+                                        <material:TextField Title="{Binding Account}" Text="{Binding Account}"
+                                     Grid.Column="1">
+                                            <validation:RequiredValidation />
+                                        </material:TextField>
+                                        <material:TextField Title="{Binding Type}" Text="{Binding Type}"
+                                     Grid.Column="2">
+                                            <validation:RequiredValidation />
+                                        </material:TextField>
+                                        <HorizontalStackLayout Grid.Column="3" Spacing="5" HorizontalOptions="Center" VerticalOptions="Center">
+                                            <CheckBox IsChecked="{Binding IsActive}" />
+                                            <Label Text="{Binding Status}"
+                                 VerticalOptions="Center" TextColor="White"/>
+                                        </HorizontalStackLayout>
+                                        <HorizontalStackLayout HorizontalOptions="Center"  Grid.Column="4" Padding="10" Spacing="10">
+                                            <Button FontSize="Small" BackgroundColor="Green"
+                                 Command="{Binding BindingContext.UpdateSaleTypeCommand, Source={x:Reference SaleTypeRoot}}"
+                                 CommandParameter="{Binding .}">
+                                                <Button.ImageSource>
+                                                    <FontImageSource FontFamily="FASolid"
+                                  Glyph="{x:Static fa:Solid.FloppyDisk}"
+                                   Size="16"/>
+                                                </Button.ImageSource>
+                                            </Button>
+                                            <Button FontSize="Small" BackgroundColor="Red"
+                                 Command="{Binding BindingContext.RemoveSaleTypeCommand, Source={x:Reference SaleTypeRoot}}"
+                                 CommandParameter="{Binding .}">
+                                                <Button.ImageSource>
+                                                    <FontImageSource FontFamily="FASolid"
+                                  Glyph="{x:Static fa:Solid.Trash}"
+                                   Size="16"/>
+                                                </Button.ImageSource>
+                                            </Button>
+                                        </HorizontalStackLayout>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </Border>
+                </Grid>
+            </ScrollView>
+            </Grid>
+            <Grid IsVisible="{Binding IsAddSaleTypeDisplay}"
+           BackgroundColor="#80000000" 
+           ZIndex="1">
+                <BoxView BackgroundColor="Transparent">
+                    <BoxView.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ToggleAddSalesTypeCommand}"/>
+                    </BoxView.GestureRecognizers>
+                </BoxView>
+                <Border 
+             Stroke="White"
+             StrokeThickness="0"
+             WidthRequest="{Binding PopupSaleTypeWidth}"
+             MaximumHeightRequest="{Binding PopupSaleTypeHeight}">
+                    <Grid RowDefinitions="Auto, *" Background="White"
+                   HorizontalOptions="Fill" VerticalOptions="Fill"
+                   Padding="5">
+                        <Label Grid.Row="0" HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        FontSize="Medium" FontAttributes="Bold"
+                        Text="New Sale Type" />
+
+                        <input:FormView Grid.Row="1" SubmitCommand="{Binding AddSaleTypeCommand}" Spacing="20">
+                            <Grid RowDefinitions="*,Auto" ColumnDefinitions="*" RowSpacing="10" ColumnSpacing="10">
+                                <VerticalStackLayout Spacing="10" Padding="10" HorizontalOptions="Fill" VerticalOptions="End">
+
+                                    <!-- Sale Type Name -->
+                                    <material:TextField Title="Name" Text="{Binding NewSaleType.Name}">
+                                        <validation:RequiredValidation />
+                                    </material:TextField>
+
+                                    <!-- Account -->
+                                    <material:TextField Grid.Column="0" Title="Account" Text="{Binding NewSaleType.Account}">
+                                        <validation:RequiredValidation />
+                                    </material:TextField>
+
+                                    <!-- Type -->
+                                    <material:TextField Grid.Column="1" Title="Type" Text="{Binding NewSaleType.Type}">
+                                        <validation:RequiredValidation />
+                                    </material:TextField>
+
+                                </VerticalStackLayout>
+                                <Button Text="Add" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                 input:FormView.IsSubmitButton="True" Margin="10,0,10,0"
+                                 VerticalOptions="Center" FontAttributes="Bold" TextColor="White" FontSize="18"
+                                 StyleClass="FilledButton"/>
+                            </Grid>
+                        </input:FormView>
+                    </Grid>
+                </Border>
+
+            </Grid>
+        </Grid>
 </ContentPage>

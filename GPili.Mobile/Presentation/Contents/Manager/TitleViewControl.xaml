@@ -20,6 +20,11 @@
                                      Color="Red" Size="12"/>
             </ImageButton.Source>
         </ImageButton>
+
+        <Label Text="Train Mode" TextColor="Red" Grid.Column="1"
+               HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
+               IsVisible="{Binding IsTrainingMode}"/>
+        
         <Button x:Name="LogOutButton"
             Text="Log Out"
             Grid.Column="2" Margin="5"

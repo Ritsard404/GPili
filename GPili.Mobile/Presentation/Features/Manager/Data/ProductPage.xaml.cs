@@ -2,18 +2,17 @@ namespace GPili.Mobile.Presentation.Features.Manager.Data;
 
 public partial class ProductPage : ContentPage
 {
-	public ProductPage()
-	{
-		InitializeComponent();
-    }
-    protected async override void OnAppearing()
+    public ProductPage()
     {
-        base.OnAppearing();
+        InitializeComponent();
+    }
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
 
-        if (BindingContext is DataViewModel vm)
+        if (BindingContext is ProductsViewModel vm)
         {
-            vm.CurrenDataPage = DataPageType.Products;
-            await vm.InitializeData();
+            vm.IsSaveProdDisplay = false;
         }
     }
 }

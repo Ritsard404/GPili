@@ -28,8 +28,11 @@ internal static class ApplicationExtensions
     }
     public static IServiceCollection AddDatabase(this IServiceCollection services)
     {
-        string dbPath = Path.Combine(
-            Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads).AbsolutePath,
+        var basePath = Path.Combine(
+            Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDocuments).AbsolutePath,
+            "GPili"
+        );
+        string dbPath = Path.Combine(basePath,
             "GPili.db"
         );
 

@@ -15,5 +15,8 @@ public partial class DataPage : ContentPage
 
         if (App.UserInfo != null && App.UserInfo.Role != RoleType.Developer)
             SettingFrame.IsVisible = false;
+
+        if (App.UserInfo != null && App.UserInfo.Role == RoleType.Cashier)
+            ResetButton.IsVisible = false;
     }
 }

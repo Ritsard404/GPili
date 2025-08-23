@@ -125,13 +125,13 @@
                            HorizontalOptions="Start"/>
 
                             <!-- Product Quantity -->
-                            <Label Grid.Column="1" Grid.Row="2"
+                            <!--<Label Grid.Column="1" Grid.Row="2"
                            Text="{Binding Quantity}"
                            FontSize="12"
                            FontAttributes="Bold"
                            TextColor="Grey"
                            VerticalOptions="Start"
-                           HorizontalOptions="Start"/>
+                           HorizontalOptions="Start"/>-->
 
                             <!-- Add (+) Button -->
                             <Button Grid.Column="2"
