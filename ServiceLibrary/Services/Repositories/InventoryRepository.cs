@@ -130,12 +130,16 @@ namespace ServiceLibrary.Services.Repositories
 
             // Get POS type
             var posInfo = await _terminalMachine.GetTerminalInfo();
+
             if (posInfo == null)
                 return (false, "Terminal information not found.");
-            if (posInfo.IsRetailType)
+
+            bool isRetail = posInfo.IsRetailType;
+
+            if (isRetail)
                 product.ImagePath = null;
 
-            if (posInfo.IsRetailType && string.IsNullOrWhiteSpace(product.Barcode))
+            if (isRetail && string.IsNullOrWhiteSpace(product.Barcode))
                 return (false, "All product fields are required.");
             // else: allow as provided
 
@@ -153,11 +157,15 @@ namespace ServiceLibrary.Services.Repositories
 
             if (product.Quantity <= 0) product.Quantity = null;
 
-            // Check for unique barcode
-            var isExisting = await _dataContext.Product
-                .AnyAsync(p => p.IsAvailable && p.Barcode.ToLower().Contains(product.Barcode.ToLower()));
-            if (isExisting)
-                return (false, "A product with a similar barcode already exists.");
+            if (!isRetail)
+            {
+                // Check for unique barcode
+                var isExisting = await _dataContext.Product
+                    .AnyAsync(p => p.IsAvailable && p.Barcode.ToLower().Contains(product.Barcode.ToLower()));
+                if (isExisting)
+                    return (false, "A product with a similar barcode already exists.");
+            }
+
 
             // Validate category exists
             var category = await _dataContext.Category.FindAsync(product.Category.Id);
