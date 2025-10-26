@@ -33,6 +33,19 @@ public partial class LogInViewModel(
     public async ValueTask InitializeAsync()
     {
         IsLoading = true;
+
+        var hasPermissions = await LocationAndFileMediaPermissions.RequestAsync();
+        if (!hasPermissions)
+        {
+            await Shell.Current.DisplayAlert(
+                "Permissions Required",
+                "Location and Media permissions are required to use this application.",
+                "Ok");
+
+            IsLoading = false;
+            return;
+        }
+
         while (true)
         {
             var (isValid, message) = await _terminalMachine.ValidateTerminalExpiration();

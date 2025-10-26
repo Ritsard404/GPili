@@ -304,25 +304,25 @@ namespace GPili.Mobile.Presentation.Features.Cashier
 
             try
             {
-                bool permissionsGranted = await RequestBluetoothAndLocationPermissions();
+                //bool permissionsGranted = await RequestBluetoothAndLocationPermissions();
 
-                // 2️⃣ If denied, guide user to Settings
-                if (!permissionsGranted)
-                {
-                    bool openSettings = await Shell.Current.DisplayAlert(
-                        "Permissions Required",
-                        "Bluetooth and Location permissions are required for printing receipts. Please allow them to continue.",
-                        "Open Settings", "Cancel");
+                //// 2️⃣ If denied, guide user to Settings
+                //if (!permissionsGranted)
+                //{
+                //    bool openSettings = await Shell.Current.DisplayAlert(
+                //        "Permissions Required",
+                //        "Bluetooth and Location permissions are required for printing receipts. Please allow them to continue.",
+                //        "Open Settings", "Cancel");
 
-                    if (openSettings)
-                    {
-                        var intent = new Android.Content.Intent(Android.Provider.Settings.ActionApplicationDetailsSettings);
-                        intent.SetData(Android.Net.Uri.Parse($"package:{Platform.CurrentActivity!.PackageName}"));
-                        Platform.CurrentActivity!.StartActivity(intent);
+                //    if (openSettings)
+                //    {
+                //        var intent = new Android.Content.Intent(Android.Provider.Settings.ActionApplicationDetailsSettings);
+                //        intent.SetData(Android.Net.Uri.Parse($"package:{Platform.CurrentActivity!.PackageName}"));
+                //        Platform.CurrentActivity!.StartActivity(intent);
 
-                        await Snackbar.Make("Please enable Bluetooth and Location permissions in settings.", duration: TimeSpan.FromSeconds(3)).Show();
-                    }
-                }
+                //        await Snackbar.Make("Please enable Bluetooth and Location permissions in settings.", duration: TimeSpan.FromSeconds(3)).Show();
+                //    }
+                //}
 
                 var bluetoothAdapter = Android.Bluetooth.BluetoothAdapter.DefaultAdapter;
                 if (bluetoothAdapter != null && !bluetoothAdapter.IsEnabled)

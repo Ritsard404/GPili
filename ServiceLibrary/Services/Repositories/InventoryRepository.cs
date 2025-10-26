@@ -578,5 +578,28 @@ namespace ServiceLibrary.Services.Repositories
                 .AsNoTracking()
                 .ToArrayAsync();
         }
+
+        public async Task<(bool isSuccess, string message)> StockInProduct(long id, decimal qty, string managerEmail)
+        {
+            var product = await _dataContext.Product
+                .FirstOrDefaultAsync(i => i.Id == id );
+
+            if( product == null ) 
+                return (false, "Product not found.");
+
+            var managerResult = await _auth.IsManagerValid(managerEmail);
+            if (!managerResult.isSuccess || managerResult.manager == null)
+                return (false, "Invalid Manager");
+
+            product.Quantity += qty;
+
+            _dataContext.Product.Update(product);
+            await _dataContext.SaveChangesAsync();
+
+            await _auditLog.AddManagerAudit(managerResult.manager,
+                AuditActionType.Update, $"Stock in product: {product.Name} (Quantity: {qty})", null);
+
+            return (true, "Product stocked in successfully");
+        }
     }
 }

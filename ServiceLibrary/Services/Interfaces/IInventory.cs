@@ -12,6 +12,7 @@ namespace ServiceLibrary.Services.Interfaces
             Product product, decimal qty, string reference, User user);
 
         // Products CRUD
+        Task<(bool isSuccess, string message)> StockInProduct(long id, decimal qty, string managerEmail);
         Task<(bool isSuccess, string message)> NewProduct(Product product, string managerEmail);
         Task<(bool isSuccess, string message)> UpdateProduct(Product product, string managerEmail);
         Task<(bool isSuccess, string message)> DeleteProduct(long id, string managerEmail);

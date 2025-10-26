@@ -11,7 +11,7 @@ public partial class LogInPage : ContentPage
         AdminAuth.Focus();
     }
 
-    protected override async void OnAppearingAsync()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
 

@@ -23,6 +23,7 @@ namespace GPili.Presentation.Features.LogIn
         public async ValueTask InitializeAsync()
         {
             IsLoading = true;
+
             while (true)
             {
                 var (isValid, message) = await _terminalMachine.ValidateTerminalExpiration();

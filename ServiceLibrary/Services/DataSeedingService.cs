@@ -8,7 +8,6 @@ namespace ServiceLibrary.Services
 {
     public class DataSeedingService(DataContext _context)
     {
-
         public async Task SeedDataAsync()
         {
             try
